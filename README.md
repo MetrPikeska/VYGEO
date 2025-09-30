@@ -6,7 +6,7 @@ VYGEO is a professional web-based Geographic Information System (GIS) designed s
 
 ##  Features
 
-### 🗺️ Interactive Mapping
+###  Interactive Mapping
 - **Multiple Base Layers**: Mapy.cz (basic, winter, orthophoto, tourist), WMS relief, real estate cadastre
 - **Custom Orthophoto**: High-resolution aerial imagery with precise positioning
 - **Layer Management**: Dynamic layer switching with real-time updates
