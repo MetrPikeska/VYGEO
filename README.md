@@ -1,10 +1,10 @@
 # VYGEO - Ski Resort Management System
 
-## 📋 Overview
+##  Overview
 
 VYGEO is a professional web-based Geographic Information System (GIS) designed specifically for ski resort management. The application provides real-time monitoring of skier density, interactive mapping capabilities, and comprehensive data management tools for ski area operations.
 
-## ✨ Features
+##  Features
 
 ### 🗺️ Interactive Mapping
 - **Multiple Base Layers**: Mapy.cz (basic, winter, orthophoto, tourist), WMS relief, real estate cadastre
@@ -12,7 +12,7 @@ VYGEO is a professional web-based Geographic Information System (GIS) designed s
 - **Layer Management**: Dynamic layer switching with real-time updates
 - **Scale Control**: Professional scale bar with metric and imperial units
 
-### 🎯 Real-time Monitoring
+###  Real-time Monitoring
 - **Skier Density Tracking**: Live count of skiers on slopes
 - **Dynamic Visualization**: Color-coded lift status based on skier density
   - Green: Normal capacity (0-1 skiers)
@@ -21,21 +21,21 @@ VYGEO is a professional web-based Geographic Information System (GIS) designed s
 - **Historical Analytics**: Interactive charts and statistics
 - **Live Webcam Integration**: Real-time video streaming from resort cameras
 
-### 🛠️ Professional GIS Tools
+###  Professional GIS Tools
 - **Drawing Tools**: Marker, polyline, polygon, and rectangle creation
 - **Measurement Tools**: Distance and area calculation with precise metrics
 - **Feature Management**: Create, edit, and delete geographic features
 - **Data Persistence**: Secure database storage with user authentication
 - **Export Capabilities**: GeoJSON format for data interoperability
 
-### 🔐 Security & Access Control
+###  Security & Access Control
 - **User Authentication**: Secure login system with session management
 - **Role-based Access**: Different permission levels for users
 - **CSRF Protection**: Cross-site request forgery prevention
 - **Data Ownership**: Users can only edit their own features
 - **View-only Mode**: Public access for map viewing without editing rights
 
-## 🚀 Installation
+##  Installation
 
 ### Prerequisites
 - PHP 7.4 or higher
@@ -212,14 +212,14 @@ Modify `style.css` for custom appearance:
 ### Debug Mode
 Enable browser developer tools to view console errors and network requests.
 
-## 📈 Performance Optimization
+##  Performance Optimization
 
 - **Tile Caching**: Implement browser caching for map tiles
 - **Database Indexing**: Add indexes on frequently queried columns
 - **Image Optimization**: Compress orthophoto tiles
 - **CDN Integration**: Use content delivery network for static assets
 
-## 🔄 Updates & Maintenance
+##  Updates & Maintenance
 
 ### Regular Tasks
 - Monitor database performance
@@ -232,11 +232,11 @@ Enable browser developer tools to view console errors and network requests.
 - Tag stable releases
 - Maintain changelog
 
-## 📞 Support
+##  Support
 
 For technical support or feature requests, contact the development team.
 
-## 📄 License
+##  License
 
 This project is proprietary software developed for ski resort management. All rights reserved.
 
