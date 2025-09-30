@@ -404,6 +404,22 @@
             showFeaturesBtn2.style.display = window.isLoggedIn ? '' : 'none';
           }
           
+          // Hide/show "Moje objekty" layer from layer control
+          const layerControl = document.querySelector('.leaflet-control-layers');
+          if (layerControl) {
+            const mojeObjektyLabel = layerControl.querySelector('label[for*="moje-objekty"], label:has(input[value*="moje-objekty"])');
+            if (mojeObjektyLabel) {
+              mojeObjektyLabel.style.display = window.isLoggedIn ? '' : 'none';
+            }
+            // Also try to find by text content
+            const labels = layerControl.querySelectorAll('label');
+            labels.forEach(label => {
+              if (label.textContent.includes('Moje objekty')) {
+                label.style.display = window.isLoggedIn ? '' : 'none';
+              }
+            });
+          }
+          
           const authBtn = document.getElementById('authButton');
           if (authBtn) {
             authBtn.textContent = window.isLoggedIn ? `Odhlásit (${window.currentUser})` : 'Přihlásit';
@@ -463,6 +479,8 @@
               window.currentUser = data.user;
               window.csrfToken = data.csrf;
               refreshAuthUI();
+              // Načti prvky z DB po přihlášení
+              loadFeaturesFromDB();
               document.getElementById('loginModal').style.display = 'none';
               document.getElementById('username').value = '';
               document.getElementById('password').value = '';
@@ -485,6 +503,9 @@
               window.isLoggedIn = false;
               window.currentUser = null;
               window.csrfToken = null;
+              // Vymaž načtené prvky při odhlášení
+              window.drawnItems.clearLayers();
+              window.featureLayers = {};
               refreshAuthUI();
             });
           } else {
@@ -582,26 +603,33 @@
         // Uložené prvky a jejich vrstvy pro přepínání viditelnosti
         window.featureLayers = {}; // id -> Leaflet layer
 
-        // Načtení uložených objektů z DB (GeoJSON FeatureCollection)
-        fetch('get_features.php')
-          .then(res => res.json())
-          .then(fc => {
-            if (!fc || !fc.features) return;
-            fc.features.forEach((f, idx) => {
-              const id = (f.properties && (f.properties.id || f.properties.ID)) || `f_${idx}`;
-              const name = (f.properties && f.properties.name) || 'Bez názvu';
-              const group = L.geoJSON(f);
-              // Přidej jednotlivé vektorové vrstvy do editovatelné skupiny
-              group.eachLayer(l => {
-                l.bindPopup(`<b>${name}</b>`);
-                l.feature = f; // zachovej properties včetně id pro edit/delete
-                window.drawnItems.addLayer(l);
+        // Načtení uložených objektů z DB (GeoJSON FeatureCollection) - pouze pro přihlášené uživatele
+        function loadFeaturesFromDB() {
+          if (!window.isLoggedIn) return;
+          
+          fetch('get_features.php')
+            .then(res => res.json())
+            .then(fc => {
+              if (!fc || !fc.features) return;
+              fc.features.forEach((f, idx) => {
+                const id = (f.properties && (f.properties.id || f.properties.ID)) || `f_${idx}`;
+                const name = (f.properties && f.properties.name) || 'Bez názvu';
+                const group = L.geoJSON(f);
+                // Přidej jednotlivé vektorové vrstvy do editovatelné skupiny
+                group.eachLayer(l => {
+                  l.bindPopup(`<b>${name}</b>`);
+                  l.feature = f; // zachovej properties včetně id pro edit/delete
+                  window.drawnItems.addLayer(l);
+                });
+                // Ulož referenci skupiny pro přepínání viditelnosti v modálu
+                window.featureLayers[id] = { layer: group, name };
               });
-              // Ulož referenci skupiny pro přepínání viditelnosti v modálu
-              window.featureLayers[id] = { layer: group, name };
-            });
-          })
-          .catch(err => console.error('Chyba při načítání objektů:', err));
+            })
+            .catch(err => console.error('Chyba při načítání objektů:', err));
+        }
+        
+        // Načti prvky po přihlášení
+        loadFeaturesFromDB();
 
         /* ===================================================================== */
       });
