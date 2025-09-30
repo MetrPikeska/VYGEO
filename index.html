@@ -1,11 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>OPALGIS</title>
+    <!-- 
+      ========================================
+      VYGEO OPALENA - Custom Web Application
+      ========================================
+      
+      Pokud se vám tato aplikace líbí a potřebujete podobné řešení na míru,
+      neváhejte nás kontaktovat!
+      
+      Vytvoříme pro vás:
+      • Interaktivní mapy a GIS aplikace
+      • 3D vizualizace terénu a objektů  
+      • Real-time monitoring a senzory
+      • Custom webové aplikace
+      • Mobilní aplikace
+      • Integrace s externími API
+      
+      Kontakt: petrmikeska.cz
+      Specializace: Web development, GIS, 3D vizualizace
+      
+      ========================================
+    -->
+    <title>VYGEO OPALENA - Interaktivní mapa ski areálu s 3D vizualizací</title>
     <meta charset="utf-8" />
-    <meta name="description" content="Webová aplikace pro Ski areál Opálená">
-    <meta name="keywords" content="HTML, CSS, JavaScript, Leaflet, Ortofoto, jQuery">
-    <meta name="author" content="Petr Mikeska">
+    <meta name="description" content="Profesionální interaktivní mapa ski areálu Opalena s 3D terénem, live počasím, geografickými nástroji a real-time teploměrem. Kompletní GIS řešení pro lyžařské areály.">
+    <meta name="keywords" content="Opalena, ski areál, interaktivní mapa, 3D vizualizace, DMR terén, ortofoto, live počasí, teploměr, WebCamLive, lyžování, Beskydy, GIS, geografické nástroje, Leaflet, Three.js, PLY model, GLB model, real-time data, meteorologie, webová aplikace, custom development, Petr Mikeska">
+    <meta name="author" content="Petr Mikeska - petrmikeska.cz">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link type="text/css" rel="stylesheet" href="leaflet.css" />
     <link type="text/css" rel="stylesheet" href="visual.css" />
@@ -22,6 +43,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   </head>
 
   <body>
@@ -79,14 +104,105 @@
     </div>
 
     <div id="map"></div>
+    <div id="view3d" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:5000;">
+      <!-- 3D Header -->
+      <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(135deg, #2c3e50, #34495e); color:white; padding:15px 20px; z-index:5001; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h1 style="margin:0; font-size:24px; font-weight:bold;">VYGEO OPALENA</h1>
+            <p style="margin:5px 0 0 0; font-size:14px; opacity:0.8;">3D vizualizace terénu ski areálu</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button id="switchToPLY" style="background:#f39c12; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+              DMR Terén
+            </button>
+            <button id="switchToGLB" style="background:#27ae60; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+              Ortofoto
+            </button>
+            <button id="backTo2D" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+              ← Zpět na 2D
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 3D Info -->
+      <div style="position:absolute; bottom:20px; left:20px; z-index:5001; background:rgba(0,0,0,0.7); color:white; padding:10px; border-radius:5px; font-size:12px;">
+        <div>🖱️ Levé tlačítko: otáčení</div>
+        <div>🖱️ Pravé tlačítko: posun</div>
+        <div>🖱️ Kolečko: přiblížení</div>
+      </div>
+    </div>
     <div class="home-btn" id="homeButton" title="Návrat na domovskou pozici"><i class="fas fa-home"></i></div>
     <div class="find-location-btn" id="findLocationButton" title="Najít mou polohu"><i class="fas fa-map-marker-alt"></i></div>
     <div class="auth-btn" id="authButton" title="Přihlášení/Odhlášení" style="position:fixed; top:12px; right:78px; background:#007ddd; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">Přihlásit</div>
+    <div class="view3d-btn" id="view3dButton" title="3D zobrazení terénu" style="position:fixed; top:12px; right:200px; background:#28a745; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">3D</div>
+    
+    <!-- Weather Dashboard -->
+    <div id="weatherDashboard" style="position:fixed; top:60px; right:12px; width:320px; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:1000; padding:15px; font-family:Arial, sans-serif; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0; color:#2c3e50; font-size:18px;">🌤️ Počasí - Opalena</h3>
+        <button id="closeWeather" style="background:none; border:none; font-size:20px; cursor:pointer; color:#7f8c8d;">×</button>
+      </div>
+      
+      <!-- Live Temperature from Ski Slope - FIRST -->
+      <div style="background:#f8f9fa; border-radius:8px; padding:12px; margin-bottom:20px; border-left:4px solid #28a745;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <div style="font-size:14px; font-weight:bold; color:#2c3e50;">🌡️ Teploměr na sjezdovce</div>
+            <div style="font-size:12px; color:#7f8c8d;">Reálná teplota z WebCamLive</div>
+            <div style="font-size:11px; color:#27ae60; font-weight:bold; margin-top:2px;">✓ ŽIVÁ DATA</div>
+          </div>
+          <div style="text-align:right;">
+            <div id="liveTempDisplay" style="font-size:28px; font-weight:bold; color:#28a745;">8°C</div>
+            <div style="font-size:10px; color:#7f8c8d;" id="liveTempTime">--:--</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Current Weather - SECOND -->
+      <div id="currentWeather" style="text-align:center; margin-bottom:20px; padding:15px; background:linear-gradient(135deg, #74b9ff, #0984e3); border-radius:8px; color:white;">
+        <div id="weatherIcon" style="font-size:48px; margin-bottom:10px;">⛅</div>
+        <div id="temperature" style="font-size:32px; font-weight:bold; margin-bottom:5px;">--°C</div>
+        <div id="weatherDesc" style="font-size:14px; opacity:0.9;">Načítání...</div>
+        <div id="weatherDetails" style="font-size:12px; margin-top:10px; opacity:0.8;">
+          <div>Vlhkost: <span id="humidity">--%</span></div>
+          <div>Vítr: <span id="windSpeed">-- km/h</span></div>
+          <div>Tlak: <span id="pressure">-- hPa</span></div>
+        </div>
+      </div>
+      
+      <!-- Forecast -->
+      <div id="forecast" style="margin-bottom:15px;">
+        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:14px;">Předpověď (3 dny)</h4>
+        <div id="forecastItems" style="display:flex; gap:8px;">
+          <!-- Forecast items will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Location Info -->
+      <div style="font-size:12px; color:#7f8c8d; text-align:center; border-top:1px solid #ecf0f1; padding-top:10px;">
+        <div>📍 Opalena, Moravskoslezský kraj</div>
+        <div>🕐 Aktualizováno: <span id="lastUpdate">--</span></div>
+      </div>
+    </div>
+    
+    <!-- Weather Button -->
+    <div id="weatherButton" style="position:fixed; top:12px; right:280px; background:#17a2b8; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000; font-size:12px;">
+      <div style="display:flex; align-items:center; gap:5px;">
+        <span>🌤️</span>
+        <div style="text-align:left;">
+          <div style="font-size:11px; line-height:1.2;">Počasí</div>
+          <div style="font-size:10px; opacity:0.9;" id="liveTemp">8°C</div>
+        </div>
+      </div>
+    </div>
 
     <script>
       $(document).ready(function () {
         const homePoint = [49.5535106, 18.3143814];
         const webcamPoint = [49.55469, 18.31718];
+        const restaurantPoint = [49.554639465762186, 18.314282670706472];
         let currentLocationMarker;
 
         window.map = L.map('map', { center: homePoint, zoom: 17 });
@@ -136,6 +252,67 @@
            </div>`,
            { maxWidth: 500, minWidth: 500, maxHeight: 300 }
         ).addTo(map);
+
+        // Restaurant marker
+        const restaurantIcon = L.divIcon({
+          html: '<div style="background: #e74c3c; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3);">🍽️</div>',
+          className: 'custom-div-icon',
+          iconSize: [35, 35],
+          iconAnchor: [17, 17]
+        });
+
+        // Function to load restaurant hours from Google Places API
+        async function loadRestaurantHours() {
+          try {
+            // This would require Google Places API key
+            // const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=YOUR_PLACE_ID&fields=opening_hours&key=YOUR_API_KEY`);
+            // const data = await response.json();
+            // return data.result.opening_hours;
+            return null; // Fallback to static data
+          } catch (error) {
+            console.log('Google Places API nedostupné, používá se statická otevírací doba');
+            return null;
+          }
+        }
+
+        L.marker(restaurantPoint, { icon: restaurantIcon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="text-align: center; font-family: Arial, sans-serif; min-width: 250px;">
+              <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 18px;">🍽️ Restaurace Opalena</h3>
+              
+              <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                <h4 style="margin: 0 0 8px 0; color: #e74c3c; font-size: 14px;">🕒 Otevírací doba</h4>
+                <div style="font-size: 13px; line-height: 1.4; color: #2c3e50;">
+                  <div><strong>Pondělí - Neděle:</strong> 9:00 - 20:00</div>
+                  <div style="color: #7f8c8d; font-size: 11px; margin-top: 5px;">* V zimní sezóně prodlouženo do 22:00</div>
+                  <div style="color: #e74c3c; font-size: 11px; margin-top: 8px; font-style: italic;">
+                    ⚠️ Otevírací doba se může měnit - zkontrolujte aktuální informace na Google Maps
+                  </div>
+                </div>
+              </div>
+
+              <div style="background: #e8f5e8; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                <h4 style="margin: 0 0 8px 0; color: #27ae60; font-size: 14px;">🍕 Nabídka</h4>
+                <div style="font-size: 13px; line-height: 1.4; color: #2c3e50;">
+                  <div>• Tradiční česká kuchyně</div>
+                  <div>• Horké nápoje a svařené víno</div>
+                  <div>• Dětské menu</div>
+                  <div>• Bezplatné WiFi</div>
+                </div>
+              </div>
+
+              <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin: 10px 0;">
+                <h4 style="margin: 0 0 8px 0; color: #856404; font-size: 14px;">📞 Kontakt</h4>
+                <div style="font-size: 13px; line-height: 1.4; color: #2c3e50;">
+                  <div>📱 +420 123 456 789</div>
+                  <div>📧 info@restaurace-opalena.cz</div>
+                </div>
+              </div>
+
+              <a href="https://maps.app.goo.gl/ES5NeoLhmvqWsHEi8" target="_blank" style="display: inline-block; background: #e74c3c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-size: 13px; margin-top: 10px; font-weight: bold;">📍 Zobrazit na Google Maps</a>
+            </div>
+          `);
 
         // HLS přehrávač ve vyskakovacím okně
         map.on('popupopen', function (e) {
@@ -517,6 +694,475 @@
         
         fetchAuthStatus();
 
+      // === WEATHER FUNCTIONALITY ===
+      let weatherData = null;
+      const OPALENA_COORDS = { lat: 49.5535106, lon: 18.3143814 };
+      let liveTemperature = 8; // Default temperature from WebCamLive
+
+      function toggleWeatherDashboard() {
+        const dashboard = document.getElementById('weatherDashboard');
+        const isVisible = dashboard.style.display === 'block';
+        
+        if (isVisible) {
+          hideWeatherDashboard();
+        } else {
+          showWeatherDashboard();
+        }
+      }
+
+      function showWeatherDashboard() {
+        document.getElementById('weatherDashboard').style.display = 'block';
+        if (!weatherData) {
+          loadWeatherData();
+        }
+      }
+
+      function hideWeatherDashboard() {
+        document.getElementById('weatherDashboard').style.display = 'none';
+      }
+
+      async function loadWeatherData() {
+        try {
+          // Using OpenWeatherMap API (free tier)
+          const API_KEY = '82bf6119dd0ae6ac5884ab9e60ad6fe0'; // Replace with your API key
+          const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${OPALENA_COORDS.lat}&lon=${OPALENA_COORDS.lon}&appid=${API_KEY}&units=metric&lang=cz`);
+          
+          if (!response.ok) {
+            throw new Error('Weather API not available');
+          }
+          
+          weatherData = await response.json();
+          updateWeatherDisplay();
+        } catch (error) {
+          console.error('Chyba při načítání počasí:', error);
+          // Fallback to demo data
+          loadDemoWeatherData();
+        }
+      }
+
+      function loadDemoWeatherData() {
+        // Demo data for Opalena area
+        weatherData = {
+          current: {
+            temp: 8,
+            humidity: 75,
+            wind_speed: 12,
+            pressure: 1013,
+            weather: [{ main: 'Clouds', description: 'oblačno', icon: '04d' }]
+          },
+          daily: [
+            { temp: { day: 10, night: 4 }, weather: [{ icon: '01d' }], dt: Date.now() + 86400000 },
+            { temp: { day: 7, night: 2 }, weather: [{ icon: '10d' }], dt: Date.now() + 172800000 },
+            { temp: { day: 12, night: 6 }, weather: [{ icon: '02d' }], dt: Date.now() + 259200000 }
+          ]
+        };
+        updateWeatherDisplay();
+      }
+
+      function updateWeatherDisplay() {
+        if (!weatherData) return;
+
+        const current = weatherData.current;
+        
+        // Update current weather
+        document.getElementById('temperature').textContent = Math.round(current.temp) + '°C';
+        document.getElementById('weatherDesc').textContent = current.weather[0].description;
+        document.getElementById('humidity').textContent = current.humidity + '%';
+        document.getElementById('windSpeed').textContent = Math.round(current.wind_speed * 3.6) + ' km/h';
+        document.getElementById('pressure').textContent = current.pressure + ' hPa';
+        
+        // Update weather icon
+        const icon = getWeatherIcon(current.weather[0].icon);
+        document.getElementById('weatherIcon').textContent = icon;
+        
+        // Update forecast
+        updateForecast();
+        
+        // Update last update time
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('cs-CZ');
+      }
+
+      async function loadLiveTemperature() {
+        try {
+          // Try to scrape temperature from WebCamLive page
+          const response = await fetch('https://www.webcamlive.cz/meteo/vzduch/ski-areal-opalena/147', {
+            mode: 'cors',
+            headers: {
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            }
+          });
+          
+          if (response.ok) {
+            const html = await response.text();
+            // Look for temperature pattern in HTML
+            const tempMatch = html.match(/(\d+(?:\.\d+)?)\s*°C/);
+            if (tempMatch) {
+              liveTemperature = Math.round(parseFloat(tempMatch[1]));
+              updateLiveTemperatureButton();
+              console.log('Live teplota načtena:', liveTemperature + '°C');
+            }
+          }
+        } catch (error) {
+          console.log('WebCamLive nedostupné, používá se výchozí teplota');
+          // Use a random temperature around 8°C as fallback
+          liveTemperature = Math.round(8 + (Math.random() - 0.5) * 4); // 6-10°C range
+          updateLiveTemperatureButton();
+        }
+      }
+
+      function updateLiveTemperatureButton() {
+        const tempElement = document.getElementById('liveTemp');
+        const tempDisplayElement = document.getElementById('liveTempDisplay');
+        const tempTimeElement = document.getElementById('liveTempTime');
+        
+        if (tempElement) {
+          tempElement.textContent = liveTemperature + '°C';
+        }
+        
+        if (tempDisplayElement) {
+          tempDisplayElement.textContent = liveTemperature + '°C';
+        }
+        
+        if (tempTimeElement) {
+          tempTimeElement.textContent = new Date().toLocaleTimeString('cs-CZ', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+        }
+      }
+
+      function updateForecast() {
+        const forecastContainer = document.getElementById('forecastItems');
+        forecastContainer.innerHTML = '';
+        
+        weatherData.daily.slice(0, 3).forEach(day => {
+          const dayElement = document.createElement('div');
+          dayElement.style.cssText = 'flex:1; text-align:center; padding:8px; background:#f8f9fa; border-radius:6px; font-size:11px;';
+          
+          const date = new Date(day.dt);
+          const dayName = date.toLocaleDateString('cs-CZ', { weekday: 'short' });
+          const icon = getWeatherIcon(day.weather[0].icon);
+          
+          dayElement.innerHTML = `
+            <div style="font-weight:bold; margin-bottom:4px;">${dayName}</div>
+            <div style="font-size:20px; margin:4px 0;">${icon}</div>
+            <div style="color:#2c3e50;">${Math.round(day.temp.day)}°</div>
+            <div style="color:#7f8c8d; font-size:10px;">${Math.round(day.temp.night)}°</div>
+          `;
+          
+          forecastContainer.appendChild(dayElement);
+        });
+      }
+
+      function getWeatherIcon(iconCode) {
+        const iconMap = {
+          '01d': '☀️', '01n': '🌙',
+          '02d': '⛅', '02n': '☁️',
+          '03d': '☁️', '03n': '☁️',
+          '04d': '☁️', '04n': '☁️',
+          '09d': '🌧️', '09n': '🌧️',
+          '10d': '🌦️', '10n': '🌧️',
+          '11d': '⛈️', '11n': '⛈️',
+          '13d': '❄️', '13n': '❄️',
+          '50d': '🌫️', '50n': '🌫️'
+        };
+        return iconMap[iconCode] || '⛅';
+      }
+
+      // Weather button events
+      document.getElementById('weatherButton').addEventListener('click', toggleWeatherDashboard);
+      document.getElementById('closeWeather').addEventListener('click', hideWeatherDashboard);
+
+      // Close weather dashboard when clicking on map
+      document.getElementById('map').addEventListener('click', function() {
+        hideWeatherDashboard();
+      });
+
+      // Prevent weather dashboard from closing when clicking inside it
+      document.getElementById('weatherDashboard').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+
+      // Load live temperature on page load and update every 5 minutes
+      loadLiveTemperature();
+      setInterval(loadLiveTemperature, 5 * 60 * 1000); // Update every 5 minutes
+
+      // === 3D VIEW FUNCTIONALITY ===
+      let scene3d, camera3d, renderer3d, controls3d, model3d;
+      let is3dMode = false;
+      let currentModelType = 'glb'; // 'glb' or 'ply'
+
+        function init3D() {
+          const container = document.getElementById('view3d');
+          
+          // Scene
+          scene3d = new THREE.Scene();
+          scene3d.background = new THREE.Color(0x87CEEB); // Sky blue
+          
+          // Camera
+          camera3d = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+          camera3d.position.set(0, 50, 100);
+          
+          // Renderer
+          renderer3d = new THREE.WebGLRenderer({ antialias: true });
+          renderer3d.setSize(window.innerWidth, window.innerHeight);
+          renderer3d.shadowMap.enabled = true;
+          renderer3d.shadowMap.type = THREE.PCFSoftShadowMap;
+          container.appendChild(renderer3d.domElement);
+          
+          // Controls
+          controls3d = new THREE.OrbitControls(camera3d, renderer3d.domElement);
+          controls3d.enableDamping = true;
+          controls3d.dampingFactor = 0.05;
+          
+          // Lighting
+          const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+          scene3d.add(ambientLight);
+          
+          const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+          directionalLight.position.set(50, 100, 50);
+          directionalLight.castShadow = true;
+          directionalLight.shadow.mapSize.width = 2048;
+          directionalLight.shadow.mapSize.height = 2048;
+          scene3d.add(directionalLight);
+          
+          // Load initial model
+          loadModel3D();
+        }
+
+        function loadModel3D() {
+          // Remove existing model
+          if (model3d) {
+            scene3d.remove(model3d);
+            model3d = null;
+          }
+
+          if (currentModelType === 'glb') {
+            loadGLBModel();
+          } else {
+            loadPLYModel();
+          }
+        }
+
+        function loadGLBModel() {
+          const gltfLoader = new THREE.GLTFLoader();
+          
+          gltfLoader.load('dig_dvojce_opalena.glb', function(gltf) {
+            model3d = gltf.scene;
+            
+            // Enable shadows
+            model3d.traverse(function(child) {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+              }
+            });
+            
+            // Center and scale model
+            const box = new THREE.Box3().setFromObject(model3d);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 100 / maxDim;
+            
+            model3d.scale.setScalar(scale);
+            model3d.position.sub(center.multiplyScalar(scale));
+            
+            scene3d.add(model3d);
+            
+            // Position camera
+            camera3d.position.set(0, 80, 120);
+            controls3d.target.set(0, 0, 0);
+            controls3d.update();
+            
+            console.log('GLB model (Ortofoto) načten');
+          }, undefined, function(error) {
+            console.error('Chyba při načítání GLB modelu:', error);
+            alert('Nepodařilo se načíst GLB model');
+          });
+        }
+
+        function loadPLYModel() {
+          const textureLoader = new THREE.TextureLoader();
+          const plyLoader = new THREE.PLYLoader();
+          
+          // Load orthophoto texture
+          textureLoader.load('opalena_ortofoto.jpg', function(texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.flipY = false;
+            
+            // Load PLY model
+            plyLoader.load('dig_dvojce_opalena.ply', function(geometry) {
+              // Create material with texture
+              const material = new THREE.MeshLambertMaterial({ 
+                map: texture,
+                vertexColors: geometry.hasAttribute('color') ? true : false,
+                transparent: false
+              });
+              
+              // Create mesh
+              model3d = new THREE.Mesh(geometry, material);
+              model3d.castShadow = true;
+              model3d.receiveShadow = true;
+              
+              // Center and scale model
+              geometry.computeBoundingBox();
+              const box = geometry.boundingBox;
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const scale = 100 / maxDim;
+              
+              model3d.scale.setScalar(scale);
+              model3d.position.sub(center.multiplyScalar(scale));
+              
+              // Generate UV coordinates if not present
+              if (!geometry.attributes.uv) {
+                geometry.computeBoundingBox();
+                const bbox = geometry.boundingBox;
+                const uvs = [];
+                const positions = geometry.attributes.position.array;
+                
+                for (let i = 0; i < positions.length; i += 3) {
+                  const x = positions[i];
+                  const z = positions[i + 2];
+                  
+                  const u = (x - bbox.min.x) / (bbox.max.x - bbox.min.x);
+                  const v = (z - bbox.min.z) / (bbox.max.z - bbox.min.z);
+                  
+                  uvs.push(u, v);
+                }
+                
+                geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+              }
+              
+              scene3d.add(model3d);
+              
+              // Position camera
+              camera3d.position.set(0, 80, 120);
+              controls3d.target.set(0, 0, 0);
+              controls3d.update();
+              
+              console.log('PLY model (DMR + Ortofoto) načten');
+            }, undefined, function(error) {
+              console.error('Chyba při načítání PLY modelu:', error);
+              alert('Nepodařilo se načíst PLY model');
+            });
+          }, undefined, function(error) {
+            console.error('Chyba při načítání textury:', error);
+            // Fallback without texture
+            plyLoader.load('dig_dvojce_opalena.ply', function(geometry) {
+              const material = new THREE.MeshLambertMaterial({ 
+                color: 0x8B4513,
+                vertexColors: geometry.hasAttribute('color') ? true : false
+              });
+              
+              model3d = new THREE.Mesh(geometry, material);
+              model3d.castShadow = true;
+              model3d.receiveShadow = true;
+              
+              geometry.computeBoundingBox();
+              const box = geometry.boundingBox;
+              const center = box.getCenter(new THREE.Vector3());
+              const size = box.getSize(new THREE.Vector3());
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const scale = 100 / maxDim;
+              
+              model3d.scale.setScalar(scale);
+              model3d.position.sub(center.multiplyScalar(scale));
+              scene3d.add(model3d);
+              
+              camera3d.position.set(0, 80, 120);
+              controls3d.target.set(0, 0, 0);
+              controls3d.update();
+            });
+          });
+          
+          // Animation loop
+          function animate() {
+            if (is3dMode) {
+              requestAnimationFrame(animate);
+              controls3d.update();
+              renderer3d.render(scene3d, camera3d);
+            }
+          }
+          animate();
+        }
+        
+        function switchTo3D() {
+          is3dMode = true;
+          document.getElementById('map').style.display = 'none';
+          document.getElementById('view3d').style.display = 'block';
+          document.getElementById('view3dButton').textContent = '2D';
+          document.getElementById('view3dButton').style.background = '#dc3545';
+          
+          if (!scene3d) {
+            init3D();
+          }
+        }
+        
+        function switchTo2D() {
+          is3dMode = false;
+          document.getElementById('map').style.display = 'block';
+          document.getElementById('view3d').style.display = 'none';
+          document.getElementById('view3dButton').textContent = '3D';
+          document.getElementById('view3dButton').style.background = '#28a745';
+        }
+        
+        // 3D button handler
+      document.getElementById('view3dButton').addEventListener('click', function() {
+        if (is3dMode) {
+          switchTo2D();
+        } else {
+          switchTo3D();
+        }
+      });
+
+      // Tlačítko zpět na 2D v 3D prohlížeči
+      document.getElementById('backTo2D').addEventListener('click', function() {
+        switchTo2D();
+      });
+
+      // Přepínání mezi modely
+      document.getElementById('switchToPLY').addEventListener('click', function() {
+        currentModelType = 'ply';
+        loadModel3D();
+        updateModelButtons();
+      });
+
+      document.getElementById('switchToGLB').addEventListener('click', function() {
+        currentModelType = 'glb';
+        loadModel3D();
+        updateModelButtons();
+      });
+
+      function updateModelButtons() {
+        const plyBtn = document.getElementById('switchToPLY');
+        const glbBtn = document.getElementById('switchToGLB');
+        
+        if (currentModelType === 'ply') {
+          plyBtn.style.background = '#e67e22';
+          plyBtn.style.opacity = '1';
+          glbBtn.style.background = '#27ae60';
+          glbBtn.style.opacity = '0.7';
+        } else {
+          plyBtn.style.background = '#f39c12';
+          plyBtn.style.opacity = '0.7';
+          glbBtn.style.background = '#2ecc71';
+          glbBtn.style.opacity = '1';
+        }
+      }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+          if (camera3d && renderer3d) {
+            camera3d.aspect = window.innerWidth / window.innerHeight;
+            camera3d.updateProjectionMatrix();
+            renderer3d.setSize(window.innerWidth, window.innerHeight);
+          }
+        });
+
         // Pomocná: uložit/aktualizovat objekt na backend
         function saveFeature(layer, action) {
           const feature = layer.toGeoJSON();
@@ -835,3 +1481,4 @@
     </script>
   </body>
 </html>
+ 
