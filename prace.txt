@@ -1,0 +1,62 @@
+Návrh diplomové práce: Digitální dvojče ski areálu Opálená (VYGEO)
+
+Úvod
+
+Cílem práce je vytvoření digitálního dvojčete pro Ski areál Opálená, které propojuje geografické informační systémy (GIS), kamerové senzory a umělou inteligenci. Projekt VYGEO umožní sledovat a analyzovat reálný provoz na svahu, a to jak v testovací fázi na zvířatech (ovce), tak ve finální fázi na návštěvnících skiareálu (lyžaři, snowboardisti).
+
+Tento přístup přináší inovativní možnost monitoringu a predikce obsazenosti sportovních zařízení a rozšiřuje koncept digitálních dvojčat do oblasti cestovního ruchu a sportu.
+
+⸻
+
+Vědecký přínos
+
+Aby práce nebyla jen implementací, bude zahrnovat i následující vědecké aspekty:
+ 1. Digitální dvojčata v oblasti sportu a rekreace
+ • rešerše aplikací digitálních dvojčat (smart cities, doprava, průmysl 4.0),
+ • analýza možností a limitů jejich využití v horských areálech,
+ • porovnání s tradičními metodami monitoringu návštěvnosti.
+ 2. Detekce návštěvníků pomocí AI
+ • testování modelů YOLOv8 pro detekci osob a sportovního vybavení (lyžaři, snowboardisti),
+ • vyhodnocení přesnosti v různých podmínkách (světlo, mlha, vzdálenost, pohyb),
+ • případný trénink modelu na vlastním datasetu ze ski areálu.
+ 3. Statistická analýza a predikce
+ • časové řady počtu návštěvníků,
+ • vyhodnocení špiček a útlumů během dne, týdne či sezóny,
+ • predikční modely (např. návštěvnost vs. počasí).
+ 4. Uživatelský přínos
+ • pro návštěvníky: informace o aktuální obsazenosti a podmínkách,
+ • pro správce areálu: data pro optimalizaci provozu a bezpečnostní opatření,
+ • pro akademickou obec: metodika aplikace digitálních dvojčat v rekreačním prostředí.
+
+⸻
+
+Praktický přínos
+ • Provozovatel areálu – lepší přehled o vytíženosti svahu a možnost reagovat na aktuální situace (řízení front, bezpečnost, údržba).
+ • Návštěvníci – možnost sledovat obsazenost v reálném čase a plánovat návštěvu.
+ • Výzkum a praxe – ukázková implementace digitálního dvojčete pro menší areály, využitelná i v jiných sportovních zařízeních.
+
+⸻
+
+Metodika
+ 1. Návrh architektury systému (frontend – backend – datové toky).
+ 2. Implementace webové aplikace pomocí Leaflet.js, Chart.js a PHP backendu.
+ 3. Sběr dat pomocí Python skriptu a YOLOv8 (počítání ovcí → návštěvníků).
+ 4. Ukládání dat do CSV/SQLite, následná analýza a vizualizace.
+ 5. Vyhodnocení přesnosti detekce a srovnání s realitou.
+ 6. Diskuse přínosů, limitů a možností rozšíření.
+
+⸻
+
+Očekávané výstupy
+ • Funkční digitální dvojče ski areálu s interaktivní mapou a dashboardem.
+ • Automatická detekce a počítání návštěvníků v reálném čase.
+ • Logování a statistiky návštěvnosti (grafy, analýzy, predikce).
+ • Vyhodnocení přesnosti AI modelu a návrhy na jeho zlepšení.
+ • Metodika aplikace digitálních dvojčat v oblasti sportu a cestovního ruchu.
+
+⸻
+
+👉 Tímhle ukážeš, že:
+ • ovce jsou testovací dataset (proof of concept),
+ • cílový stav je monitoring lidí na svahu, což má přímý přínos,
+ • a navíc tam máš vědeckou část (analýza, vyhodnocení přesnosti, predikce).

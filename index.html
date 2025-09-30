@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>OPALGIS</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="Webová aplikace pro Ski areál Opálená">
+    <meta name="keywords" content="HTML, CSS, JavaScript, Leaflet, Olomouc, Ortofoto, jQuery">
+    <meta name="author" content="Petr Mikeska">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="leaflet.css" />
+    <link type="text/css" rel="stylesheet" href="visual.css" />
+    <link type="text/css" rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet-src.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+  </head>
+
+  <body>
+    <link type="text/css" rel="stylesheet" href="style.css" />
+    <div id="header">
+      <h1>SKI AREÁL OPÁLENÁ</h1>
+      <h2>VYGEO PROJEKT</h2>
+    </div>
+
+    <div id="sheepInfo">
+      <span class="count">–</span>
+      <span class="label">Počet lyžařů na svahu</span>
+      <br>
+      <button id="showGraphBtn">Zobrazit graf</button>
+    </div>
+
+    <button id="showFeaturesBtn">Zobrazit uložené prvky</button>
+    <button id="hideFeaturesBtn" style="display:none;">Skrýt uložené prvky</button>
+
+    <div id="featuresModal" style="display:none; position:fixed; top:15%; left:20%; width:60%; height:60%; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:3000; overflow:auto;">
+    <h3>Uložené prvky</h3>
+    <ul id="featuresList"></ul>
+    <br>
+    <button onclick="document.getElementById('featuresModal').style.display='none'">Zavřít</button>
+    </div>
+
+
+    <!-- Modal pro graf a statistiky -->
+    <div id="graphModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:2000; overflow:auto;">
+      <h3>Statistika počtu lyžařů</h3>
+      <div id="stats" style="margin-bottom:15px;"></div>
+      <canvas id="sheepChart"></canvas>
+      <br>
+      <button onclick="document.getElementById('graphModal').style.display='none'">Zavřít</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display:none; position:fixed; top:20%; left:30%; width:40%; height:auto; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:4000;">
+      <h3>Přihlášení</h3>
+      <form id="loginForm">
+        <div style="margin-bottom:15px;">
+          <label for="username">Uživatelské jméno:</label><br>
+          <input type="text" id="username" name="username" style="width:100%; padding:8px; margin-top:5px;" required>
+        </div>
+        <div style="margin-bottom:15px;">
+          <label for="password">Heslo:</label><br>
+          <input type="password" id="password" name="password" style="width:100%; padding:8px; margin-top:5px;" required>
+        </div>
+        <div style="text-align:right;">
+          <button type="button" onclick="document.getElementById('loginModal').style.display='none'" style="margin-right:10px;">Zrušit</button>
+          <button type="submit">Přihlásit</button>
+        </div>
+      </form>
+      <div id="loginError" style="color:red; margin-top:10px; display:none;"></div>
+    </div>
+
+    <div id="map"></div>
+    <div class="home-btn" id="homeButton" title="Návrat na domovskou pozici"><i class="fas fa-home"></i></div>
+    <div class="find-location-btn" id="findLocationButton" title="Najít mou polohu"><i class="fas fa-map-marker-alt"></i></div>
+    <div class="auth-btn" id="authButton" title="Přihlášení/Odhlášení" style="position:fixed; top:10px; right:10px; background:#007ddd; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">Přihlásit</div>
+
+    <script>
+      $(document).ready(function () {
+        const homePoint = [49.5535106, 18.3143814];
+        const webcamPoint = [49.55469, 18.31718];
+        let currentLocationMarker;
+
+        window.map = L.map('map', { center: homePoint, zoom: 17 });
+
+        // Nastavení výchozí ikony markeru na lokální SVG (oprava chybějícího obrázku)
+        L.Icon.Default.imagePath = '';
+        // Globálně přepiš výchozí cesty pro ikony, aby se nikdy nenačítal marker-icon-2x.png
+        L.Icon.Default.mergeOptions({
+          iconUrl: 'marker-icon.svg',
+          iconRetinaUrl: 'marker-icon.svg',
+          shadowUrl: null
+        });
+
+        const defaultMarkerIcon = L.icon({
+          iconUrl: 'marker-icon.svg',
+          iconRetinaUrl: 'marker-icon.svg',
+          shadowUrl: null,
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34]
+        });
+        // Použij stejnou ikonu pro všechny markery
+        L.Marker.prototype.options.icon = defaultMarkerIcon;
+        if (L.Draw && L.Draw.Marker) {
+          L.Draw.Marker.prototype.options.icon = defaultMarkerIcon;
+        }
+
+        const API_KEY = '5ZtGuQEtvV37xyC_1IJnglc8ZgP53ehgvFqTiHuaFoI';
+
+        const customIcon = L.icon({
+          iconUrl: 'webcam.svg',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        });
+
+        const currentLocationIcon = L.icon({
+          iconUrl: 'bod_lokace.svg',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        });
+
+        const webcamMarker = L.marker(webcamPoint, { icon: customIcon }).bindPopup(
+          `<div style="width: 500px; height: 300px; display: flex; justify-content: center; align-items: center;">
+             <video-js id="webcam-player" class="vjs-default-skin" controls autoplay muted preload="auto"></video-js>
+           </div>`,
+           { maxWidth: 500, minWidth: 500, maxHeight: 300 }
+        ).addTo(map);
+
+        // HLS přehrávač ve vyskakovacím okně
+        map.on('popupopen', function (e) {
+          const popupContent = e.popup.getContent();
+          if (popupContent.includes('webcam-player')) {
+            const player = videojs('webcam-player', {
+              techOrder: ['html5'],
+              autoplay: true,
+              controls: true,
+              muted: true,
+              preload: 'auto'
+            });
+
+            if (Hls.isSupported()) {
+              const hls = new Hls();
+              hls.loadSource('https://stream.teal.cz/hls/cam273.m3u8');
+              hls.attachMedia(player.tech_.el_);
+            } else if (player.tech_.el_.canPlayType('application/vnd.apple.mpegurl')) {
+              player.src({ src: 'https://stream.teal.cz/hls/cam273.m3u8', type: 'application/vnd.apple.mpegurl' });
+            }
+            e.popup.videoPlayer = player;
+          }
+        });
+
+        map.on('popupclose', function (e) {
+          if (e.popup.videoPlayer) {
+            e.popup.videoPlayer.dispose();
+            e.popup.videoPlayer = null;
+          }
+        });
+
+        // Podkladové mapy
+        const mapyletecka = L.tileLayer(`https://api.mapy.cz/v1/maptiles/aerial/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+          minZoom: 17, maxZoom: 19,
+          attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        }).addTo(map);
+
+        const mapycz = L.tileLayer(`https://api.mapy.cz/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+          minZoom: 17, maxZoom: 19,
+          attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        });
+
+        const mapywintercz = L.tileLayer(`https://api.mapy.cz/v1/maptiles/winter/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+          minZoom: 17, maxZoom: 19,
+          attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        });
+
+        const mapyoutdoor = L.tileLayer(`https://api.mapy.cz/v1/maptiles/outdoor/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+          minZoom: 17, maxZoom: 19,
+          attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        });
+
+        const wmska = L.tileLayer.wms('https://ags.cuzk.cz/arcgis2/services/dmr4g/ImageServer/WMSServer?', {
+          layers: 'dmr4g:GrayscaleHillshade'
+        });
+
+        // Ortofoto s posunem
+        const ortofotoVrstva = L.tileLayer('./{z}/{x}/{y}.png', {
+          minZoom: 17,
+          maxZoom: 19,
+          tileSize: 256,
+          attribution: '&copy; MIKESKA ORTOFOTO'
+        }).on('load', function () {
+          const ortoContainer = ortofotoVrstva.getContainer();
+          ortoContainer.style.transform = 'translate(-15px, 10px)';
+        });
+
+        const wmsKatastr = L.tileLayer.wms('http://services.cuzk.cz/wms/local-KM-wms.asp', {
+          layers: 'KN',
+          format: 'image/png',
+          transparent: true,
+          version: '1.1.1',
+          attribution: '&copy; ČÚZK'
+        });
+
+        const baseMaps = {
+          "mapy.cz základní": mapycz,
+          "mapy.cz zimní": mapywintercz,
+          "mapy.cz ortofoto": mapyletecka,
+          "mapy.cz turistická": mapyoutdoor,
+          "WMS Reliéf (5G)": wmska,
+          "Katastr nemovitostí": wmsKatastr
+        };
+
+        const overlayMaps = {
+          "Webkamery": webcamMarker,
+          "Ortofoto": ortofotoVrstva
+        };
+
+        const layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+        L.control.scale().addTo(map);
+
+        document.getElementById('homeButton').addEventListener('click', function () {
+          map.setView(homePoint, 17);
+        });
+
+        // --- Potrubí (příklad) ---
+        $.getJSON('https://gist.githubusercontent.com/MetrPikeska/c2970d584b33128b942c408d0e4a3cbc/raw/144f15981f8042078817e29d7ab4d2b989d902cc/.geojson', function (data) {
+          const potrubi = L.geoJSON(data, {
+            style: function () { return { color: 'blue', weight: 2, dashArray: '10, 10' }; }
+          }).addTo(map);
+          overlayMaps["Potrubí"] = potrubi;
+          layerControl.addOverlay(potrubi, "Potrubí");
+        });
+
+        // --- Vleky s dynamickou barvou ---
+        let vlekyLayer;
+        $.getJSON('https://gist.githubusercontent.com/MetrPikeska/ca5795b2be4bddc3989b450284b1d8a9/raw/0485ce84414da1ee749439b051ef2ed3683f589a/vleky.geojson', function (data) {
+          vlekyLayer = L.geoJSON(data, {
+            style: function () { return { color: 'green', weight: 5 }; }
+          }).addTo(map);
+          overlayMaps["Vleky"] = vlekyLayer;
+          layerControl.addOverlay(vlekyLayer, "Vleky");
+        });
+
+        function updateVlekyColor(count) {
+          let color = "green";
+          if (count >= 2 && count <= 4) color = "orange";
+          else if (count > 4) color = "red";
+          if (vlekyLayer) {
+            vlekyLayer.setStyle({ color: color, weight: 5 });
+          }
+        }
+
+        function updateSheepCount(count) {
+          document.querySelector('#sheepInfo .count').textContent = count;
+        }
+
+        // --- Načítání počtu lyžařů + graf ---
+        function fetchSheepFromHosting() {
+          fetch('get_sheep.php')
+            .then(res => res.json())
+            .then(data => {
+              const count = data.count || 0;
+              updateSheepCount(count);
+              updateVlekyColor(count);
+            })
+            .catch(err => console.error("Chyba při načítání z hostingu:", err));
+        }
+        setInterval(fetchSheepFromHosting, 2000);
+
+        let sheepChart = null;
+        document.getElementById('showGraphBtn').addEventListener('click', function () {
+          document.getElementById('graphModal').style.display = 'block';
+          fetch('get_sheep.php?history=1')
+            .then(res => res.json())
+            .then(data => {
+              const labels = data.map(d => d.timestamp);
+              const counts = data.map(d => parseInt(d.count));
+
+              if (counts.length > 0) {
+                const sum = counts.reduce((a, b) => a + b, 0);
+                const avg = (sum / counts.length).toFixed(2);
+                const max = Math.max(...counts);
+                const min = Math.min(...counts);
+                const maxTime = labels[counts.indexOf(max)];
+                const current = counts[counts.length - 1];
+                document.getElementById("stats").innerHTML = `
+                  <p><b>Aktuálně na svahu:</b> ${current} lyžařů</p>
+                  <p><b>Průměr dnes:</b> ${avg} lyžařů</p>
+                  <p><b>Maximum dnes:</b> ${max} (v ${maxTime})</p>
+                `;
+              } else {
+                document.getElementById("stats").innerHTML = "<p>Žádná data k zobrazení</p>";
+              }
+
+              const ctx = document.getElementById('sheepChart').getContext('2d');
+              if (sheepChart) sheepChart.destroy();
+              sheepChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Počet lyžařů na sjezdovce',
+                    data: counts,
+                    borderColor: '#007ddd',
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#007ddd',
+                    fill: false
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (c) => `${c.raw} lyžařů` } }
+                  },
+                  scales: {
+                    x: {
+                      type: 'time',
+                      time: {
+                        parser: 'yyyy-MM-dd HH:mm:ss',
+                        tooltipFormat: 'dd.MM.yyyy HH:mm',
+                        displayFormats: { minute: 'HH:mm', hour: 'dd.MM HH:mm' }
+                      },
+                      title: { display: true, text: 'Čas', font: { size: 14 } }
+                    },
+                    y: {
+                      beginAtZero: true,
+                      title: { display: true, text: 'Počet lyžařů', font: { size: 14 } }
+                    }
+                  }
+                }
+              });
+            })
+            .catch(err => console.error("Chyba při načítání historie:", err));
+        });
+
+        /* =====================================================================
+         * KRESLENÍ A EDITACE OBJEKTŮ + ULOŽENÍ DO DB (Leaflet.draw)
+         * ===================================================================== */
+        window.drawnItems = new L.FeatureGroup().addTo(map);
+        layerControl.addOverlay(window.drawnItems, "Moje objekty");
+
+        const drawControl = new L.Control.Draw({
+          position: 'topleft',
+          edit: { 
+            featureGroup: window.drawnItems, 
+            edit: true, 
+            remove: true,
+            selectedPathOptions: {
+              color: '#007ddd',
+              weight: 2
+            }
+          },
+          draw: {
+            marker: { icon: defaultMarkerIcon },
+            polygon: { allowIntersection: false, showArea: true },
+            polyline: true,
+            rectangle: true,
+            circle: false,
+            circlemarker: false
+          }
+        });
+        window.map.addControl(drawControl);
+
+        // === AUTH UI ===
+        window.isLoggedIn = false;
+        window.csrfToken = null;
+        window.currentUser = null;
+        
+        function refreshAuthUI() {
+          const toolbarEls = document.querySelectorAll('.leaflet-draw, .leaflet-draw-toolbar, .leaflet-draw-toolbar-top');
+          toolbarEls.forEach(el => { el.style.display = window.isLoggedIn ? '' : 'none'; });
+          
+          // Hide/show show features button (hamburger menu)
+          const showFeaturesBtn = document.querySelector('.leaflet-control-custom');
+          if (showFeaturesBtn) {
+            showFeaturesBtn.style.display = window.isLoggedIn ? '' : 'none';
+          }
+          
+          const authBtn = document.getElementById('authButton');
+          if (authBtn) {
+            authBtn.textContent = window.isLoggedIn ? `Odhlásit (${window.currentUser})` : 'Přihlásit';
+            authBtn.style.background = window.isLoggedIn ? '#dc3545' : '#007ddd';
+          }
+        }
+        
+        function fetchAuthStatus() {
+          fetch('auth.php?action=status', { credentials: 'include' })
+            .then(r => r.json())
+            .then(s => { 
+              window.isLoggedIn = !!s.loggedIn; 
+              window.csrfToken = s.csrf || null; 
+              window.currentUser = s.user || null;
+              refreshAuthUI(); 
+            })
+            .catch(() => { 
+              window.isLoggedIn = false; 
+              window.currentUser = null;
+              refreshAuthUI(); 
+            });
+        }
+        
+        function showLoginError(msg) {
+          const errorEl = document.getElementById('loginError');
+          if (errorEl) {
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+          }
+        }
+        
+        function hideLoginError() {
+          const errorEl = document.getElementById('loginError');
+          if (errorEl) {
+            errorEl.style.display = 'none';
+          }
+        }
+        
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          hideLoginError();
+          
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          
+          fetch('auth.php?action=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username, password })
+          })
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              window.isLoggedIn = true;
+              window.currentUser = data.user;
+              window.csrfToken = data.csrf;
+              refreshAuthUI();
+              document.getElementById('loginModal').style.display = 'none';
+              document.getElementById('username').value = '';
+              document.getElementById('password').value = '';
+            } else {
+              showLoginError(data.error || 'Přihlášení se nezdařilo');
+            }
+          })
+          .catch(() => showLoginError('Chyba připojení'));
+        });
+        
+        // Auth button handler
+        document.getElementById('authButton').addEventListener('click', function() {
+          if (window.isLoggedIn) {
+            // Logout
+            fetch('auth.php?action=logout', { 
+              method: 'POST', 
+              credentials: 'include' 
+            })
+            .then(() => {
+              window.isLoggedIn = false;
+              window.currentUser = null;
+              window.csrfToken = null;
+              refreshAuthUI();
+            });
+          } else {
+            // Show login modal
+            document.getElementById('loginModal').style.display = 'block';
+            hideLoginError();
+          }
+        });
+        
+        fetchAuthStatus();
+
+        // Pomocná: uložit/aktualizovat objekt na backend
+        function saveFeature(layer, action) {
+          const feature = layer.toGeoJSON();
+          feature.properties = feature.properties || {};
+          feature.properties.action = action; // create | update
+          // přidej ID (pokud existuje) – používá se při update
+          const id = layer?.feature?.properties?.id;
+          if (id) feature.properties.id = id;
+
+          return fetch('save_features.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+            body: JSON.stringify(feature)
+          })
+          .then(r => r.json())
+          .then(res => {
+            // Očekáváme { id: number }
+            if (res && res.id) {
+              layer.feature = layer.feature || { type: 'Feature', properties: {} };
+              layer.feature.properties.id = res.id;
+            }
+            return res;
+          })
+          .catch(err => {
+            console.error('Chyba při ukládání prvku:', err);
+          });
+        }
+
+        function deleteFeatureById(id) {
+          return fetch('delete_features.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
+            body: JSON.stringify({ id })
+          }).catch(err => console.error('Chyba při mazání prvku:', err));
+        }
+
+        function nameForLayerType(t) {
+          switch (t) {
+            case 'marker': return 'Bod';
+            case 'polyline': return 'Linie';
+            case 'polygon': return 'Polygon';
+            case 'rectangle': return 'Polygon';
+            default: return t;
+          }
+        }
+
+        // Vytvoření nového objektu
+        window.map.on(L.Draw.Event.CREATED, function (e) {
+          const layer = e.layer;
+          const layerType = e.layerType; // marker | polygon | polyline | rectangle
+
+          let name = prompt("Zadej název objektu:", nameForLayerType(layerType));
+          if (!name || !name.trim()) name = nameForLayerType(layerType);
+
+          // properties + popup
+          layer.feature = layer.feature || { type: 'Feature', properties: {} };
+          layer.feature.properties.name = name;
+          layer.feature.properties.type = layerType;
+
+          layer.bindPopup(`<b>${name}</b>`);
+          window.drawnItems.addLayer(layer);
+
+          // Uložit do DB
+          saveFeature(layer, 'create');
+        });
+
+        // Editace existujících
+        window.map.on('draw:edited', function (e) {
+          e.layers.eachLayer(function (layer) {
+            // případné přejmenování – drž tlačítkem Alt (tip: ruční prompt)
+            // (Necháváme bez promptu; přejmenování šlo by vyřešit vlastní UI.)
+            saveFeature(layer, 'update');
+          });
+        });
+
+        // Smazání existujících
+        window.map.on('draw:deleted', function (e) {
+          e.layers.eachLayer(function (layer) {
+            const id = layer?.feature?.properties?.id;
+            if (id) deleteFeatureById(id);
+          });
+        });
+
+        // Uložené prvky a jejich vrstvy pro přepínání viditelnosti
+        window.featureLayers = {}; // id -> Leaflet layer
+
+        // Načtení uložených objektů z DB (GeoJSON FeatureCollection)
+        fetch('get_features.php')
+          .then(res => res.json())
+          .then(fc => {
+            if (!fc || !fc.features) return;
+            fc.features.forEach((f, idx) => {
+              const id = (f.properties && (f.properties.id || f.properties.ID)) || `f_${idx}`;
+              const name = (f.properties && f.properties.name) || 'Bez názvu';
+              const group = L.geoJSON(f);
+              // Přidej jednotlivé vektorové vrstvy do editovatelné skupiny
+              group.eachLayer(l => {
+                l.bindPopup(`<b>${name}</b>`);
+                l.feature = f; // zachovej properties včetně id pro edit/delete
+                window.drawnItems.addLayer(l);
+              });
+              // Ulož referenci skupiny pro přepínání viditelnosti v modálu
+              window.featureLayers[id] = { layer: group, name };
+            });
+          })
+          .catch(err => console.error('Chyba při načítání objektů:', err));
+
+        /* ===================================================================== */
+      });
+
+      // === Výpočty délek a ploch ===
+      function computePolylineLengthMeters(latlngs) {
+        // latlngs může být vícerozměrné u MultiLineString – zpracuj rekurzivně
+        if (!Array.isArray(latlngs)) return 0;
+        if (latlngs.length > 0 && Array.isArray(latlngs[0])) {
+          return latlngs.reduce((sum, seg) => sum + computePolylineLengthMeters(seg), 0);
+        }
+        let d = 0;
+        for (let i = 1; i < latlngs.length; i++) {
+          d += map.distance(latlngs[i - 1], latlngs[i]);
+        }
+        return d;
+      }
+
+      function computePolygonAreaSqm(latlngs) {
+        // latlngs může být [ring] nebo [[ring1],[ring2]] – vynutíme pole křivek
+        const rings = (latlngs && Array.isArray(latlngs[0])) ? latlngs : [latlngs];
+        let area = 0;
+        rings.forEach(ring => {
+          if (!ring || ring.length < 3) return;
+          const pts = ring.map(ll => L.latLng(ll.lat, ll.lng));
+          if (L.GeometryUtil && L.GeometryUtil.geodesicArea) {
+            area += Math.abs(L.GeometryUtil.geodesicArea(pts));
+          }
+        });
+        return area;
+      }
+
+      window.summarizeLayerMetrics = function(layerGroup) {
+        let totalLen = 0;
+        let totalArea = 0;
+        layerGroup.eachLayer(l => {
+          if (l instanceof L.Polygon) {
+            totalArea += computePolygonAreaSqm(l.getLatLngs());
+          } else if (l instanceof L.Polyline) {
+            totalLen += computePolylineLengthMeters(l.getLatLngs());
+          }
+        });
+        const parts = [];
+        if (totalArea > 0) {
+          parts.push(totalArea < 10000 ? `${totalArea.toFixed(1)} m²` : `${(totalArea / 1e6).toFixed(3)} km²`);
+        }
+        if (totalLen > 0) {
+          parts.push(totalLen < 1000 ? `${totalLen.toFixed(1)} m` : `${(totalLen / 1000).toFixed(3)} km`);
+        }
+        return parts.join(', ');
+      }
+
+      // Globální funkce pro renderování modálu
+      window.renderFeaturesModal = function() {
+        const listEl = document.getElementById('featuresList');
+        if (!listEl) {
+          console.error('featuresList element not found');
+          return;
+        }
+        listEl.innerHTML = "";
+
+        if (!window.featureLayers || Object.keys(window.featureLayers).length === 0) {
+          listEl.innerHTML = "<li>Žádné uložené prvky</li>";
+          document.getElementById('featuresModal').style.display = 'block';
+          return;
+        }
+
+        Object.entries(window.featureLayers).forEach(([id, obj]) => {
+          const li = document.createElement('li');
+          const chk = document.createElement('input');
+          chk.type = 'checkbox';
+          chk.checked = window.drawnItems.hasLayer(obj.layer);
+          chk.style.marginRight = '8px';
+          chk.onchange = () => {
+            if (chk.checked) {
+              if (!window.drawnItems.hasLayer(obj.layer)) window.drawnItems.addLayer(obj.layer);
+              try { window.map.fitBounds(obj.layer.getBounds()); } catch(e) {}
+            } else {
+              if (window.drawnItems.hasLayer(obj.layer)) window.drawnItems.removeLayer(obj.layer);
+            }
+          };
+
+          const nameSpan = document.createElement('span');
+          const metrics = window.summarizeLayerMetrics ? window.summarizeLayerMetrics(obj.layer) : '';
+          nameSpan.textContent = metrics ? `${obj.name} — ${metrics}` : obj.name;
+          nameSpan.style.cursor = 'pointer';
+          nameSpan.onclick = () => {
+            try { window.map.fitBounds(obj.layer.getBounds()); } catch(e) {}
+          };
+
+          li.appendChild(chk);
+          li.appendChild(nameSpan);
+          listEl.appendChild(li);
+        });
+
+        document.getElementById('featuresModal').style.display = 'block';
+        // Kliknutí mimo modal zavře okno
+        const modal = document.getElementById('featuresModal');
+        const onOutside = function(e) {
+          if (!modal.contains(e.target)) {
+            modal.style.display = 'none';
+            document.removeEventListener('mousedown', onOutside);
+          }
+        };
+        document.addEventListener('mousedown', onOutside);
+      };
+
+      document.getElementById('showFeaturesBtn').addEventListener('click', function () {
+        window.renderFeaturesModal();
+      });
+
+        // --- Vlastní tlačítko pro zobrazení uložených prvků ---
+        const showFeaturesControl = L.Control.extend({
+          options: { position: 'topleft' }, // stejné jako kreslící nástroje
+          onAdd: function (map) {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            container.title = "Zobrazit uložené prvky";
+            // Použij stejný styl jako ostatní – zobraz lokální SVG ikonu menu
+            container.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'><path fill=\'#000\' d=\'M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z\'/></svg>')";
+
+            container.onclick = function () {
+              // Toggle modálního okna s uloženými prvky
+              const modal = document.getElementById('featuresModal');
+              if (!modal) return;
+              if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+              } else {
+                try { window.renderFeaturesModal(); } catch(e) { console.error(e); }
+              }
+            };
+
+            return container;
+          }
+        });
+        const featuresCtl = new showFeaturesControl();
+
+        // --- Měření: vzdálenost a plocha (jasné ikony) ---
+        const measurementLayer = new L.FeatureGroup().addTo(map);
+        const MeasureControl = L.Control.extend({
+          options: { position: 'topleft' },
+          onAdd: function () {
+            const container = L.DomUtil.create('div', 'leaflet-bar');
+
+            const btn = (title, svg, onClick) => {
+              const a = L.DomUtil.create('a', 'svg-btn', container);
+              a.href = '#';
+              a.title = title;
+              a.innerHTML = svg;
+              L.DomEvent.on(a, 'click', L.DomEvent.stopPropagation)
+                        .on(a, 'mousedown', L.DomEvent.stopPropagation)
+                        .on(a, 'dblclick', L.DomEvent.stopPropagation)
+                        .on(a, 'click', function (e) { e.preventDefault(); onClick(); });
+              return a;
+            };
+
+            // Přehledné SVG ikony
+            // Nové, přehlednější ikony
+            const rulerSvg = "<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M3 14h18v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3z' fill='white' stroke='black' stroke-width='1.5'/><path d='M6 14v3M9 14v2M12 14v2M15 14v2M18 14v2' stroke='black' stroke-width='1.5'/></svg>";
+            const areaSvg = "<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M5 7h10l4 5-7 6-7-6 3-5z' fill='white' stroke='black' stroke-width='1.5'/></svg>";
+            const clearSvg = "<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M6 9h12l-1 10H7L6 9z' fill='white' stroke='black' stroke-width='1.5'/><path d='M9 9V7h6v2' stroke='black' stroke-width='1.5'/><path d='M10 12v5M14 12v5' stroke='black' stroke-width='1.5' stroke-linecap='round'/></svg>";
+
+            let activeDrawer = null;
+            const stopActive = () => { if (activeDrawer) { activeDrawer.disable(); activeDrawer = null; } };
+
+            btn('Měřit vzdálenost', rulerSvg, () => {
+              stopActive();
+              activeDrawer = new L.Draw.Polyline(map, { shapeOptions: { color: '#007ddd', weight: 3 } });
+              activeDrawer.enable();
+            });
+
+            btn('Měřit plochu', areaSvg, () => {
+              stopActive();
+              activeDrawer = new L.Draw.Polygon(map, { showArea: true, shapeOptions: { color: '#007ddd', weight: 2, fillOpacity: 0.05 } });
+              activeDrawer.enable();
+            });
+
+            btn('Smazat měření', clearSvg, () => { measurementLayer.clearLayers(); stopActive(); });
+
+            // Zachytit dokončení kresby pro měření – ukládej jen do measurementLayer
+            map.on(L.Draw.Event.CREATED, function (e) {
+              if (!activeDrawer) return; // běžné kreslení mimo měření
+              const layer = e.layer;
+              if (layer instanceof L.Polygon) {
+                const area = window.computePolygonAreaSqm(layer.getLatLngs());
+                layer.bindPopup(area < 10000 ? area.toFixed(1) + ' m²' : (area / 1e6).toFixed(3) + ' km²');
+              } else if (layer instanceof L.Polyline) {
+                const len = window.computePolylineLengthMeters(layer.getLatLngs());
+                layer.bindPopup(len < 1000 ? len.toFixed(1) + ' m' : (len / 1000).toFixed(3) + ' km');
+              }
+              measurementLayer.addLayer(layer);
+              stopActive();
+            });
+
+            return container;
+          }
+        });
+        map.addControl(new MeasureControl());
+        // Umísti tlačítko uložených prvků pod měřicí nástroje
+        map.addControl(featuresCtl);
+
+        // Zpět k výchozímu Leaflet.draw UI (fungující ikony a nástroje)
+
+    </script>
+  </body>
+</html>
