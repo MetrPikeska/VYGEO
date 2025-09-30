@@ -81,7 +81,7 @@
     <div id="map"></div>
     <div class="home-btn" id="homeButton" title="Návrat na domovskou pozici"><i class="fas fa-home"></i></div>
     <div class="find-location-btn" id="findLocationButton" title="Najít mou polohu"><i class="fas fa-map-marker-alt"></i></div>
-    <div class="auth-btn" id="authButton" title="Přihlášení/Odhlášení" style="position:fixed; top:10px; right:10px; background:#007ddd; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">Přihlásit</div>
+    <div class="auth-btn" id="authButton" title="Přihlášení/Odhlášení" style="position:fixed; top:12px; right:78px; background:#007ddd; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">Přihlásit</div>
 
     <script>
       $(document).ready(function () {
@@ -379,13 +379,29 @@
         window.currentUser = null;
         
         function refreshAuthUI() {
+          // Hide/show drawing tools
           const toolbarEls = document.querySelectorAll('.leaflet-draw, .leaflet-draw-toolbar, .leaflet-draw-toolbar-top');
           toolbarEls.forEach(el => { el.style.display = window.isLoggedIn ? '' : 'none'; });
           
-          // Hide/show show features button (hamburger menu)
+          // Hide/show measurement tools (ruler, polygon, trash)
+          const measureControls = document.querySelectorAll('.leaflet-bar');
+          measureControls.forEach(control => {
+            const svgBtns = control.querySelectorAll('.svg-btn');
+            if (svgBtns.length > 0) {
+              control.style.display = window.isLoggedIn ? '' : 'none';
+            }
+          });
+          
+          // Hide/show show features button (hamburger menu) - both the Leaflet control and the separate button
           const showFeaturesBtn = document.querySelector('.leaflet-control-custom');
           if (showFeaturesBtn) {
             showFeaturesBtn.style.display = window.isLoggedIn ? '' : 'none';
+          }
+          
+          // Also hide the separate showFeaturesBtn button
+          const showFeaturesBtn2 = document.getElementById('showFeaturesBtn');
+          if (showFeaturesBtn2) {
+            showFeaturesBtn2.style.display = window.isLoggedIn ? '' : 'none';
           }
           
           const authBtn = document.getElementById('authButton');
