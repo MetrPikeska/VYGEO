@@ -70,21 +70,60 @@ ALTER TABLE map_features ADD COLUMN user_id VARCHAR(64) NOT NULL DEFAULT 'admin'
 ```
 vygeo/
 ├── index.html              # Main application interface
-├── style.css               # Custom styling
-├── visual.css              # Base visual styles
-├── leaflet.css             # Leaflet mapping library styles
-├── auth.php                # Authentication endpoints
-├── auth_config.php         # User configuration
-├── save_features.php       # Feature creation/update
-├── delete_features.php     # Feature deletion
-├── get_features.php        # Feature retrieval
-├── get_sheep.php          # Skier count data
-├── marker-icon.svg         # Custom marker icon
-├── webcam.svg             # Webcam icon
-├── bod_lokace.svg         # Location marker icon
-├── menu.svg               # Menu icon
-├── favicon.png            # Site favicon
-└── {z}/{x}/{y}.png        # Custom orthophoto tiles
+├── README.md               # Project documentation
+├── PROJECT_STRUCTURE.md    # Detailed structure documentation
+├── prace.txt               # Development notes
+│
+├── css/                    # Stylesheets
+│   ├── visual.css          # Main application styles
+│   ├── style.css           # Additional custom styles
+│   └── leaflet.css         # Leaflet mapping library styles
+│
+├── assets/                 # Static assets
+│   ├── images/             # Image files
+│   │   ├── favicon.png     # Site favicon
+│   │   ├── marker-icon.png # Default marker icon
+│   │   └── opalena_ortofoto.jpg # Orthophoto imagery
+│   ├── icons/              # SVG icons
+│   │   ├── marker-icon.svg # Custom marker icon
+│   │   ├── webcam.svg      # Webcam icon
+│   │   ├── bod_lokace.svg  # Location marker icon
+│   │   └── menu.svg        # Menu icon
+│   └── models/             # 3D models and AI files
+│       ├── dig_dvojce_opalena.glb  # 3D terrain model
+│       ├── dig_dvojce_opalena.ply  # PLY terrain model
+│       └── yolov8n.pt      # AI model for skier detection
+│
+├── api/                    # Backend API endpoints
+│   ├── auth.php            # Authentication endpoints
+│   ├── auth_config.php     # User configuration
+│   ├── features.php        # Feature management
+│   ├── save_features.php   # Feature creation/update
+│   ├── delete_features.php # Feature deletion
+│   ├── get_features.php    # Feature retrieval
+│   ├── get_sheep.php       # Skier count data
+│   └── update.php          # Data updates
+│
+├── scripts/                # Python scripts
+│   ├── get_sheep.py        # Skier data collection
+│   ├── sheep_counter.py    # AI skier counting
+│   └── send_test.py        # Testing utilities
+│
+├── data/                   # Data files
+│   └── sheep.json          # Skier count data
+│
+├── tiles/                  # Map tiles
+│   ├── 16/                 # Zoom level 16 tiles
+│   ├── 17/                 # Zoom level 17 tiles
+│   ├── 18/                 # Zoom level 18 tiles
+│   └── 19/                 # Zoom level 19 tiles
+│
+├── snow_calc/              # Snow calculator
+│   ├── snowcalc.html       # Calculator interface
+│   └── snowcalc.js         # Calculator logic
+│
+└── backup/                 # Backup files
+    └── zaloha/             # Original files backup
 ```
 
 ### Configuration
@@ -166,18 +205,18 @@ const API_KEY = 'your_mapy_cz_api_key';
 ## 📊 API Endpoints
 
 ### Authentication
-- `POST auth.php?action=login` - User login
-- `POST auth.php?action=logout` - User logout  
-- `GET auth.php?action=status` - Check authentication status
+- `POST api/auth.php?action=login` - User login
+- `POST api/auth.php?action=logout` - User logout  
+- `GET api/auth.php?action=status` - Check authentication status
 
 ### Features Management
-- `POST save_features.php` - Create/update features
-- `POST delete_features.php` - Delete features
-- `GET get_features.php` - Retrieve all features
+- `POST api/save_features.php` - Create/update features
+- `POST api/delete_features.php` - Delete features
+- `GET api/get_features.php` - Retrieve all features
 
 ### Data Monitoring
-- `GET get_sheep.php` - Get current skier count
-- `GET get_sheep.php?history=1` - Get historical data
+- `GET api/get_sheep.php` - Get current skier count
+- `GET api/get_sheep.php?history=1` - Get historical data
 
 ## 🎨 Customization
 
@@ -190,13 +229,16 @@ baseMaps["Your Layer"] = newLayer;
 ```
 
 ### Custom Icons
-Replace SVG files in project root:
-- `marker-icon.svg` - Default markers
-- `webcam.svg` - Webcam locations
-- `bod_lokace.svg` - User location
+Replace SVG files in `assets/icons/` directory:
+- `assets/icons/marker-icon.svg` - Default markers
+- `assets/icons/webcam.svg` - Webcam locations
+- `assets/icons/bod_lokace.svg` - User location
 
 ### Styling
-Modify `style.css` for custom appearance:
+Modify CSS files in `css/` directory for custom appearance:
+- `css/visual.css` - Main application styles
+- `css/style.css` - Additional custom styles
+- `css/leaflet.css` - Map library styles
 - Toolbar button styles
 - Modal window appearance
 - Color schemes and themes
@@ -206,8 +248,10 @@ Modify `style.css` for custom appearance:
 ### Common Issues
 1. **Features not loading**: Check database connection and user authentication
 2. **Map tiles not displaying**: Verify API key and network connectivity
-3. **Login not working**: Check `auth_config.php` user configuration
+3. **Login not working**: Check `api/auth_config.php` user configuration
 4. **Drawing tools hidden**: Ensure user is logged in
+5. **Icons not displaying**: Check file paths in `assets/icons/` directory
+6. **Styles not loading**: Verify CSS file paths in `css/` directory
 
 ### Debug Mode
 Enable browser developer tools to view console errors and network requests.
