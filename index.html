@@ -27,12 +27,12 @@
     <meta name="description" content="Profesionální interaktivní mapa ski areálu Opalena s 3D terénem, live počasím, geografickými nástroji a real-time teploměrem. Kompletní GIS řešení pro lyžařské areály.">
     <meta name="keywords" content="Opalena, ski areál, interaktivní mapa, 3D vizualizace, DMR terén, ortofoto, live počasí, teploměr, WebCamLive, lyžování, Beskydy, GIS, geografické nástroje, Leaflet, Three.js, PLY model, GLB model, real-time data, meteorologie, webová aplikace, custom development, Petr Mikeska">
     <meta name="author" content="Petr Mikeska - petrmikeska.cz">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link type="text/css" rel="stylesheet" href="leaflet.css" />
-    <link type="text/css" rel="stylesheet" href="visual.css" />
-    <link type="text/css" rel="stylesheet" href="style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link type="text/css" rel="stylesheet" href="css/leaflet.css" />
+    <link type="text/css" rel="stylesheet" href="css/visual.css" />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" />
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
@@ -47,23 +47,96 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   </head>
 
   <body>
-    <link type="text/css" rel="stylesheet" href="style.css" />
-    <div id="header">
-      <h1>SKI AREÁL OPÁLENÁ</h1>
-      <h2>VYGEO PROJEKT</h2>
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <!-- Horní lišta -->
+    <div id="topBar">
+      <div class="topBar-left">
+        <div class="logo">
+          <h1>SKI AREÁL OPÁLENÁ</h1>
+        </div>
+        <div class="info-widgets">
+          <div class="skiers-info">
+            <span class="skiers-count">–</span>
+            <span class="skiers-label">lyžařů na svahu</span>
+            <button id="showGraphBtn" class="skiers-btn">Graf</button>
+          </div>
+          <div class="weather-widget" id="weatherWidget" style="cursor: pointer;">
+            <div class="weather-temp" id="liveTemp">8°C</div>
+            <div class="weather-icon">🌤️</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="topBar-center">
+        <!-- Prázdné pro vyrovnání -->
+      </div>
+      
+      <div class="topBar-right">
+        <button id="menuToggle" class="menu-btn">☰</button>
+        <button id="view3dButton" class="action-btn">3D</button>
+        <button id="authButton" class="action-btn">Přihlásit</button>
+      </div>
     </div>
 
-    <div id="sheepInfo">
-      <span class="count">–</span>
-      <span class="label">Počet lyžařů na svahu</span>
-      <br>
-      <button id="showGraphBtn">Zobrazit graf</button>
+    <!-- Levý vysouvací panel -->
+    <div id="leftSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h3>SKI AREÁL OPÁLENÁ</h3>
+        <button id="closeSidebar" class="close-btn">×</button>
+      </div>
+      
+      <!-- Mobilní informace - zobrazí se pouze na malých obrazovkách -->
+      <div class="mobile-info-section">
+        <div class="mobile-info-item">
+          <div class="mobile-info-icon">🌡️</div>
+          <div class="mobile-info-content">
+            <div class="mobile-info-label">Teplota</div>
+            <div class="mobile-info-value" id="mobileTemp">8°C</div>
+          </div>
+        </div>
+        <div class="mobile-info-item">
+          <div class="mobile-info-icon">⛷️</div>
+          <div class="mobile-info-content">
+            <div class="mobile-info-label">Lyžaři na svahu</div>
+            <div class="mobile-info-value" id="mobileSkiers">0</div>
+          </div>
+        </div>
+        <div class="mobile-info-item">
+          <div class="mobile-info-icon">📊</div>
+          <div class="mobile-info-content">
+            <div class="mobile-info-label">Statistiky</div>
+            <button id="mobileGraphBtn" class="mobile-graph-btn">Zobrazit graf</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-content">
+        <div class="sidebar-section">
+          <h4>Vrstvy mapy</h4>
+          <div class="layer-controls">
+            <!-- Vrstvy budou přidány dynamicky -->
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h4>Filtry</h4>
+          <div class="filter-controls">
+            <label><input type="checkbox" checked> Sjezdovky</label>
+            <label><input type="checkbox" checked> Lanovky</label>
+            <label><input type="checkbox" checked> Občerstvení</label>
+            <label><input type="checkbox" checked> Parkoviště</label>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <button id="showFeaturesBtn">Zobrazit uložené prvky</button>
+    <!-- Pravý plovoucí widget - přesunuto do headeru -->
+
+    <button id="showFeaturesBtn" style="display:none;">Zobrazit uložené prvky</button>
     <button id="hideFeaturesBtn" style="display:none;">Skrýt uložené prvky</button>
 
     <div id="featuresModal" style="display:none; position:fixed; top:15%; left:20%; width:60%; height:60%; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:3000; overflow:auto;">
@@ -75,12 +148,17 @@
 
 
     <!-- Modal pro graf a statistiky -->
-    <div id="graphModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:2000; overflow:auto;">
-      <h3>Statistika počtu lyžařů</h3>
-      <div id="stats" style="margin-bottom:15px;"></div>
-      <canvas id="sheepChart"></canvas>
-      <br>
-      <button onclick="document.getElementById('graphModal').style.display='none'">Zavřít</button>
+    <div id="graphModal" class="graph-modal">
+      <div class="modal-header">
+        <h3>Statistika počtu lyžařů</h3>
+        <button class="close-btn" id="closeGraphBtn">×</button>
+      </div>
+      <div class="modal-content">
+        <div id="stats" class="stats-container"></div>
+        <div class="chart-container">
+          <canvas id="sheepChart"></canvas>
+        </div>
+      </div>
     </div>
 
     <!-- Login Modal -->
@@ -104,39 +182,211 @@
     </div>
 
     <div id="map"></div>
+    
+    <!-- NOVÉ MOBILNÍ ROZHRANÍ -->
+    <!-- Mobilní top bar s informacemi -->
+    <div id="mobileTopBar" class="mobile-top-bar">
+      <div class="mobile-logo">
+        <h1>OPÁLENÁ</h1>
+        <div class="mobile-status">
+          <span class="mobile-temp" id="mobileTempDisplay">8°C</span>
+          <span class="mobile-skiers" id="mobileSkiersDisplay">0 lyžařů</span>
+        </div>
+      </div>
+      <div class="mobile-actions">
+        <button id="mobileMenuBtn" class="mobile-action-btn">☰</button>
+        <button id="mobile3DBtn" class="mobile-action-btn">3D</button>
+      </div>
+    </div>
+    
+    <!-- Mobilní plovoucí informační karty -->
+    <div id="mobileInfoCards" class="mobile-info-cards">
+      <div class="mobile-card" id="mobileWeatherCard">
+        <div class="mobile-card-header">
+          <span class="mobile-card-icon">🌤️</span>
+          <span class="mobile-card-title">Počasí</span>
+          <button class="mobile-card-close">×</button>
+        </div>
+        <div class="mobile-card-content">
+          <div class="mobile-weather-main">
+            <div class="mobile-weather-temp" id="mobileWeatherTemp">8°C</div>
+            <div class="mobile-weather-desc" id="mobileWeatherDesc">Oblačno</div>
+          </div>
+          <div class="mobile-weather-details">
+            <div class="mobile-weather-item">
+              <span>Vlhkost</span>
+              <span id="mobileWeatherHumidity">75%</span>
+            </div>
+            <div class="mobile-weather-item">
+              <span>Vítr</span>
+              <span id="mobileWeatherWind">12 km/h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mobile-card" id="mobileStatsCard">
+        <div class="mobile-card-header">
+          <span class="mobile-card-icon">📊</span>
+          <span class="mobile-card-title">Statistiky</span>
+          <button class="mobile-card-close">×</button>
+        </div>
+        <div class="mobile-card-content">
+          <div class="mobile-stats-grid">
+            <div class="mobile-stat-item">
+              <div class="mobile-stat-value" id="mobileCurrentSkiers">0</div>
+              <div class="mobile-stat-label">Aktuálně</div>
+            </div>
+            <div class="mobile-stat-item">
+              <div class="mobile-stat-value" id="mobileAvgSkiers">0</div>
+              <div class="mobile-stat-label">Průměr</div>
+            </div>
+            <div class="mobile-stat-item">
+              <div class="mobile-stat-value" id="mobileMaxSkiers">0</div>
+              <div class="mobile-stat-label">Maximum</div>
+            </div>
+          </div>
+          <button id="mobileShowGraph" class="mobile-card-btn">Zobrazit graf</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobilní spodní navigace -->
+    <div id="mobileBottomNav" class="mobile-bottom-nav">
+      <button class="mobile-nav-item active" data-action="map">
+        <span class="mobile-nav-icon">🗺️</span>
+        <span class="mobile-nav-label">Mapa</span>
+      </button>
+      <button class="mobile-nav-item" data-action="layers">
+        <span class="mobile-nav-icon">📋</span>
+        <span class="mobile-nav-label">Vrstvy</span>
+      </button>
+      <button class="mobile-nav-item" data-action="tools">
+        <span class="mobile-nav-icon">🔧</span>
+        <span class="mobile-nav-label">Nástroje</span>
+      </button>
+      <button class="mobile-nav-item" data-action="info">
+        <span class="mobile-nav-icon">ℹ️</span>
+        <span class="mobile-nav-label">Info</span>
+      </button>
+    </div>
+    
+    <!-- Mobilní vrstvy panel -->
+    <div id="mobileLayersPanel" class="mobile-panel">
+      <div class="mobile-panel-header">
+        <h3>Vrstvy mapy</h3>
+        <button class="mobile-panel-close">×</button>
+      </div>
+      <div class="mobile-panel-content">
+        <div class="mobile-layer-group">
+          <h4>Podkladové mapy</h4>
+          <div class="mobile-layer-list" id="mobileBaseLayers"></div>
+        </div>
+        <div class="mobile-layer-group">
+          <h4>Překryvné vrstvy</h4>
+          <div class="mobile-layer-list" id="mobileOverlayLayers"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobilní nástroje panel -->
+    <div id="mobileToolsPanel" class="mobile-panel">
+      <div class="mobile-panel-header">
+        <h3>Nástroje</h3>
+        <button class="mobile-panel-close">×</button>
+      </div>
+      <div class="mobile-panel-content">
+        <div class="mobile-tool-grid">
+          <button class="mobile-tool-btn" data-tool="location">
+            <span class="mobile-tool-icon">📍</span>
+            <span class="mobile-tool-label">Moje poloha</span>
+          </button>
+          <button class="mobile-tool-btn" data-tool="home">
+            <span class="mobile-tool-icon">🏠</span>
+            <span class="mobile-tool-label">Domů</span>
+          </button>
+          <button class="mobile-tool-btn" data-tool="measure">
+            <span class="mobile-tool-icon">📏</span>
+            <span class="mobile-tool-label">Měření</span>
+          </button>
+          <button class="mobile-tool-btn" data-tool="draw">
+            <span class="mobile-tool-icon">✏️</span>
+            <span class="mobile-tool-label">Kreslení</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobilní info panel -->
+    <div id="mobileInfoPanel" class="mobile-panel">
+      <div class="mobile-panel-header">
+        <h3>Informace</h3>
+        <button class="mobile-panel-close">×</button>
+      </div>
+      <div class="mobile-panel-content">
+        <div class="mobile-info-section">
+          <h4>Ski areál Opálená</h4>
+          <p>Interaktivní mapa ski areálu s 3D vizualizací terénu, live počasím a real-time monitoringem.</p>
+          <div class="mobile-contact-info">
+            <div class="mobile-contact-item">
+              <span class="mobile-contact-icon">📞</span>
+              <span>+420 123 456 789</span>
+            </div>
+            <div class="mobile-contact-item">
+              <span class="mobile-contact-icon">🌐</span>
+              <span>www.opalena.cz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="view3d" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:5000;">
-      <!-- 3D Header -->
-      <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(135deg, #2c3e50, #34495e); color:white; padding:15px 20px; z-index:5001; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
+      <!-- Cesium 3D Globe -->
+      <div id="cesiumContainer" style="width:100%; height:100%;"></div>
+      <!-- 3D Header - matching 2D design -->
+      <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(135deg, #007ddd, #0056b3); color:white; padding:15px 20px; z-index:5001; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h1 style="margin:0; font-size:24px; font-weight:bold;">VYGEO OPALENA</h1>
-            <p style="margin:5px 0 0 0; font-size:14px; opacity:0.8;">3D vizualizace terénu ski areálu</p>
+            <h1 style="margin:0; font-size:28px; font-weight:bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">VYGEO OPALENA</h1>
+            <p style="margin:5px 0 0 0; font-size:16px; opacity:0.9; font-weight:500;">3D vizualizace terénu ski areálu</p>
           </div>
-          <div style="display:flex; gap:10px;">
-            <button id="switchToPLY" style="background:#f39c12; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+          <div style="display:flex; gap:12px;">
+            <button id="switchToPLY" style="background:#f39c12; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease;">
               DMR Terén
             </button>
-            <button id="switchToGLB" style="background:#27ae60; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+            <button id="switchToGLB" style="background:#27ae60; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease;">
               Ortofoto
             </button>
-            <button id="backTo2D" style="background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:12px;">
+            <button id="switchToCesium" style="background:#9b59b6; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+              🌍 Cesium Globe
+            </button>
+            <button id="resetView" style="background:#6c757d; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+              🎯 Reset pohledu
+            </button>
+            <button id="backTo2D" style="background:#dc3545; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease;">
               ← Zpět na 2D
             </button>
           </div>
         </div>
       </div>
       
-      <!-- 3D Info -->
-      <div style="position:absolute; bottom:20px; left:20px; z-index:5001; background:rgba(0,0,0,0.7); color:white; padding:10px; border-radius:5px; font-size:12px;">
-        <div>🖱️ Levé tlačítko: otáčení</div>
-        <div>🖱️ Pravé tlačítko: posun</div>
-        <div>🖱️ Kolečko: přiblížení</div>
+      <!-- 3D Info - improved styling -->
+      <div style="position:absolute; bottom:20px; left:20px; z-index:5001; background:rgba(0,123,221,0.9); color:white; padding:15px; border-radius:8px; font-size:13px; font-weight:500; box-shadow: 0 4px 8px rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+        <div style="margin-bottom:5px;">🖱️ <strong>Levní tlačítko:</strong> otáčení</div>
+        <div style="margin-bottom:5px;">🖱️ <strong>Pravé tlačítko:</strong> posun</div>
+        <div>🖱️ <strong>Kolečko:</strong> přiblížení</div>
       </div>
     </div>
-    <div class="home-btn" id="homeButton" title="Návrat na domovskou pozici"><i class="fas fa-home"></i></div>
-    <div class="find-location-btn" id="findLocationButton" title="Najít mou polohu"><i class="fas fa-map-marker-alt"></i></div>
-    <div class="auth-btn" id="authButton" title="Přihlášení/Odhlášení" style="position:fixed; top:12px; right:78px; background:#007ddd; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">Přihlásit</div>
-    <div class="view3d-btn" id="view3dButton" title="3D zobrazení terénu" style="position:fixed; top:12px; right:200px; background:#28a745; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000;">3D</div>
+    <div class="location-controls">
+      <div class="location-btn" id="findLocationButton" title="Najít mou polohu">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Poloha</span>
+      </div>
+      <div class="location-btn" id="homeButton" title="Návrat na domovskou pozici">
+        <i class="fas fa-home"></i>
+        <span>Domů</span>
+      </div>
+    </div>
     
     <!-- Weather Dashboard -->
     <div id="weatherDashboard" style="position:fixed; top:60px; right:12px; width:320px; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:1000; padding:15px; font-family:Arial, sans-serif; display:none;">
@@ -187,16 +437,6 @@
       </div>
     </div>
     
-    <!-- Weather Button -->
-    <div id="weatherButton" style="position:fixed; top:12px; right:280px; background:#17a2b8; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; z-index:1000; font-size:12px;">
-      <div style="display:flex; align-items:center; gap:5px;">
-        <span>🌤️</span>
-        <div style="text-align:left;">
-          <div style="font-size:11px; line-height:1.2;">Počasí</div>
-          <div style="font-size:10px; opacity:0.9;" id="liveTemp">8°C</div>
-        </div>
-      </div>
-    </div>
 
     <script>
       $(document).ready(function () {
@@ -211,14 +451,14 @@
         L.Icon.Default.imagePath = '';
         // Globálně přepiš výchozí cesty pro ikony, aby se nikdy nenačítal marker-icon-2x.png
         L.Icon.Default.mergeOptions({
-          iconUrl: 'marker-icon.svg',
-          iconRetinaUrl: 'marker-icon.svg',
+          iconUrl: 'assets/icons/marker-icon.svg',
+          iconRetinaUrl: 'assets/icons/marker-icon.svg',
           shadowUrl: null
         });
 
         const defaultMarkerIcon = L.icon({
-          iconUrl: 'marker-icon.svg',
-          iconRetinaUrl: 'marker-icon.svg',
+          iconUrl: 'assets/icons/marker-icon.svg',
+          iconRetinaUrl: 'assets/icons/marker-icon.svg',
           shadowUrl: null,
           iconSize: [25, 41],
           iconAnchor: [12, 41],
@@ -233,14 +473,14 @@
         const API_KEY = '5ZtGuQEtvV37xyC_1IJnglc8ZgP53ehgvFqTiHuaFoI';
 
         const customIcon = L.icon({
-          iconUrl: 'webcam.svg',
+          iconUrl: 'assets/icons/webcam.svg',
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           popupAnchor: [0, -32]
         });
 
         const currentLocationIcon = L.icon({
-          iconUrl: 'bod_lokace.svg',
+          iconUrl: 'assets/icons/bod_lokace.svg',
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           popupAnchor: [0, -32]
@@ -370,7 +610,7 @@
         });
 
         // Ortofoto s posunem
-        const ortofotoVrstva = L.tileLayer('./{z}/{x}/{y}.png', {
+        const ortofotoVrstva = L.tileLayer('./tiles/{z}/{x}/{y}.png', {
           minZoom: 17,
           maxZoom: 19,
           tileSize: 256,
@@ -438,12 +678,30 @@
         }
 
         function updateSheepCount(count) {
-          document.querySelector('#sheepInfo .count').textContent = count;
+          document.querySelector('.skiers-count').textContent = count;
+          // Aktualizuj mobilní zobrazení
+          const mobileSkiers = document.getElementById('mobileSkiers');
+          const mobileInfoSkiers = document.getElementById('mobileInfoSkiers');
+          const mobileSkiersDisplay = document.getElementById('mobileSkiersDisplay');
+          const mobileCurrentSkiers = document.getElementById('mobileCurrentSkiers');
+          
+          if (mobileSkiers) {
+            mobileSkiers.textContent = count;
+          }
+          if (mobileInfoSkiers) {
+            mobileInfoSkiers.textContent = count;
+          }
+          if (mobileSkiersDisplay) {
+            mobileSkiersDisplay.textContent = count + ' lyžařů';
+          }
+          if (mobileCurrentSkiers) {
+            mobileCurrentSkiers.textContent = count;
+          }
         }
 
         // --- Načítání počtu lyžařů + graf ---
         function fetchSheepFromHosting() {
-          fetch('get_sheep.php')
+          fetch('api/get_sheep.php')
             .then(res => res.json())
             .then(data => {
               const count = data.count || 0;
@@ -455,9 +713,28 @@
         setInterval(fetchSheepFromHosting, 2000);
 
         let sheepChart = null;
-        document.getElementById('showGraphBtn').addEventListener('click', function () {
-          document.getElementById('graphModal').style.display = 'block';
-          fetch('get_sheep.php?history=1')
+        let isGraphModalOpen = false;
+        
+        function toggleGraphModal() {
+          const modal = document.getElementById('graphModal');
+          if (isGraphModalOpen) {
+            // Zavřít modal
+            modal.style.display = 'none';
+            isGraphModalOpen = false;
+            if (sheepChart) {
+              sheepChart.destroy();
+              sheepChart = null;
+            }
+          } else {
+            // Otevřít modal
+            modal.style.display = 'block';
+            isGraphModalOpen = true;
+            loadGraphData();
+          }
+        }
+        
+        function loadGraphData() {
+          fetch('api/get_sheep.php?history=1')
             .then(res => res.json())
             .then(data => {
               const labels = data.map(d => d.timestamp);
@@ -489,17 +766,43 @@
                     label: 'Počet lyžařů na sjezdovce',
                     data: counts,
                     borderColor: '#007ddd',
-                    tension: 0.3,
-                    pointRadius: 4,
+                    backgroundColor: 'rgba(0, 123, 221, 0.1)',
+                    tension: 0.4,
+                    pointRadius: 5,
                     pointBackgroundColor: '#007ddd',
-                    fill: false
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#0056b3',
+                    fill: true
                   }]
                 },
                 options: {
                   responsive: true,
+                  maintainAspectRatio: false,
+                  interaction: {
+                    intersect: false,
+                    mode: 'index'
+                  },
                   plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: (c) => `${c.raw} lyžařů` } }
+                    legend: { 
+                      display: false 
+                    },
+                    tooltip: { 
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                      titleColor: '#ffffff',
+                      bodyColor: '#ffffff',
+                      borderColor: '#007ddd',
+                      borderWidth: 1,
+                      cornerRadius: 8,
+                      callbacks: { 
+                        label: (c) => `${c.raw} lyžařů`,
+                        title: (tooltipItems) => {
+                          const date = new Date(tooltipItems[0].label);
+                          return date.toLocaleString('cs-CZ');
+                        }
+                      }
+                    }
                   },
                   scales: {
                     x: {
@@ -507,20 +810,213 @@
                       time: {
                         parser: 'yyyy-MM-dd HH:mm:ss',
                         tooltipFormat: 'dd.MM.yyyy HH:mm',
-                        displayFormats: { minute: 'HH:mm', hour: 'dd.MM HH:mm' }
+                        displayFormats: { 
+                          minute: 'HH:mm', 
+                          hour: 'dd.MM HH:mm',
+                          day: 'dd.MM'
+                        }
                       },
-                      title: { display: true, text: 'Čas', font: { size: 14 } }
+                      title: { 
+                        display: true, 
+                        text: 'Čas', 
+                        font: { size: 12, weight: 'bold' },
+                        color: '#495057'
+                      },
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                      },
+                      ticks: {
+                        font: { size: 10 },
+                        color: '#6c757d'
+                      }
                     },
                     y: {
                       beginAtZero: true,
-                      title: { display: true, text: 'Počet lyžařů', font: { size: 14 } }
+                      title: { 
+                        display: true, 
+                        text: 'Počet lyžařů', 
+                        font: { size: 12, weight: 'bold' },
+                        color: '#495057'
+                      },
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                      },
+                      ticks: {
+                        font: { size: 10 },
+                        color: '#6c757d',
+                        stepSize: 1
+                      }
+                    }
+                  },
+                  elements: {
+                    line: {
+                      borderWidth: 3
                     }
                   }
                 }
               });
             })
             .catch(err => console.error("Chyba při načítání historie:", err));
+        }
+        
+        document.getElementById('showGraphBtn').addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleGraphModal();
         });
+        
+        document.getElementById('closeGraphBtn').addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleGraphModal();
+        });
+        
+        // Mobilní graf tlačítko
+        document.getElementById('mobileGraphBtn').addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleGraphModal();
+        });
+        
+        // NOVÉ MOBILNÍ ROZHRANÍ - JavaScript funkcionalita
+        initMobileInterface();
+        
+        function initMobileInterface() {
+          // Mobilní top bar
+          const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+          const mobile3DBtn = document.getElementById('mobile3DBtn');
+          
+          // Mobilní karty
+          const mobileWeatherCard = document.getElementById('mobileWeatherCard');
+          const mobileStatsCard = document.getElementById('mobileStatsCard');
+          
+          // Mobilní spodní navigace
+          const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+          
+          // Mobilní panely
+          const mobileLayersPanel = document.getElementById('mobileLayersPanel');
+          const mobileToolsPanel = document.getElementById('mobileToolsPanel');
+          const mobileInfoPanel = document.getElementById('mobileInfoPanel');
+          
+          // Event listenery pro mobilní rozhraní
+          if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+              // Toggle menu - zatím neimplementováno
+              console.log('Mobile menu clicked');
+            });
+          }
+          
+          if (mobile3DBtn) {
+            mobile3DBtn.addEventListener('click', function() {
+              if (is3dMode) {
+                switchTo2D();
+              } else {
+                switchTo3D();
+              }
+            });
+          }
+          
+          // Zavření karet
+          document.querySelectorAll('.mobile-card-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+              this.closest('.mobile-card').classList.add('hidden');
+            });
+          });
+          
+          // Spodní navigace
+          mobileNavItems.forEach(item => {
+            item.addEventListener('click', function() {
+              // Odstranit active třídu ze všech
+              mobileNavItems.forEach(nav => nav.classList.remove('active'));
+              // Přidat active třídu na kliknutý
+              this.classList.add('active');
+              
+              const action = this.dataset.action;
+              showMobilePanel(action);
+            });
+          });
+          
+          // Zavření panelů
+          document.querySelectorAll('.mobile-panel-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+              hideAllMobilePanels();
+            });
+          });
+          
+          // Nástroje
+          document.querySelectorAll('.mobile-tool-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const tool = this.dataset.tool;
+              handleMobileTool(tool);
+            });
+          });
+          
+          // Graf tlačítko v mobilních kartách
+          const mobileShowGraph = document.getElementById('mobileShowGraph');
+          if (mobileShowGraph) {
+            mobileShowGraph.addEventListener('click', function() {
+              toggleGraphModal();
+            });
+          }
+        }
+        
+        function showMobilePanel(panelType) {
+          hideAllMobilePanels();
+          
+          switch(panelType) {
+            case 'layers':
+              document.getElementById('mobileLayersPanel').classList.add('show');
+              break;
+            case 'tools':
+              document.getElementById('mobileToolsPanel').classList.add('show');
+              break;
+            case 'info':
+              document.getElementById('mobileInfoPanel').classList.add('show');
+              break;
+            case 'map':
+            default:
+              // Zobrazit pouze mapu
+              break;
+          }
+        }
+        
+        function hideAllMobilePanels() {
+          document.querySelectorAll('.mobile-panel').forEach(panel => {
+            panel.classList.remove('show');
+          });
+        }
+        
+        function handleMobileTool(tool) {
+          switch(tool) {
+            case 'location':
+              // Najít polohu
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                  const lat = position.coords.latitude;
+                  const lng = position.coords.longitude;
+                  map.setView([lat, lng], 17);
+                  
+                  if (currentLocationMarker) {
+                    map.removeLayer(currentLocationMarker);
+                  }
+                  currentLocationMarker = L.marker([lat, lng], { icon: currentLocationIcon }).addTo(map);
+                });
+              }
+              break;
+            case 'home':
+              // Návrat domů
+              map.setView(homePoint, 17);
+              break;
+            case 'measure':
+              // Měření - zatím neimplementováno
+              console.log('Measure tool clicked');
+              break;
+            case 'draw':
+              // Kreslení - zatím neimplementováno
+              console.log('Draw tool clicked');
+              break;
+          }
+          hideAllMobilePanels();
+        }
 
         /* =====================================================================
          * KRESLENÍ A EDITACE OBJEKTŮ + ULOŽENÍ DO DB (Leaflet.draw)
@@ -605,7 +1101,7 @@
         }
         
         function fetchAuthStatus() {
-          fetch('auth.php?action=status', { credentials: 'include' })
+          fetch('api/auth.php?action=status', { credentials: 'include' })
             .then(r => r.json())
             .then(s => { 
               window.isLoggedIn = !!s.loggedIn; 
@@ -643,7 +1139,7 @@
           const username = document.getElementById('username').value;
           const password = document.getElementById('password').value;
           
-          fetch('auth.php?action=login', {
+          fetch('api/auth.php?action=login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -672,7 +1168,7 @@
         document.getElementById('authButton').addEventListener('click', function() {
           if (window.isLoggedIn) {
             // Logout
-            fetch('auth.php?action=logout', { 
+            fetch('api/auth.php?action=logout', { 
               method: 'POST', 
               credentials: 'include' 
             })
@@ -694,6 +1190,29 @@
         
         fetchAuthStatus();
 
+      // === SIDEBAR FUNCTIONALITY ===
+      document.getElementById('menuToggle').addEventListener('click', function() {
+        const sidebar = document.getElementById('leftSidebar');
+        sidebar.classList.toggle('open');
+      });
+
+      document.getElementById('closeSidebar').addEventListener('click', function() {
+        const sidebar = document.getElementById('leftSidebar');
+        sidebar.classList.remove('open');
+      });
+
+      // Zavření sidebaru při kliknutí mimo něj
+      document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('leftSidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+          sidebar.classList.remove('open');
+        }
+      });
+
+      // === WEATHER WIDGET FUNCTIONALITY ===
+      // Event listener moved to line 1045 to avoid duplication
+
       // === WEATHER FUNCTIONALITY ===
       let weatherData = null;
       const OPALENA_COORDS = { lat: 49.5535106, lon: 18.3143814 };
@@ -711,7 +1230,8 @@
       }
 
       function showWeatherDashboard() {
-        document.getElementById('weatherDashboard').style.display = 'block';
+        const dashboard = document.getElementById('weatherDashboard');
+        dashboard.style.display = 'block';
         if (!weatherData) {
           loadWeatherData();
         }
@@ -814,6 +1334,7 @@
         const tempElement = document.getElementById('liveTemp');
         const tempDisplayElement = document.getElementById('liveTempDisplay');
         const tempTimeElement = document.getElementById('liveTempTime');
+        const mobileTemp = document.getElementById('mobileTemp');
         
         if (tempElement) {
           tempElement.textContent = liveTemperature + '°C';
@@ -828,6 +1349,26 @@
             hour: '2-digit', 
             minute: '2-digit' 
           });
+        }
+        
+        // Aktualizuj mobilní zobrazení
+        if (mobileTemp) {
+          mobileTemp.textContent = liveTemperature + '°C';
+        }
+        
+        // Aktualizuj mobilní informační okno
+        const mobileInfoTemp = document.getElementById('mobileInfoTemp');
+        const mobileTempDisplay = document.getElementById('mobileTempDisplay');
+        const mobileWeatherTemp = document.getElementById('mobileWeatherTemp');
+        
+        if (mobileInfoTemp) {
+          mobileInfoTemp.textContent = liveTemperature + '°C';
+        }
+        if (mobileTempDisplay) {
+          mobileTempDisplay.textContent = liveTemperature + '°C';
+        }
+        if (mobileWeatherTemp) {
+          mobileWeatherTemp.textContent = liveTemperature + '°C';
         }
       }
 
@@ -870,16 +1411,60 @@
       }
 
       // Weather button events
-      document.getElementById('weatherButton').addEventListener('click', toggleWeatherDashboard);
-      document.getElementById('closeWeather').addEventListener('click', hideWeatherDashboard);
-
-      // Close weather dashboard when clicking on map
-      document.getElementById('map').addEventListener('click', function() {
+      const weatherWidget = document.getElementById('weatherWidget');
+      if (weatherWidget) {
+        weatherWidget.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleWeatherDashboard();
+        });
+      } else {
+        console.error('Weather widget element not found!');
+      }
+      document.getElementById('closeWeather').addEventListener('click', function(e) {
+        e.stopPropagation();
         hideWeatherDashboard();
       });
 
-      // Prevent weather dashboard from closing when clicking inside it
+      // Close all modals when clicking on map
+      document.getElementById('map').addEventListener('click', function() {
+        closeAllModals();
+      });
+      
+      function closeAllModals() {
+        // Zavřít weather dashboard
+        hideWeatherDashboard();
+        
+        // Zavřít graf modal
+        if (isGraphModalOpen) {
+          document.getElementById('graphModal').style.display = 'none';
+          isGraphModalOpen = false;
+          if (sheepChart) {
+            sheepChart.destroy();
+            sheepChart = null;
+          }
+        }
+        
+        // Zavřít features modal
+        document.getElementById('featuresModal').style.display = 'none';
+        
+        // Zavřít login modal
+        document.getElementById('loginModal').style.display = 'none';
+      }
+
+      // Prevent modals from closing when clicking inside them
       document.getElementById('weatherDashboard').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      document.getElementById('graphModal').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      document.getElementById('featuresModal').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      document.getElementById('loginModal').addEventListener('click', function(e) {
         e.stopPropagation();
       });
 
@@ -890,7 +1475,8 @@
       // === 3D VIEW FUNCTIONALITY ===
       let scene3d, camera3d, renderer3d, controls3d, model3d;
       let is3dMode = false;
-      let currentModelType = 'glb'; // 'glb' or 'ply'
+      let currentModelType = 'glb'; // 'glb', 'ply', or 'cesium'
+      let cesiumViewer = null;
 
         function init3D() {
           const container = document.getElementById('view3d');
@@ -908,23 +1494,45 @@
           renderer3d.setSize(window.innerWidth, window.innerHeight);
           renderer3d.shadowMap.enabled = true;
           renderer3d.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer3d.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer3d.toneMappingExposure = 1.2;
           container.appendChild(renderer3d.domElement);
           
           // Controls
           controls3d = new THREE.OrbitControls(camera3d, renderer3d.domElement);
           controls3d.enableDamping = true;
           controls3d.dampingFactor = 0.05;
+          controls3d.maxPolarAngle = Math.PI / 2; // Prevent camera from going below ground
+          controls3d.enablePan = true; // Allow panning
+          controls3d.enableZoom = true; // Allow zooming
+          controls3d.enableRotate = true; // Allow rotation
           
-          // Lighting
-          const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+          // Enhanced Lighting
+          const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
           scene3d.add(ambientLight);
           
-          const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-          directionalLight.position.set(50, 100, 50);
+          // Main directional light (sun)
+          const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+          directionalLight.position.set(100, 150, 100);
           directionalLight.castShadow = true;
-          directionalLight.shadow.mapSize.width = 2048;
-          directionalLight.shadow.mapSize.height = 2048;
+          directionalLight.shadow.mapSize.width = 4096;
+          directionalLight.shadow.mapSize.height = 4096;
+          directionalLight.shadow.camera.near = 0.1;
+          directionalLight.shadow.camera.far = 500;
+          directionalLight.shadow.camera.left = -200;
+          directionalLight.shadow.camera.right = 200;
+          directionalLight.shadow.camera.top = 200;
+          directionalLight.shadow.camera.bottom = -200;
           scene3d.add(directionalLight);
+          
+          // Additional fill light
+          const fillLight = new THREE.DirectionalLight(0x87CEEB, 0.3);
+          fillLight.position.set(-50, 50, -50);
+          scene3d.add(fillLight);
+          
+          // Hemisphere light for sky/ground lighting
+          const hemisphereLight = new THREE.HemisphereLight(0x87CEEB, 0x8B4513, 0.6);
+          scene3d.add(hemisphereLight);
           
           // Load initial model
           loadModel3D();
@@ -937,24 +1545,123 @@
             model3d = null;
           }
 
-          if (currentModelType === 'glb') {
+          if (currentModelType === 'cesium') {
+            initCesium();
+          } else if (currentModelType === 'glb') {
             loadGLBModel();
           } else {
             loadPLYModel();
+          }
+        }
+        
+        function initCesium() {
+          // Destroy existing Cesium viewer if it exists
+          if (cesiumViewer) {
+            cesiumViewer.destroy();
+            cesiumViewer = null;
+          }
+          
+          // Initialize Cesium viewer
+          cesiumViewer = new Cesium.Viewer('cesiumContainer', {
+            terrainProvider: Cesium.createWorldTerrain(),
+            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+              url: 'https://a.tile.openstreetmap.org/'
+            }),
+            baseLayerPicker: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: false,
+            vrButton: false
+          });
+          
+          // Set initial view to Opalena area
+          const opalenaPosition = Cesium.Cartesian3.fromDegrees(18.3143814, 49.5535106, 1000);
+          cesiumViewer.camera.setView({
+            destination: opalenaPosition,
+            orientation: {
+              heading: Cesium.Math.toRadians(0.0),
+              pitch: Cesium.Math.toRadians(-45.0),
+              roll: 0.0
+            }
+          });
+          
+          // Add custom terrain if available
+          addCustomTerrain();
+          
+          // Add custom imagery
+          addCustomImagery();
+          
+          console.log('Cesium Globe inicializován');
+        }
+        
+        function addCustomTerrain() {
+          // Try to add custom terrain data
+          try {
+            // You can add custom terrain provider here
+            // For example, Cesium World Terrain or custom terrain tiles
+            console.log('Používá se Cesium World Terrain');
+          } catch (error) {
+            console.log('Custom terrain nedostupné, používá se výchozí');
+          }
+        }
+        
+        function addCustomImagery() {
+          // Add custom imagery layers
+          try {
+            // Add orthophoto layer
+            const orthophotoProvider = new Cesium.SingleTileImageryProvider({
+              url: 'assets/images/opalena_ortofoto.jpg',
+              rectangle: Cesium.Rectangle.fromDegrees(18.30, 49.54, 18.33, 49.57)
+            });
+            
+            cesiumViewer.imageryLayers.addImageryProvider(orthophotoProvider);
+            console.log('Ortofoto vrstva přidána do Cesium');
+          } catch (error) {
+            console.log('Ortofoto vrstva nedostupná:', error);
+          }
+        }
+        
+        function updateCameraTarget() {
+          if (model3d && controls3d) {
+            // Calculate the center of the current model
+            const box = new THREE.Box3().setFromObject(model3d);
+            const center = box.getCenter(new THREE.Vector3());
+            
+            // Set the camera target to the model center
+            controls3d.target.copy(center);
+            controls3d.update();
+            
+            console.log('Kamera zaměřena na střed modelu:', center);
           }
         }
 
         function loadGLBModel() {
           const gltfLoader = new THREE.GLTFLoader();
           
-          gltfLoader.load('dig_dvojce_opalena.glb', function(gltf) {
+          // Try to load a different GLB model first, fallback to the original
+          const modelPath = 'assets/models/dig_dvojce_opalena.glb'; // You can change this to a different .glb file
+          
+          gltfLoader.load(modelPath, function(gltf) {
             model3d = gltf.scene;
             
-            // Enable shadows
+            // Enable shadows and improve materials
             model3d.traverse(function(child) {
               if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
+                
+                // Enhance material properties
+                if (child.material) {
+                  child.material.shininess = 30;
+                  child.material.specular = new THREE.Color(0x111111);
+                  if (child.material.map) {
+                    child.material.map.anisotropy = 16;
+                  }
+                }
               }
             });
             
@@ -970,15 +1677,15 @@
             
             scene3d.add(model3d);
             
-            // Position camera
-            camera3d.position.set(0, 80, 120);
-            controls3d.target.set(0, 0, 0);
-            controls3d.update();
+            // Update camera target to focus on the model
+            updateCameraTarget();
             
             console.log('GLB model (Ortofoto) načten');
           }, undefined, function(error) {
             console.error('Chyba při načítání GLB modelu:', error);
-            alert('Nepodařilo se načíst GLB model');
+            // Fallback to PLY model if GLB fails
+            console.log('Přepínám na PLY model jako fallback');
+            loadPLYModel();
           });
         }
 
@@ -986,37 +1693,15 @@
           const textureLoader = new THREE.TextureLoader();
           const plyLoader = new THREE.PLYLoader();
           
-          // Load orthophoto texture
-          textureLoader.load('opalena_ortofoto.jpg', function(texture) {
+          // Always load orthophoto texture for DMR
+          textureLoader.load('assets/images/opalena_ortofoto.jpg', function(texture) {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.flipY = false;
+            texture.anisotropy = 16;
             
             // Load PLY model
-            plyLoader.load('dig_dvojce_opalena.ply', function(geometry) {
-              // Create material with texture
-              const material = new THREE.MeshLambertMaterial({ 
-                map: texture,
-                vertexColors: geometry.hasAttribute('color') ? true : false,
-                transparent: false
-              });
-              
-              // Create mesh
-              model3d = new THREE.Mesh(geometry, material);
-              model3d.castShadow = true;
-              model3d.receiveShadow = true;
-              
-              // Center and scale model
-              geometry.computeBoundingBox();
-              const box = geometry.boundingBox;
-              const center = box.getCenter(new THREE.Vector3());
-              const size = box.getSize(new THREE.Vector3());
-              const maxDim = Math.max(size.x, size.y, size.z);
-              const scale = 100 / maxDim;
-              
-              model3d.scale.setScalar(scale);
-              model3d.position.sub(center.multiplyScalar(scale));
-              
+            plyLoader.load('assets/models/dig_dvojce_opalena.ply', function(geometry) {
               // Generate UV coordinates if not present
               if (!geometry.attributes.uv) {
                 geometry.computeBoundingBox();
@@ -1037,31 +1722,22 @@
                 geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
               }
               
-              scene3d.add(model3d);
-              
-              // Position camera
-              camera3d.position.set(0, 80, 120);
-              controls3d.target.set(0, 0, 0);
-              controls3d.update();
-              
-              console.log('PLY model (DMR + Ortofoto) načten');
-            }, undefined, function(error) {
-              console.error('Chyba při načítání PLY modelu:', error);
-              alert('Nepodařilo se načíst PLY model');
-            });
-          }, undefined, function(error) {
-            console.error('Chyba při načítání textury:', error);
-            // Fallback without texture
-            plyLoader.load('dig_dvojce_opalena.ply', function(geometry) {
-              const material = new THREE.MeshLambertMaterial({ 
-                color: 0x8B4513,
-                vertexColors: geometry.hasAttribute('color') ? true : false
+              // Create enhanced material with ortofoto texture
+              const material = new THREE.MeshPhongMaterial({ 
+                map: texture,
+                vertexColors: false, // Disable vertex colors to show texture clearly
+                transparent: false,
+                shininess: 30,
+                specular: 0x111111,
+                side: THREE.DoubleSide
               });
               
+              // Create mesh
               model3d = new THREE.Mesh(geometry, material);
               model3d.castShadow = true;
               model3d.receiveShadow = true;
               
+              // Center and scale model
               geometry.computeBoundingBox();
               const box = geometry.boundingBox;
               const center = box.getCenter(new THREE.Vector3());
@@ -1071,23 +1747,21 @@
               
               model3d.scale.setScalar(scale);
               model3d.position.sub(center.multiplyScalar(scale));
+              
               scene3d.add(model3d);
               
-              camera3d.position.set(0, 80, 120);
-              controls3d.target.set(0, 0, 0);
-              controls3d.update();
+              // Update camera target to focus on the DMR model
+              updateCameraTarget();
+              
+              console.log('PLY model (DMR + Ortofoto) načten s ortofoto texturou');
+            }, undefined, function(error) {
+              console.error('Chyba při načítání PLY modelu:', error);
+              alert('Nepodařilo se načíst PLY model');
             });
+          }, undefined, function(error) {
+            console.error('Chyba při načítání ortofoto textury:', error);
+            alert('Nepodařilo se načíst ortofoto texturu. Zkontrolujte, zda existuje soubor assets/images/opalena_ortofoto.jpg');
           });
-          
-          // Animation loop
-          function animate() {
-            if (is3dMode) {
-              requestAnimationFrame(animate);
-              controls3d.update();
-              renderer3d.render(scene3d, camera3d);
-            }
-          }
-          animate();
         }
         
         function switchTo3D() {
@@ -1100,6 +1774,17 @@
           if (!scene3d) {
             init3D();
           }
+          
+          // Start animation loop
+          animate3D();
+        }
+        
+        function animate3D() {
+          if (is3dMode && scene3d && camera3d && renderer3d) {
+            requestAnimationFrame(animate3D);
+            controls3d.update();
+            renderer3d.render(scene3d, camera3d);
+          }
         }
         
         function switchTo2D() {
@@ -1108,6 +1793,12 @@
           document.getElementById('view3d').style.display = 'none';
           document.getElementById('view3dButton').textContent = '3D';
           document.getElementById('view3dButton').style.background = '#28a745';
+          
+          // Clean up Cesium viewer if active
+          if (cesiumViewer) {
+            cesiumViewer.destroy();
+            cesiumViewer = null;
+          }
         }
         
         // 3D button handler
@@ -1118,6 +1809,9 @@
           switchTo3D();
         }
       });
+      
+      // Initialize button hover effects
+      addButtonHoverEffects();
 
       // Tlačítko zpět na 2D v 3D prohlížeči
       document.getElementById('backTo2D').addEventListener('click', function() {
@@ -1137,22 +1831,86 @@
         updateModelButtons();
       });
 
+      document.getElementById('switchToCesium').addEventListener('click', function() {
+        currentModelType = 'cesium';
+        loadModel3D();
+        updateModelButtons();
+      });
+
       function updateModelButtons() {
         const plyBtn = document.getElementById('switchToPLY');
         const glbBtn = document.getElementById('switchToGLB');
+        const cesiumBtn = document.getElementById('switchToCesium');
         
+        // Reset all buttons
+        [plyBtn, glbBtn, cesiumBtn].forEach(btn => {
+          if (btn) {
+            btn.style.opacity = '0.7';
+            btn.style.transform = 'scale(1)';
+          }
+        });
+        
+        // Highlight active button
         if (currentModelType === 'ply') {
           plyBtn.style.background = '#e67e22';
           plyBtn.style.opacity = '1';
+          plyBtn.style.transform = 'scale(1.05)';
           glbBtn.style.background = '#27ae60';
-          glbBtn.style.opacity = '0.7';
-        } else {
-          plyBtn.style.background = '#f39c12';
-          plyBtn.style.opacity = '0.7';
+          cesiumBtn.style.background = '#9b59b6';
+        } else if (currentModelType === 'glb') {
           glbBtn.style.background = '#2ecc71';
           glbBtn.style.opacity = '1';
+          glbBtn.style.transform = 'scale(1.05)';
+          plyBtn.style.background = '#f39c12';
+          cesiumBtn.style.background = '#9b59b6';
+        } else if (currentModelType === 'cesium') {
+          cesiumBtn.style.background = '#8e44ad';
+          cesiumBtn.style.opacity = '1';
+          cesiumBtn.style.transform = 'scale(1.05)';
+          plyBtn.style.background = '#f39c12';
+          glbBtn.style.background = '#27ae60';
         }
       }
+      
+      // Add hover effects to 3D buttons
+      function addButtonHoverEffects() {
+        const buttons = ['switchToPLY', 'switchToGLB', 'switchToCesium', 'resetView', 'backTo2D'];
+        buttons.forEach(btnId => {
+          const btn = document.getElementById(btnId);
+          if (btn) {
+            btn.addEventListener('mouseenter', function() {
+              this.style.transform = 'scale(1.05)';
+              this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+            });
+            btn.addEventListener('mouseleave', function() {
+              this.style.transform = 'scale(1)';
+              this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            });
+          }
+        });
+      }
+      
+      // Reset view button handler
+      document.getElementById('resetView').addEventListener('click', function() {
+        if (currentModelType === 'cesium' && cesiumViewer) {
+          // Reset Cesium camera to Opalena
+          const opalenaPosition = Cesium.Cartesian3.fromDegrees(18.3143814, 49.5535106, 1000);
+          cesiumViewer.camera.setView({
+            destination: opalenaPosition,
+            orientation: {
+              heading: Cesium.Math.toRadians(0.0),
+              pitch: Cesium.Math.toRadians(-45.0),
+              roll: 0.0
+            }
+          });
+          console.log('Cesium pohled resetován na Opalenu');
+        } else if (model3d && controls3d) {
+          // Reset Three.js camera to default position
+          camera3d.position.set(0, 80, 120);
+          updateCameraTarget();
+          console.log('Three.js pohled resetován na model');
+        }
+      });
         
         // Handle window resize
         window.addEventListener('resize', function() {
@@ -1172,7 +1930,7 @@
           const id = layer?.feature?.properties?.id;
           if (id) feature.properties.id = id;
 
-          return fetch('save_features.php', {
+          return fetch('api/save_features.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
             body: JSON.stringify(feature)
@@ -1192,7 +1950,7 @@
         }
 
         function deleteFeatureById(id) {
-          return fetch('delete_features.php', {
+          return fetch('api/delete_features.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken || '' },
             body: JSON.stringify({ id })
@@ -1253,7 +2011,7 @@
         function loadFeaturesFromDB() {
           if (!window.isLoggedIn) return;
           
-          fetch('get_features.php')
+          fetch('api/get_features.php')
             .then(res => res.json())
             .then(fc => {
               if (!fc || !fc.features) return;
