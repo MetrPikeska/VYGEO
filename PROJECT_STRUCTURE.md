@@ -1,116 +1,130 @@
-# 📁 VYGEO - Struktura projektu
+# VYGEO Project Structure
 
-## 🎯 Organizace souborů
-
-Projekt byl reorganizován pro lepší přehlednost a údržbu. Všechny soubory jsou nyní logicky roztříděny do tematických složek.
-
-## 📂 Struktura složek
+## 📁 Folder Organization
 
 ```
-vygeo/
-├── index.html                 # Hlavní HTML soubor
-├── README.md                  # Dokumentace projektu
-├── PROJECT_STRUCTURE.md       # Tento soubor - popis struktury
-├── prace.txt                  # Poznámky k práci
+VYGEO/
+├── 📄 index.html                    # Clean, minimal HTML (200 lines)
+├── 📄 README.md                     # Comprehensive documentation
+├── 📄 PROJECT_STRUCTURE.md          # This file
 │
-├── css/                       # Styly a CSS soubory
-│   ├── visual.css            # Hlavní styly aplikace
-│   ├── style.css             # Dodatečné styly
-│   └── leaflet.css           # Leaflet mapové styly
+├── 📁 assets/                       # Static assets
+│   ├── 📁 css/                      # Stylesheets
+│   │   ├── leaflet.css
+│   │   ├── visual.css
+│   │   └── style.css
+│   ├── 📁 icons/                    # SVG icons
+│   │   ├── marker-icon.svg
+│   │   ├── webcam.svg
+│   │   └── bod_lokace.svg
+│   ├── 📁 images/                   # Images
+│   │   ├── favicon.png
+│   │   └── opalena_ortofoto.jpg
+│   └── 📁 models/                   # 3D models
+│       ├── dig_dvojce_opalena.glb
+│       ├── dig_dvojce_opalena.ply
+│       └── yolov8n.pt
 │
-├── assets/                    # Statické soubory
-│   ├── images/               # Obrázky
-│   │   ├── favicon.png       # Ikona stránky
-│   │   ├── marker-icon.png   # Ikona markeru
-│   │   └── opalena_ortofoto.jpg # Ortofoto mapy
-│   ├── icons/                # SVG ikony
-│   │   ├── marker-icon.svg   # SVG ikona markeru
-│   │   ├── menu.svg          # Menu ikona
-│   │   ├── webcam.svg        # Webcam ikona
-│   │   └── bod_lokace.svg    # Ikona lokace
-│   └── models/               # 3D modely
-│       ├── dig_dvojce_opalena.glb  # GLB 3D model
-│       ├── dig_dvojce_opalena.ply  # PLY 3D model
-│       └── yolov8n.pt        # AI model pro detekci
+├── 📁 js/                          # JavaScript modules
+│   ├── 📁 modules/                 # Application modules
+│   │   ├── 📄 config.js            # Configuration (41 lines)
+│   │   ├── 📄 map.js               # Map management (153 lines)
+│   │   ├── 📄 features.js          # Drawing tools (392 lines)
+│   │   ├── 📄 weather.js           # Weather data (202 lines)
+│   │   ├── 📄 sheep-counter.js     # Sheep counting (99 lines)
+│   │   ├── 📄 auth.js              # Authentication (95 lines)
+│   │   ├── 📄 graph.js             # Statistics (180 lines)
+│   │   └── 📄 app.js               # Main orchestrator (120 lines)
+│   └── 📁 libs/                    # External libraries (empty)
 │
-├── api/                       # Backend API soubory (PHP)
-│   ├── auth.php              # Autentizace
-│   ├── auth_config.php       # Konfigurace autentizace
-│   ├── features.php          # Správa geografických prvků
-│   ├── get_features.php      # Získání prvků z DB
-│   ├── save_features.php     # Uložení prvků do DB
-│   ├── delete_features.php   # Mazání prvků z DB
-│   ├── get_sheep.php         # API pro počet lyžařů
-│   └── update.php            # Aktualizace dat
+├── 📁 api/                         # PHP backend
+│   ├── 📄 auth.php                 # Authentication
+│   ├── 📄 get_sheep.php            # Sheep count API
+│   ├── 📄 features.php             # Feature management
+│   ├── 📄 update.php               # Data updates
+│   └── 📄 [other PHP files]
 │
-├── scripts/                   # Python skripty
-│   ├── get_sheep.py          # Skript pro získání dat o lyžařích
-│   ├── sheep_counter.py      # Počítač lyžařů
-│   └── send_test.py          # Testovací skript
+├── 📁 scripts/                     # Python scripts
+│   ├── 📄 sheep_counter.py         # Sheep counting algorithm
+│   ├── 📄 get_sheep.py             # Data retrieval
+│   └── 📄 send_test.py             # Test data
 │
-├── data/                      # Datové soubory
-│   └── sheep.json            # JSON data o lyžařích
+├── 📁 data/                        # JSON data files
+│   └── 📄 sheep.json               # Sheep count data
 │
-├── tiles/                     # Mapové dlaždice
-│   ├── 16/                   # Zoom level 16
-│   ├── 17/                   # Zoom level 17
-│   ├── 18/                   # Zoom level 18
-│   └── 19/                   # Zoom level 19
-│
-├── snow_calc/                 # Sněhová kalkulačka
-│   ├── snowcalc.html         # HTML kalkulačky
-│   └── snowcalc.js           # JavaScript kalkulačky
-│
-└── backup/                    # Zálohy
-    └── zaloha/               # Stará záloha před reorganizací
+└── 📁 tiles/                       # Map tiles
+    ├── 📁 16/                      # Zoom level 16
+    ├── 📁 17/                      # Zoom level 17
+    ├── 📁 18/                      # Zoom level 18
+    └── 📁 19/                      # Zoom level 19
 ```
 
-## 🔧 Aktualizované cesty
+## 🏗️ Architecture Overview
 
-Všechny odkazy v kódu byly aktualizovány:
+### Frontend (Client-side)
+- **HTML**: Clean, semantic markup (200 lines vs. 1697 lines before)
+- **CSS**: Modular stylesheets for different components
+- **JavaScript**: Modular ES6 classes with clear separation of concerns
 
-### CSS soubory
-- `href="visual.css"` → `href="css/visual.css"`
-- `href="style.css"` → `href="css/style.css"`
-- `href="leaflet.css"` → `href="css/leaflet.css"`
+### Backend (Server-side)
+- **PHP**: RESTful API endpoints for data management
+- **Python**: Data processing and sheep counting algorithms
+- **MySQL**: Database for persistent storage
 
-### Obrázky a ikony
-- `href="favicon.png"` → `href="assets/images/favicon.png"`
-- `iconUrl: 'marker-icon.svg'` → `iconUrl: 'assets/icons/marker-icon.svg'`
-- `iconUrl: 'webcam.svg'` → `iconUrl: 'assets/icons/webcam.svg'`
-- `iconUrl: 'bod_lokace.svg'` → `iconUrl: 'assets/icons/bod_lokace.svg'`
+### Key Improvements
 
-### API endpointy
-- `fetch('get_sheep.php')` → `fetch('api/get_sheep.php')`
-- `fetch('auth.php')` → `fetch('api/auth.php')`
-- `fetch('save_features.php')` → `fetch('api/save_features.php')`
-- `fetch('get_features.php')` → `fetch('api/get_features.php')`
-- `fetch('delete_features.php')` → `fetch('api/delete_features.php')`
+#### ✅ **Modularity**
+- Each feature has its own module
+- Clear separation of concerns
+- Easy to maintain and extend
 
-### 3D modely a textury
-- `url: 'opalena_ortofoto.jpg'` → `url: 'assets/images/opalena_ortofoto.jpg'`
-- `modelPath = 'dig_dvojce_opalena.glb'` → `modelPath = 'assets/models/dig_dvojce_opalena.glb'`
-- `plyLoader.load('dig_dvojce_opalena.ply')` → `plyLoader.load('assets/models/dig_dvojce_opalena.ply')`
+#### ✅ **Maintainability**
+- HTML reduced from 1697 to 200 lines
+- JavaScript organized in logical modules
+- Consistent code style and documentation
 
-### Mapové dlaždice
-- `L.tileLayer('./{z}/{x}/{y}.png')` → `L.tileLayer('./tiles/{z}/{x}/{y}.png')`
+#### ✅ **Scalability**
+- Easy to add new features
+- Modular architecture supports team development
+- Clear interfaces between modules
 
-## ✅ Výhody nové struktury
+#### ✅ **Performance**
+- Optimized loading order
+- Minimal HTML footprint
+- Efficient module loading
 
-1. **Přehlednost** - Každý typ souboru má svou složku
-2. **Údržba** - Snadnější nalezení a úprava souborů
-3. **Škálovatelnost** - Jednoduché přidávání nových souborů
-4. **Týmová práce** - Jasné rozdělení odpovědností
-5. **Deployment** - Snadnější nasazení na server
-6. **Backup** - Jednodušší zálohování specifických částí
+#### ✅ **Developer Experience**
+- Comprehensive documentation
+- Clear project structure
+- Easy to understand and modify
 
-## 🚀 Spuštění
+## 🔄 Data Flow
 
-Aplikace funguje stejně jako předtím - stačí otevřít `index.html` v prohlížeči. Všechny cesty byly automaticky aktualizovány.
+```
+User Interaction → App.js → Module Managers → APIs → Database
+                ↓
+            UI Updates ← Module Managers ← Data Processing
+```
 
-## 📝 Poznámky
+## 🎯 Module Responsibilities
 
-- Stará záloha je uložena ve složce `backup/zaloha/`
-- Všechny funkce zůstávají nezměněny
-- Mobilní rozhraní funguje bez problémů
-- 3D vizualizace a mapy jsou plně funkční
+| Module | Responsibility | Dependencies |
+|--------|---------------|--------------|
+| `app.js` | Main orchestrator, event handling | All modules |
+| `config.js` | Configuration constants | None |
+| `map.js` | Map rendering, layers, controls | config.js |
+| `features.js` | Drawing tools, feature management | map.js, config.js |
+| `weather.js` | Weather data, temperature display | config.js |
+| `sheep-counter.js` | Sheep counting, lift colors | map.js, config.js |
+| `auth.js` | User authentication | config.js |
+| `graph.js` | Statistics, charts | config.js |
+
+## 🚀 Benefits of New Structure
+
+1. **Reduced Complexity**: HTML file is 88% smaller
+2. **Better Organization**: Clear folder structure
+3. **Easier Maintenance**: Each module has single responsibility
+4. **Team Development**: Multiple developers can work on different modules
+5. **Testing**: Individual modules can be tested separately
+6. **Documentation**: Comprehensive README and inline comments
+7. **Scalability**: Easy to add new features without affecting existing code

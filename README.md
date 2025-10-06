@@ -1,291 +1,234 @@
-# VYGEO - Ski Resort Management System
+# VYGEO OPALENA - Digital Twin Ski Resort
 
-##  Overview
+A professional interactive map application for the Opalena ski resort featuring real-time weather data, sheep counting, and geographic tools.
 
-VYGEO is a professional web-based Geographic Information System (GIS) designed specifically for ski resort management. The application provides real-time monitoring of skier density, interactive mapping capabilities, and comprehensive data management tools for ski area operations.
+## 🏗️ Project Structure
 
-##  Features
+```
+VYGEO/
+├── index.html                 # Main HTML file (clean, minimal)
+├── README.md                  # This documentation
+├── assets/                    # Static assets
+│   ├── css/                   # Stylesheets
+│   │   ├── leaflet.css
+│   │   ├── visual.css
+│   │   └── style.css
+│   ├── icons/                 # SVG icons
+│   ├── images/                # Images and photos
+│   └── models/                # 3D models (GLB, PLY)
+├── js/                        # JavaScript modules
+│   ├── modules/               # Application modules
+│   │   ├── config.js          # Configuration constants
+│   │   ├── map.js             # Leaflet map management
+│   │   ├── features.js        # Drawing and feature management
+│   │   ├── weather.js         # Weather data and display
+│   │   ├── sheep-counter.js   # Sheep counting functionality
+│   │   ├── auth.js            # Authentication management
+│   │   ├── graph.js           # Statistics and charts
+│   │   └── app.js             # Main application orchestrator
+│   └── libs/                  # External libraries (if needed)
+├── api/                       # PHP backend
+│   ├── auth.php               # Authentication endpoints
+│   ├── get_sheep.php          # Sheep count API
+│   ├── features.php           # Feature management API
+│   └── update.php             # Data update endpoints
+├── scripts/                   # Python scripts
+│   ├── sheep_counter.py       # Sheep counting algorithm
+│   ├── get_sheep.py           # Data retrieval
+│   └── send_test.py           # Test data sender
+├── data/                      # JSON data files
+│   └── sheep.json             # Sheep count data
+└── tiles/                     # Map tiles
+    └── [zoom levels]/         # Organized by zoom level
+```
 
-###  Interactive Mapping
-- **Multiple Base Layers**: Mapy.cz (basic, winter, orthophoto, tourist), WMS relief, real estate cadastre
-- **Custom Orthophoto**: High-resolution aerial imagery with precise positioning
-- **Layer Management**: Dynamic layer switching with real-time updates
-- **Scale Control**: Professional scale bar with metric and imperial units
+## 🚀 Features
 
-###  Real-time Monitoring
-- **Skier Density Tracking**: Live count of skiers on slopes
-- **Dynamic Visualization**: Color-coded lift status based on skier density
-  - Green: Normal capacity (0-1 skiers)
-  - Orange: Moderate capacity (2-4 skiers)  
-  - Red: High capacity (5+ skiers)
-- **Historical Analytics**: Interactive charts and statistics
-- **Live Webcam Integration**: Real-time video streaming from resort cameras
+### Core Functionality
+- **Interactive Map**: Leaflet-based map with multiple base layers
+- **Real-time Weather**: Live temperature and weather data from OpenWeatherMap
+- **Sheep Counter**: Real-time counting of sheep on slopes with color-coded lifts
+- **Drawing Tools**: Create, edit, and manage map features (points, lines, polygons)
+- **Authentication**: User login/logout system
+- **Statistics**: Historical data visualization with Chart.js
 
-###  Professional GIS Tools
-- **Drawing Tools**: Marker, polyline, polygon, and rectangle creation
-- **Measurement Tools**: Distance and area calculation with precise metrics
-- **Feature Management**: Create, edit, and delete geographic features
-- **Data Persistence**: Secure database storage with user authentication
-- **Export Capabilities**: GeoJSON format for data interoperability
+### Technical Features
+- **Modular Architecture**: Clean separation of concerns
+- **Responsive Design**: Works on desktop and mobile devices
+- **Real-time Updates**: Live data updates every 2 seconds
+- **Geographic Calculations**: Distance and area measurements
+- **Video Streaming**: HLS webcam integration
+- **Database Integration**: MySQL backend for data persistence
 
-###  Security & Access Control
-- **User Authentication**: Secure login system with session management
-- **Role-based Access**: Different permission levels for users
-- **CSRF Protection**: Cross-site request forgery prevention
-- **Data Ownership**: Users can only edit their own features
-- **View-only Mode**: Public access for map viewing without editing rights
-
-##  Installation
+## 🛠️ Installation & Setup
 
 ### Prerequisites
-- PHP 7.4 or higher
-- MySQL 5.7 or higher
-- Web server (Apache/Nginx)
+- Web server (Apache/Nginx) or XAMPP
+- PHP 7.4+ with MySQL extension
+- Python 3.7+ (for sheep counting scripts)
 - Modern web browser with JavaScript enabled
 
-### Database Setup
-1. Create MySQL database:
-```sql
-CREATE DATABASE d383750_opalena CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+### Local Development (XAMPP)
+1. Clone/download the project to your XAMPP `htdocs` folder
+2. Import the database schema (if provided)
+3. Configure database connection in PHP files
+4. Start XAMPP services
+5. Open `http://localhost/VYGEO` in your browser
 
-2. Create required tables:
-```sql
--- Main features table
-CREATE TABLE map_features (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    geojson LONGTEXT NOT NULL,
-    user_id VARCHAR(64) NOT NULL DEFAULT 'admin',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+### Production Deployment
+1. Upload all files to your web server
+2. Configure web server to serve the application
+3. Set up database and update connection strings
+4. Ensure proper file permissions
+5. Configure SSL certificate for HTTPS
 
--- Optional: Add user_id column if not exists
-ALTER TABLE map_features ADD COLUMN user_id VARCHAR(64) NOT NULL DEFAULT 'admin';
-```
+## 📁 Module Documentation
 
-### File Structure
-```
-vygeo/
-├── index.html              # Main application interface
-├── README.md               # Project documentation
-├── PROJECT_STRUCTURE.md    # Detailed structure documentation
-├── prace.txt               # Development notes
-│
-├── css/                    # Stylesheets
-│   ├── visual.css          # Main application styles
-│   ├── style.css           # Additional custom styles
-│   └── leaflet.css         # Leaflet mapping library styles
-│
-├── assets/                 # Static assets
-│   ├── images/             # Image files
-│   │   ├── favicon.png     # Site favicon
-│   │   ├── marker-icon.png # Default marker icon
-│   │   └── opalena_ortofoto.jpg # Orthophoto imagery
-│   ├── icons/              # SVG icons
-│   │   ├── marker-icon.svg # Custom marker icon
-│   │   ├── webcam.svg      # Webcam icon
-│   │   ├── bod_lokace.svg  # Location marker icon
-│   │   └── menu.svg        # Menu icon
-│   └── models/             # 3D models and AI files
-│       ├── dig_dvojce_opalena.glb  # 3D terrain model
-│       ├── dig_dvojce_opalena.ply  # PLY terrain model
-│       └── yolov8n.pt      # AI model for skier detection
-│
-├── api/                    # Backend API endpoints
-│   ├── auth.php            # Authentication endpoints
-│   ├── auth_config.php     # User configuration
-│   ├── features.php        # Feature management
-│   ├── save_features.php   # Feature creation/update
-│   ├── delete_features.php # Feature deletion
-│   ├── get_features.php    # Feature retrieval
-│   ├── get_sheep.php       # Skier count data
-│   └── update.php          # Data updates
-│
-├── scripts/                # Python scripts
-│   ├── get_sheep.py        # Skier data collection
-│   ├── sheep_counter.py    # AI skier counting
-│   └── send_test.py        # Testing utilities
-│
-├── data/                   # Data files
-│   └── sheep.json          # Skier count data
-│
-├── tiles/                  # Map tiles
-│   ├── 16/                 # Zoom level 16 tiles
-│   ├── 17/                 # Zoom level 17 tiles
-│   ├── 18/                 # Zoom level 18 tiles
-│   └── 19/                 # Zoom level 19 tiles
-│
-├── snow_calc/              # Snow calculator
-│   ├── snowcalc.html       # Calculator interface
-│   └── snowcalc.js         # Calculator logic
-│
-└── backup/                 # Backup files
-    └── zaloha/             # Original files backup
-```
+### Core Modules
 
-### Configuration
+#### `config.js`
+Central configuration file containing:
+- Map coordinates and API keys
+- Update intervals and thresholds
+- Color schemes for different states
+- API endpoints and URLs
 
-1. **Database Connection**: Update connection details in PHP files:
-```php
-$pdo = new PDO(
-    "mysql:host=YOUR_HOST;dbname=YOUR_DB;charset=utf8mb4",
-    "YOUR_USERNAME",
-    "YOUR_PASSWORD"
-);
-```
+#### `map.js` (MapManager)
+Handles all map-related functionality:
+- Leaflet map initialization
+- Base layer management (Mapy.cz, orthophoto)
+- Overlay layers (webcams, lifts, features)
+- Map controls and event handling
+- Video player integration
 
-2. **User Authentication**: Configure users in `auth_config.php`:
-```php
-return [
-    'users' => [
-        'admin' => password_hash('your_secure_password', PASSWORD_DEFAULT),
-        'editor' => password_hash('another_password', PASSWORD_DEFAULT),
-    ],
-];
-```
+#### `features.js` (FeaturesManager)
+Manages drawing tools and map features:
+- Leaflet.draw integration
+- Feature creation, editing, deletion
+- Geometric calculations (area, length)
+- Database synchronization
+- Popup management
 
-3. **API Keys**: Update Mapy.cz API key in `index.html`:
+#### `weather.js` (WeatherManager)
+Weather data and display management:
+- OpenWeatherMap API integration
+- Live temperature updates
+- Weather dashboard UI
+- Forecast display
+- Demo data fallback
+
+#### `sheep-counter.js` (SheepCounter)
+Real-time sheep counting system:
+- Periodic data fetching
+- Lift color coding based on sheep count
+- UI updates for counters
+- Historical data integration
+
+#### `auth.js` (AuthManager)
+User authentication system:
+- Login/logout functionality
+- Session management
+- CSRF protection
+- UI state management
+
+#### `graph.js` (GraphManager)
+Statistics and data visualization:
+- Chart.js integration
+- Historical data display
+- Modal management
+- Statistical calculations
+
+#### `app.js` (VYGEOApp)
+Main application orchestrator:
+- Module initialization
+- Event listener setup
+- Cross-module communication
+- Error handling
+
+## 🔧 Configuration
+
+### API Keys
+Update the following in `js/modules/config.js`:
 ```javascript
-const API_KEY = 'your_mapy_cz_api_key';
+const CONFIG = {
+  MAPY_CZ_API_KEY: 'your_mapy_cz_key',
+  OPENWEATHER_API_KEY: 'your_openweather_key',
+  // ... other settings
+};
 ```
 
-## 🎮 Usage
+### Database Configuration
+Update database settings in PHP files:
+```php
+$host = 'localhost';
+$dbname = 'vygeo';
+$username = 'your_username';
+$password = 'your_password';
+```
 
-### For Public Users (View-only)
-- Access the application without login
-- View map with all public layers (lifts, pipes, webcams)
-- Monitor real-time skier density
-- Use zoom and pan controls
-- View live webcam feeds
-
-### For Authenticated Users
-1. **Login**: Click "Přihlásit" button in top-right corner
-2. **Drawing Tools**: Use left toolbar to create markers, lines, polygons
-3. **Measurement**: Measure distances and areas with dedicated tools
-4. **Feature Management**: View, edit, and delete saved features
-5. **Data Export**: Access saved features through hamburger menu
-
-### Drawing Features
-1. Select drawing tool from left toolbar
-2. Click on map to place markers or draw shapes
-3. Enter feature name when prompted
-4. Feature is automatically saved to database
-
-### Measurement Tools
-1. Select ruler tool for distance measurement
-2. Select polygon tool for area measurement
-3. Click on map to create measurement points
-4. Results display automatically in popup
-
-## 🔧 Technical Details
-
-### Frontend Technologies
-- **Leaflet.js**: Interactive mapping library
-- **jQuery**: DOM manipulation and AJAX requests
-- **Chart.js**: Data visualization and analytics
-- **Video.js**: Webcam streaming integration
-- **HLS.js**: HTTP Live Streaming support
-
-### Backend Technologies
-- **PHP**: Server-side processing and API endpoints
-- **MySQL**: Data persistence and storage
-- **PDO**: Database abstraction layer
-- **JSON**: Data interchange format
-
-### Security Features
-- **Session Management**: Secure PHP sessions with HttpOnly cookies
-- **CSRF Protection**: Token-based request validation
-- **Input Validation**: Sanitized user inputs
-- **SQL Injection Prevention**: Prepared statements
-- **XSS Protection**: Output encoding and validation
-
-## 📊 API Endpoints
-
-### Authentication
-- `POST api/auth.php?action=login` - User login
-- `POST api/auth.php?action=logout` - User logout  
-- `GET api/auth.php?action=status` - Check authentication status
-
-### Features Management
-- `POST api/save_features.php` - Create/update features
-- `POST api/delete_features.php` - Delete features
-- `GET api/get_features.php` - Retrieve all features
-
-### Data Monitoring
-- `GET api/get_sheep.php` - Get current skier count
-- `GET api/get_sheep.php?history=1` - Get historical data
-
-## 🎨 Customization
-
-### Adding New Map Layers
+### Update Intervals
+Modify update intervals in `config.js`:
 ```javascript
-const newLayer = L.tileLayer('your_tile_url', {
-    attribution: 'Your Attribution'
-});
-baseMaps["Your Layer"] = newLayer;
+SHEEP_UPDATE_INTERVAL: 2000,    // 2 seconds
+TEMP_UPDATE_INTERVAL: 300000,   // 5 minutes
 ```
 
-### Custom Icons
-Replace SVG files in `assets/icons/` directory:
-- `assets/icons/marker-icon.svg` - Default markers
-- `assets/icons/webcam.svg` - Webcam locations
-- `assets/icons/bod_lokace.svg` - User location
+## 🌐 Browser Support
 
-### Styling
-Modify CSS files in `css/` directory for custom appearance:
-- `css/visual.css` - Main application styles
-- `css/style.css` - Additional custom styles
-- `css/leaflet.css` - Map library styles
-- Toolbar button styles
-- Modal window appearance
-- Color schemes and themes
+- Chrome 80+
+- Firefox 75+
+- Safari 13+
+- Edge 80+
+
+## 📱 Mobile Support
+
+The application is fully responsive and works on:
+- iOS Safari 13+
+- Android Chrome 80+
+- Mobile Firefox 75+
+
+## 🔒 Security Considerations
+
+- CSRF protection implemented
+- Input validation on all forms
+- SQL injection prevention
+- XSS protection
+- Secure session management
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
-1. **Features not loading**: Check database connection and user authentication
-2. **Map tiles not displaying**: Verify API key and network connectivity
-3. **Login not working**: Check `api/auth_config.php` user configuration
-4. **Drawing tools hidden**: Ensure user is logged in
-5. **Icons not displaying**: Check file paths in `assets/icons/` directory
-6. **Styles not loading**: Verify CSS file paths in `css/` directory
+
+1. **Map not loading**: Check API keys and network connectivity
+2. **Sheep counter not updating**: Verify PHP backend and database connection
+3. **Weather data not showing**: Check OpenWeatherMap API key and quota
+4. **Drawing tools not working**: Ensure Leaflet.draw library is loaded
 
 ### Debug Mode
-Enable browser developer tools to view console errors and network requests.
+Enable console logging by opening browser developer tools and checking the console for error messages.
 
-##  Performance Optimization
+## 📄 License
 
-- **Tile Caching**: Implement browser caching for map tiles
-- **Database Indexing**: Add indexes on frequently queried columns
-- **Image Optimization**: Compress orthophoto tiles
-- **CDN Integration**: Use content delivery network for static assets
+This project is open-source and available under the MIT License.
 
-##  Updates & Maintenance
+## 👨‍💻 Author
 
-### Regular Tasks
-- Monitor database performance
-- Update API keys as needed
-- Backup feature data regularly
-- Review user access logs
+**Petr Mikeska**
+- Website: [petrmikeska.cz](https://petrmikeska.cz)
+- Email: [contact information]
 
-### Version Control
-- Track changes with Git
-- Tag stable releases
-- Maintain changelog
+## 🤝 Contributing
 
-##  Support
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-For technical support or feature requests, contact the development team.
+## 📞 Support
 
-##  License
-
-This project is proprietary software developed for ski resort management. All rights reserved.
+For technical support or questions, please contact the author or create an issue in the project repository.
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2025
-**Developed by**: Petr Mikeska
+**VYGEO OPALENA** - Professional ski resort digital twin solution
