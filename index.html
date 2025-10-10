@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VYGEO OPALENA - Interaktivní mapa ski areálu</title>
+  <meta name="description" content="Profesionální interaktivní mapa ski areálu Opalena s live počasím, geografickými nástroji a real-time teploměrem.">
+  <meta name="keywords" content="Opalena, ski areál, interaktivní mapa, live počasí, teploměr, WebCamLive, lyžování, Beskydy, GIS">
+  <meta name="author" content="Petr Mikeska - petrmikeska.cz">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/leaflet.css" />
+  <link rel="stylesheet" href="css/visual.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="https://vjs.zencdn.net/7.20.3/video-js.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="icon" type="image/png" href="assets/images/favicon.png" />
+  
+  <!-- Custom styles for drawing tools -->
+  <style>
+    .svg-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #007ddd;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 1px;
+    }
+    
+    .svg-btn:hover {
+      background: #0056b3;
+    }
+    
+    .svg-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .feature-popup {
+      min-width: 200px;
+    }
+    
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .popup-header h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .status-indicator {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .attribute-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    
+    .attribute-table td {
+      padding: 2px 5px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .attr-label {
+      font-weight: bold;
+      color: #666;
+      width: 80px;
+    }
+    
+    .attr-value {
+      color: #333;
+    }
+    
+    .error-text {
+      color: #dc3545;
+      font-style: italic;
+    }
+    
+    .loading-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #007ddd;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top Bar -->
+  <div id="topBar">
+    <div class="topBar-left">
+      <div class="logo">
+        <h1>SKI AREÁL OPÁLENÁ</h1>
+      </div>
+      <div class="info-widgets">
+        <div class="skiers-info">
+          <span class="skiers-count">–</span>
+          <span class="skiers-label">ovcí na svahu</span>
+          <button id="showGraphBtn" class="skiers-btn">Graf</button>
+        </div>
+        <div class="weather-widget" id="weatherWidget" style="cursor: pointer;">
+          <div class="weather-temp" id="liveTemp">8°C</div>
+          <div class="weather-icon">🌤️</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="topBar-center">
+      <!-- Empty for alignment -->
+    </div>
+    
+    <div class="topBar-right">
+      <button id="menuToggle" class="menu-btn">☰</button>
+      <button id="authButton" class="action-btn">Přihlásit</button>
+    </div>
+  </div>
+
+  <!-- Left Sidebar -->
+  <div id="leftSidebar" class="sidebar">
+    <div class="sidebar-header">
+      <button id="closeSidebar" class="close-btn">×</button>
+    </div>
+    
+    <div class="sidebar-content">
+      
+      <!-- Administrátorské nástroje - pouze pro přihlášené uživatele -->
+      <div id="adminTools" class="sidebar-section" style="display: none;">
+        <h4>Administrátorské nástroje</h4>
+        <div class="admin-controls">
+          <button id="snowCalcBtn" class="admin-btn">Výpočet spotřeby vody v retenční nádrži</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- Weather Dashboard -->
+  <div id="weatherDashboard" style="position:fixed; top:60px; right:12px; width:320px; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:1000; padding:15px; font-family:Arial, sans-serif; display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h3 style="margin:0; color:#2c3e50; font-size:18px;">Počasí - Opalena</h3>
+      <button id="closeWeather" style="background:none; border:none; font-size:20px; cursor:pointer; color:#7f8c8d;">×</button>
+    </div>
+    
+    <!-- Live Temperature -->
+    <div style="background:#f8f9fa; border-radius:8px; padding:12px; margin-bottom:20px; border-left:4px solid #28a745;">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:14px; font-weight:bold; color:#2c3e50;">🌡️ Teploměr na sjezdovce</div>
+          <div style="font-size:12px; color:#7f8c8d;">Reálná teplota z WebCamLive</div>
+          <div style="font-size:11px; color:#27ae60; font-weight:bold; margin-top:2px;">✓ ŽIVÁ DATA</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="liveTempDisplay" style="font-size:28px; font-weight:bold; color:#28a745;">8°C</div>
+          <div style="font-size:10px; color:#7f8c8d;" id="liveTempTime">--:--</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Current Weather -->
+    <div id="currentWeather" style="text-align:center; margin-bottom:20px; padding:15px; background:linear-gradient(135deg, #74b9ff, #0984e3); border-radius:8px; color:white;">
+      <div id="weatherIcon" style="font-size:48px; margin-bottom:10px;">⛅</div>
+      <div id="temperature" style="font-size:32px; font-weight:bold; margin-bottom:5px;">--°C</div>
+      <div id="weatherDesc" style="font-size:14px; opacity:0.9;">Načítání...</div>
+      <div id="weatherDetails" style="font-size:12px; margin-top:10px; opacity:0.8;">
+        <div>Vlhkost: <span id="humidity">--%</span></div>
+        <div>Vítr: <span id="windSpeed">-- km/h</span></div>
+        <div>Tlak: <span id="pressure">-- hPa</span></div>
+      </div>
+    </div>
+    
+    <!-- Forecast -->
+    <div id="forecast" style="margin-bottom:15px;">
+      <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:14px;">Předpověď (3 dny)</h4>
+      <div id="forecastItems" style="display:flex; gap:8px;">
+        <!-- Forecast items will be populated by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Location Info -->
+    <div style="font-size:12px; color:#7f8c8d; text-align:center; border-top:1px solid #ecf0f1; padding-top:10px;">
+      <div>📍 Opalena, Moravskoslezský kraj</div>
+      <div>🕐 Aktualizováno: <span id="lastUpdate">--</span></div>
+    </div>
+  </div>
+
+  <!-- Graph Modal -->
+  <div id="graphModal" class="graph-modal">
+    <div class="modal-header">
+      <h3>Statistika počtu ovcí</h3>
+      <button class="close-btn" id="closeGraphBtn">×</button>
+    </div>
+    <div class="modal-content">
+      <div id="stats" class="stats-container"></div>
+      <div class="chart-container">
+        <canvas id="sheepChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div id="loginModal" style="display:none; position:fixed; top:20%; left:30%; width:40%; height:auto; background:white; border:2px solid #007ddd; border-radius:10px; padding:20px; z-index:4000;">
+    <h3>Přihlášení</h3>
+    <form id="loginForm">
+      <div style="margin-bottom:15px;">
+        <label for="username">Uživatelské jméno:</label><br>
+        <input type="text" id="username" name="username" style="width:100%; padding:8px; margin-top:5px;" required>
+      </div>
+      <div style="margin-bottom:15px;">
+        <label for="password">Heslo:</label><br>
+        <input type="password" id="password" name="password" style="width:100%; padding:8px; margin-top:5px;" required>
+      </div>
+      <div style="text-align:right;">
+        <button type="button" onclick="document.getElementById('loginModal').style.display='none'" style="margin-right:10px;">Zrušit</button>
+        <button type="submit">Přihlásit</button>
+      </div>
+    </form>
+    <div id="loginError" style="color:red; margin-top:10px; display:none;"></div>
+  </div>
+
+  <!-- Location Controls -->
+  <div class="location-controls">
+    <div class="location-btn" id="findLocationButton" title="Najít mou polohu">
+      <i class="fas fa-map-marker-alt"></i>
+      <span></span>
+    </div>
+    <div class="location-btn" id="homeButton" title="Návrat na domovskou pozici">
+      <i class="fas fa-home"></i>
+      <span></span>
+    </div>
+    <div class="location-btn" id="objectsButton" title="Jednotlivé objekty">
+      <i class="fas fa-list"></i>
+      <span></span>
+    </div>
+    <div class="location-btn" id="gpsButton" title="Uložit GPS pozici">
+      <i class="fas fa-crosshairs"></i>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Objects Panel -->
+  <div id="objectsPanel" class="objects-panel" style="display: none;">
+    <div class="objects-panel-header">
+      <h3>Jednotlivé objekty</h3>
+      <button id="closeObjectsPanel" class="close-btn">×</button>
+    </div>
+    <div class="objects-panel-content" id="objectsList">
+      <!-- Objects will be populated by JavaScript -->
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet-src.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+
+  <!-- Application Modules -->
+  <script src="config.js"></script>
+  <script src="map.js"></script>
+  <script src="features.js"></script>
+  <script src="weather.js"></script>
+  <script src="sheep-counter.js"></script>
+  <script src="auth.js"></script>
+  <script src="graph.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

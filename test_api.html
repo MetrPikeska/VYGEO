@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Test API</h1>
+    <button onclick="testCreateFeature()">Test Create Feature</button>
+    <button onclick="testListFeatures()">Test List Features</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCreateFeature() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing create feature...';
+            
+            try {
+                const response = await fetch('api/features.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create',
+                        name: 'Test Feature',
+                        type: 'Point',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [18.313, 49.554]
+                        }
+                    })
+                });
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    resultDiv.innerHTML = `<h3>Error: Server returned HTML instead of JSON</h3><pre>${text.substring(0, 1000)}</pre>`;
+                    return;
+                }
+                
+                const result = await response.json();
+                resultDiv.innerHTML = `<h3>Success!</h3><pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Error:</h3><pre>${error.message}</pre>`;
+            }
+        }
+        
+        async function testListFeatures() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing list features...';
+            
+            try {
+                const response = await fetch('api/features.php?action=list');
+                const result = await response.json();
+                resultDiv.innerHTML = `<h3>Success!</h3><pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<h3>Error:</h3><pre>${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

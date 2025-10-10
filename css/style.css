@@ -1,0 +1,166 @@
+/* UI doplňky */
+.leaflet-bar a.svg-btn { width:30px; height:30px; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+.leaflet-bar a.svg-btn svg { width:18px; height:18px; }
+
+/* Objects Panel Styles */
+.objects-panel {
+  position: fixed;
+  top: 60px;
+  right: 12px;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-family: Arial, sans-serif;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.objects-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 10px 10px 0 0;
+}
+
+.objects-panel-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.objects-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.object-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.object-item:hover {
+  background: #e9ecef;
+  border-color: #007ddd;
+}
+
+.object-item input[type="checkbox"] {
+  margin-right: 10px;
+  transform: scale(1.1);
+}
+
+.object-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+}
+
+.object-name {
+  flex: 1;
+  font-size: 13px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.object-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.object-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all 0.2s ease;
+}
+
+.object-btn.edit {
+  background: #28a745;
+  color: white;
+}
+
+.object-btn.edit:hover {
+  background: #218838;
+}
+
+.object-btn.delete {
+  background: #dc3545;
+  color: white;
+}
+
+.object-btn.delete:hover {
+  background: #c82333;
+}
+/* Vizuální sjednocení tlačítka "Zobrazit uložené prvky" s ostatními */
+.leaflet-control-custom {
+  width: 30px !important;
+  height: 30px !important;
+  background-color: #fff !important;
+  background-repeat: no-repeat !important;
+  background-position: 50% 50% !important;
+  background-size: 18px 18px !important;
+  border-radius: 4px;
+}
+/* Force toolbar icons to local inline SVGs to avoid missing sprite images */
+.leaflet-draw-toolbar a {
+  background-repeat: no-repeat !important;
+  background-position: 50% 50% !important;
+  background-size: 16px 16px !important;
+  background-color: #fff !important; /* viditelné pozadí ikony */
+}
+/* Draw: marker */
+.leaflet-draw-toolbar a.leaflet-draw-draw-marker,
+.leaflet-retina .leaflet-draw-toolbar a.leaflet-draw-draw-marker,
+.leaflet-touch .leaflet-draw-toolbar a.leaflet-draw-draw-marker {
+  /* zachovej bílé pozadí (nepřebíjet background-color: none) */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M12 2C8.7 2 6 4.7 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.3-2.7-6-6-6zm0 8.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 5.5 12 5.5s2.5 1.1 2.5 2.5S13.4 10.5 12 10.5z'/></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: 50% 50% !important;
+  background-size: 16px 16px !important;
+  background-color: #fff !important;
+}
+/* Draw: polyline */
+.leaflet-draw-toolbar .leaflet-draw-draw-polyline {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect fill='%23000' x='4' y='11' width='16' height='2'/></svg>") !important;
+}
+/* Draw: polygon */
+.leaflet-draw-toolbar .leaflet-draw-draw-polygon {
+  /* Nová, výraznější ikona pro polygon (pětiúhelník) */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><polygon points='5,7 11,5 18,9 16,17 8,18 4,12' fill='white' stroke='%23000' stroke-width='1.5'/></svg>") !important;
+}
+/* Draw: rectangle */
+.leaflet-draw-toolbar .leaflet-draw-draw-rectangle {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect fill='%23000' x='5' y='5' width='14' height='14'/></svg>") !important;
+}
+/* Edit: edit mode */
+.leaflet-draw-toolbar .leaflet-draw-edit-edit {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z'/></svg>") !important;
+}
+/* Edit: remove mode */
+.leaflet-draw-toolbar .leaflet-draw-edit-remove {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M6 7h12v2H6V7zm2 3h8l-1 9H9L8 10zm3-7h2l1 1h5v2H5V4h5l1-1z'/></svg>") !important;
+}
+
+
