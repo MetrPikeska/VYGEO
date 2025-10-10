@@ -104,6 +104,12 @@ class WeatherManager {
     const icon = this.getWeatherIcon(current.weather[0].icon);
     document.getElementById('weatherIcon').textContent = icon;
     
+    // Update top bar weather icon
+    const topBarWeatherIcon = document.querySelector('.weather-icon');
+    if (topBarWeatherIcon) {
+      topBarWeatherIcon.textContent = icon;
+    }
+    
     // Update forecast
     this.updateForecast();
     
@@ -113,10 +119,17 @@ class WeatherManager {
 
   async loadLiveTemperature() {
     try {
-      // Simulace teploty - WebCamLive má CORS problémy
-      this.liveTemperature = Math.round(8 + (Math.random() - 0.5) * 4); // 6-10°C range
-      this.updateLiveTemperatureButton();
-      console.log('Simulovaná teplota:', this.liveTemperature + '°C');
+      // Použít teplotu z weather API místo simulace
+      if (this.weatherData && this.weatherData.current) {
+        this.liveTemperature = Math.round(this.weatherData.current.temp);
+        this.updateLiveTemperatureButton();
+        console.log('Teplota z API:', this.liveTemperature + '°C');
+      } else {
+        // Fallback na výchozí hodnotu
+        this.liveTemperature = 8;
+        this.updateLiveTemperatureButton();
+        console.log('Používá se výchozí teplota:', this.liveTemperature + '°C');
+      }
     } catch (error) {
       console.log('Chyba při načítání teploty, používá se výchozí');
       this.liveTemperature = 8;
@@ -188,7 +201,7 @@ class WeatherManager {
 
   startPeriodicUpdate() {
     setInterval(() => {
-      this.loadLiveTemperature();
+      this.loadWeatherData(); // Načíst kompletní weather data včetně teploty
     }, CONFIG.TEMP_UPDATE_INTERVAL);
   }
 }

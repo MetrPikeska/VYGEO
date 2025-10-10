@@ -139,24 +139,16 @@
   <!-- Left Sidebar -->
   <div id="leftSidebar" class="sidebar">
     <div class="sidebar-header">
-      <h3>SKI AREÁL OPÁLENÁ</h3>
       <button id="closeSidebar" class="close-btn">×</button>
     </div>
     
     <div class="sidebar-content">
-      <div class="sidebar-section">
-        <h4>Vrstvy mapy</h4>
-        <div class="layer-controls">
-          <!-- Layers will be added dynamically -->
-        </div>
-      </div>
-      <div class="sidebar-section">
-        <h4>Filtry</h4>
-        <div class="filter-controls">
-          <label><input type="checkbox" checked> Sjezdovky</label>
-          <label><input type="checkbox" checked> Lanovky</label>
-          <label><input type="checkbox" checked> Občerstvení</label>
-          <label><input type="checkbox" checked> Parkoviště</label>
+      
+      <!-- Administrátorské nástroje - pouze pro přihlášené uživatele -->
+      <div id="adminTools" class="sidebar-section" style="display: none;">
+        <h4>Administrátorské nástroje</h4>
+        <div class="admin-controls">
+          <button id="snowCalcBtn" class="admin-btn">Výpočet spotřeby vody v retenční nádrži</button>
         </div>
       </div>
     </div>
@@ -168,7 +160,7 @@
   <!-- Weather Dashboard -->
   <div id="weatherDashboard" style="position:fixed; top:60px; right:12px; width:320px; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:1000; padding:15px; font-family:Arial, sans-serif; display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-      <h3 style="margin:0; color:#2c3e50; font-size:18px;">🌤️ Počasí - Opalena</h3>
+      <h3 style="margin:0; color:#2c3e50; font-size:18px;">Počasí - Opalena</h3>
       <button id="closeWeather" style="background:none; border:none; font-size:20px; cursor:pointer; color:#7f8c8d;">×</button>
     </div>
     
@@ -252,11 +244,30 @@
   <div class="location-controls">
     <div class="location-btn" id="findLocationButton" title="Najít mou polohu">
       <i class="fas fa-map-marker-alt"></i>
-      <span>Poloha</span>
+      <span></span>
     </div>
     <div class="location-btn" id="homeButton" title="Návrat na domovskou pozici">
       <i class="fas fa-home"></i>
-      <span>Domů</span>
+      <span></span>
+    </div>
+    <div class="location-btn" id="objectsButton" title="Jednotlivé objekty">
+      <i class="fas fa-list"></i>
+      <span></span>
+    </div>
+    <div class="location-btn" id="gpsButton" title="Uložit GPS pozici">
+      <i class="fas fa-crosshairs"></i>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Objects Panel -->
+  <div id="objectsPanel" class="objects-panel" style="display: none;">
+    <div class="objects-panel-header">
+      <h3>Jednotlivé objekty</h3>
+      <button id="closeObjectsPanel" class="close-btn">×</button>
+    </div>
+    <div class="objects-panel-content" id="objectsList">
+      <!-- Objects will be populated by JavaScript -->
     </div>
   </div>
 

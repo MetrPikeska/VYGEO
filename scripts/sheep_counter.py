@@ -19,8 +19,8 @@ import time, datetime, requests
 HLS_STREAM_URL = "https://stream.teal.cz/hls/cam273.m3u8"
 MODEL_PATH = "yolov8n.pt"
 CONFIDENCE_THRESHOLD = 0.3
-UPDATE_URL = "https://petrmikeska.cz/vygeo/update.php"
-#UPDATE_URL = "http://localhost/vygeo/update.php"  # test lokálně
+UPDATE_URL = "https://petrmikeska.cz/vygeo/api/update.php"
+#UPDATE_URL = "http://localhost/vygeo/api/update.php"  # test lokálně
 SEND_INTERVAL = 2  # odesílání dat na hosting max 1× za 5s
 
 # === Inicializace ===

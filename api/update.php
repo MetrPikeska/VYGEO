@@ -4,9 +4,9 @@ date_default_timezone_set('Europe/Prague');
 
 
 $db_host = "md397.wedos.net";
-$db_user = "w383750_opalena";
-$db_pass = "65r9P7XW";
-$db_name = "d383750_opalena";
+$db_user = "w383750_vygeo";
+$db_pass = "7JAWfDdh";
+$db_name = "d383750_vygeo";
 
 
 $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);

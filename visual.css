@@ -1,0 +1,1935 @@
+/* Styl pro tělo stránky */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#map {
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Horní lišta */
+#topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(135deg, #007ddd, #0056b3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.topBar-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.info-widgets {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.skiers-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.skiers-info:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.skiers-count {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.skiers-label {
+    font-size: 12px;
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+.skiers-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.skiers-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.topBar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.topBar-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.logo h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: normal;
+    color: #ffd700;
+    opacity: 0.9;
+}
+
+.weather-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+}
+
+.weather-widget:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.weather-temp {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.weather-icon {
+    font-size: 20px;
+}
+
+.menu-btn, .action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.menu-btn:hover, .action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.admin-btn {
+    background: #28a745;
+    border: 1px solid #1e7e34;
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.admin-btn:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Leaflet Layer Control v sidebaru - jednotný styl */
+#layerControlContainer .leaflet-control-layers {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+#layerControlContainer .leaflet-control-layers-expanded {
+    padding: 0 !important;
+    font-family: Arial, sans-serif !important;
+    background: transparent !important;
+}
+
+#layerControlContainer .leaflet-control-layers label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    padding: 4px 0 4px 15px !important;
+    background: transparent !important;
+}
+
+#layerControlContainer .leaflet-control-layers input[type="radio"],
+#layerControlContainer .leaflet-control-layers input[type="checkbox"] {
+    margin-right: 8px !important;
+    transform: scale(1.1) !important;
+}
+
+#layerControlContainer .leaflet-control-layers-separator {
+    border-top: 1px solid #e9ecef !important;
+    margin: 10px 0 !important;
+}
+
+.leaflet-control-layers-base, .leaflet-control-layers-separator {
+    font-weight: bold;
+    background-color: #ffffff;
+    color: #ffffff;
+    padding: 4px 12px;
+    border-bottom: none;
+}
+
+.leaflet-control-layers-overlays input[type="checkbox"]:checked + span {
+    color: #2c3e50 !important;
+    font-weight: 500 !important;
+}
+
+/* Přehodit pořadí - překryvné vrstvy nahoře, základní dole */
+#layerControlContainer .leaflet-control-layers-expanded {
+    display: flex;
+    flex-direction: column;
+}
+
+#layerControlContainer .leaflet-control-layers-overlays {
+    order: 1;
+}
+
+#layerControlContainer .leaflet-control-layers-separator {
+    order: 2;
+}
+
+#layerControlContainer .leaflet-control-layers-base {
+    order: 3;
+}
+
+/* Pravý vysouvací panel */
+.sidebar {
+    position: fixed;
+    top: 60px;
+    right: -350px;
+    width: 350px;
+    height: calc(100vh - 60px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar.open {
+    right: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+/* Mobilní informace v sidebaru */
+.mobile-info-section {
+    background: linear-gradient(135deg, #007ddd, #0056b3);
+    margin: 0 -20px 20px -20px;
+    padding: 15px 20px;
+    color: white;
+    display: none; /* Skryto na desktopu */
+}
+
+.mobile-info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobile-info-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.mobile-info-icon {
+    font-size: 24px;
+    width: 30px;
+    text-align: center;
+}
+
+.mobile-info-content {
+    flex: 1;
+}
+
+.mobile-info-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 2px;
+}
+
+.mobile-info-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.mobile-graph-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.mobile-graph-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* ===========================================
+   NOVÉ MOBILNÍ ROZHRANÍ - KOMPLETNĚ NOVÝ DESIGN
+   =========================================== */
+
+/* Mobilní top bar - PRŮHLEDNÝ OVERLAY - ZMENŠENÝ */
+.mobile-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45px; /* Zmenšeno z 60px */
+    background: rgba(0, 125, 221, 0.85); /* Méně průhledný pro lepší čitelnost */
+    backdrop-filter: blur(8px);
+    color: white;
+    display: none; /* Skryto na desktopu */
+    z-index: 2000;
+    padding: 0 10px; /* Zmenšeno z 15px */
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-logo h1 {
+    margin: 0;
+    font-size: 16px; /* Zmenšeno z 18px */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-status {
+    display: flex;
+    flex-direction: column;
+    gap: 1px; /* Zmenšeno z 2px */
+    margin-top: 1px; /* Zmenšeno z 2px */
+}
+
+.mobile-temp {
+    font-size: 11px; /* Zmenšeno z 12px */
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.mobile-skiers {
+    font-size: 9px; /* Zmenšeno z 10px */
+    opacity: 0.9;
+}
+
+.mobile-actions {
+    display: flex;
+    gap: 8px; /* Zmenšeno z 10px */
+}
+
+.mobile-action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 35px; /* Zmenšeno z 40px */
+    height: 35px; /* Zmenšeno z 40px */
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px; /* Zmenšeno z 16px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Mobilní plovoucí karty - NAD MAPOU - KOMPAKTNĚJŠÍ */
+.mobile-info-cards {
+    position: fixed;
+    top: 55px; /* Zmenšeno z 70px */
+    left: 8px; /* Zmenšeno z 10px */
+    right: 8px; /* Zmenšeno z 10px */
+    z-index: 1500;
+    display: none; /* Skryto na desktopu */
+    flex-direction: column;
+    gap: 8px; /* Zmenšeno z 10px */
+    max-width: 350px; /* Zmenšeno z 400px */
+    margin: 0 auto;
+    pointer-events: none; /* Umožní klikání na mapu pod kartami */
+}
+
+.mobile-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px; /* Zmenšeno z 15px */
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15); /* Zmenšeno */
+    backdrop-filter: blur(8px); /* Zmenšeno z 10px */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+    pointer-events: auto; /* Karty jsou klikatelné */
+}
+
+.mobile-card.hidden {
+    transform: translateY(-100px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mobile-card-header {
+    background: linear-gradient(135deg, #007ddd, #0056b3);
+    color: white;
+    padding: 10px 12px; /* Zmenšeno z 12px 15px */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Zmenšeno z 10px */
+}
+
+.mobile-card-icon {
+    font-size: 16px; /* Zmenšeno z 18px */
+}
+
+.mobile-card-title {
+    flex: 1;
+    font-size: 13px; /* Zmenšeno z 14px */
+    font-weight: bold;
+}
+
+.mobile-card-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-card-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.mobile-card-content {
+    padding: 12px; /* Zmenšeno z 15px */
+}
+
+/* Počasí karta - KOMPAKTNĚJŠÍ */
+.mobile-weather-main {
+    text-align: center;
+    margin-bottom: 12px; /* Zmenšeno z 15px */
+}
+
+.mobile-weather-temp {
+    font-size: 28px; /* Zmenšeno z 32px */
+    font-weight: bold;
+    color: #007ddd;
+    margin-bottom: 4px; /* Zmenšeno z 5px */
+}
+
+.mobile-weather-desc {
+    font-size: 13px; /* Zmenšeno z 14px */
+    color: #666;
+}
+
+.mobile-weather-details {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #eee;
+    padding-top: 12px; /* Zmenšeno z 15px */
+}
+
+.mobile-weather-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.mobile-weather-item span:first-child {
+    font-size: 11px;
+    color: #999;
+}
+
+.mobile-weather-item span:last-child {
+    font-size: 14px;
+    font-weight: bold;
+    color: #007ddd;
+}
+
+/* Statistiky karta - KOMPAKTNĚJŠÍ */
+.mobile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px; /* Zmenšeno z 15px */
+    margin-bottom: 12px; /* Zmenšeno z 15px */
+}
+
+.mobile-stat-item {
+    text-align: center;
+}
+
+.mobile-stat-value {
+    font-size: 22px; /* Zmenšeno z 24px */
+    font-weight: bold;
+    color: #007ddd;
+    margin-bottom: 4px; /* Zmenšeno z 5px */
+}
+
+.mobile-stat-label {
+    font-size: 10px; /* Zmenšeno z 11px */
+    color: #666;
+}
+
+.mobile-card-btn {
+    width: 100%;
+    background: #007ddd;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.mobile-card-btn:hover {
+    background: #0056b3;
+    transform: scale(1.02);
+}
+
+/* Mobilní spodní navigace - PRŮHLEDNÁ - ZMENŠENÁ */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px; /* Zmenšeno z 70px */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px); /* Zmenšeno z 15px */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: none; /* Skryto na desktopu */
+    z-index: 2000;
+    padding: 6px 0; /* Zmenšeno z 8px 0 */
+}
+
+.mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px; /* Zmenšeno z 4px */
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 6px 3px; /* Zmenšeno z 8px 4px */
+}
+
+.mobile-nav-item.active {
+    color: #007ddd;
+}
+
+.mobile-nav-item:not(.active) {
+    color: #666;
+}
+
+.mobile-nav-icon {
+    font-size: 18px; /* Zmenšeno z 20px */
+}
+
+.mobile-nav-label {
+    font-size: 9px; /* Zmenšeno z 10px */
+    font-weight: 500;
+}
+
+/* Mobilní panely - PRŮHLEDNÉ - ZMENŠENÉ */
+.mobile-panel {
+    position: fixed;
+    bottom: 60px; /* Zmenšeno z 70px */
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px); /* Zmenšeno z 20px */
+    border-radius: 15px 15px 0 0; /* Zmenšeno z 20px */
+    box-shadow: 0 -3px 15px rgba(0, 0, 0, 0.15); /* Zmenšeno */
+    z-index: 1800;
+    display: none; /* Skryto na desktopu */
+    max-height: 65vh; /* Zmenšeno z 70vh */
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.mobile-panel.show {
+    transform: translateY(0);
+}
+
+.mobile-panel-header {
+    background: linear-gradient(135deg, #007ddd, #0056b3);
+    color: white;
+    padding: 12px 15px; /* Zmenšeno z 15px 20px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 15px 15px 0 0; /* Zmenšeno z 20px */
+}
+
+.mobile-panel-header h3 {
+    margin: 0;
+    font-size: 15px; /* Zmenšeno z 16px */
+    font-weight: bold;
+}
+
+.mobile-panel-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-panel-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.mobile-panel-content {
+    padding: 15px; /* Zmenšeno z 20px */
+    max-height: calc(65vh - 50px); /* Zmenšeno */
+    overflow-y: auto;
+}
+
+/* Vrstvy panel */
+.mobile-layer-group {
+    margin-bottom: 25px;
+}
+
+.mobile-layer-group h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+.mobile-layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mobile-layer-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-layer-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.mobile-layer-item.active {
+    background: #007ddd;
+    color: white;
+}
+
+/* Nástroje panel */
+.mobile-tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.mobile-tool-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    background: #f8f9fa;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-tool-btn:hover {
+    background: #e9ecef;
+    transform: scale(1.05);
+}
+
+.mobile-tool-icon {
+    font-size: 24px;
+}
+
+.mobile-tool-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Info panel */
+.mobile-info-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #007ddd;
+}
+
+.mobile-info-section p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+}
+
+.mobile-contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mobile-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.mobile-contact-icon {
+    font-size: 16px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-content {
+    padding: 20px;
+}
+
+.sidebar-section {
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.sidebar-section h4 {
+    margin: 0;
+    padding: 15px 20px;
+    font-size: 14px;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.layer-controls, .filter-controls, .admin-controls {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+}
+
+.filter-controls input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Plovoucí widget - přesunuto do headeru */
+
+/* Graph Modal Styling */
+.graph-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    max-height: 600px;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border: 2px solid #007ddd;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 123, 221, 0.3);
+    z-index: 2000;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #007ddd, #0056b3);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.modal-content {
+    padding: 20px 25px;
+    height: calc(100% - 80px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.stats-container {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-left: 4px solid #007ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stats-container p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.stats-container b {
+    color: #007ddd;
+    font-weight: bold;
+}
+
+.chart-container {
+    flex: 1;
+    position: relative;
+    min-height: 300px;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+#sheepChart {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 350px;
+}
+
+/* Modal footer odstraněn */
+
+/* Responzivní design pro graph modal */
+@media (max-width: 768px) {
+    .graph-modal {
+        width: 95%;
+        height: 85vh;
+        max-height: 500px;
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 16px;
+    }
+    
+    .modal-content {
+        padding: 15px 20px;
+        height: calc(100% - 70px);
+    }
+    
+    .stats-container {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .stats-container p {
+        font-size: 12px;
+    }
+    
+    .chart-container {
+        min-height: 250px;
+        padding: 10px;
+    }
+    
+    #sheepChart {
+        max-height: 250px;
+    }
+}
+
+/* Úprava mapy pro nové rozložení */
+#map {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(100vh - 60px);
+    width: 100vw;
+}
+
+/* Skrytí starého headeru */
+#header {
+    display: none;
+}
+
+/* Responzivní úpravy pro menší obrazovky */
+@media (max-width: 768px) {
+    #header {
+        left: 2%; /* Zajistí dostatek místa od okraje obrazovky */
+        padding: 8px 15px;
+        max-width: 95%; /* Header nepřesáhne obrazovku */
+    }
+
+    #header h1 {
+        font-size: 20px; /* Zmenšení nadpisu */
+    }
+
+    #header h2 {
+        font-size: 14px; /* Zmenšení podnadpisu */
+    }
+}
+
+@media (max-width: 480px) {
+    #header {
+        padding: 5px 10px;
+        left: 2%; /* Další zarovnání pro malé obrazovky */
+    }
+
+    #header h1 {
+        font-size: 18px;
+    }
+
+    #header h2 {
+        font-size: 12px;
+    }
+}
+
+/* Location Controls */
+.location-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+}
+
+.location-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #666;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.location-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.location-btn i {
+    font-size: 14px;
+    margin-bottom: 1px;
+}
+
+.location-btn span {
+    font-size: 8px;
+    line-height: 1;
+}
+
+/* Staré tlačítko coords-btn */
+.coords-btn {
+    position: absolute;
+    right: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    z-index: 1000;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    color: #ffffff;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Barvy tlačítek - pouze coords-btn */
+.coords-btn {
+    bottom: 50px;
+    background-color: #007ddd;
+    color: #ffffff;
+}
+
+.coords-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+}
+
+/* Styl pro ikonu v menu vrstev (leaflet-control-layers) */
+.leaflet-control-layers-toggle {
+    background-image: url('../assets/icons/menu.svg');
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.leaflet-control-layers-toggle:hover {
+    transform: scale(1.1);
+    background-color: #eeee22;
+}
+
+/* Styl menu pro podkladové mapy */
+.leaflet-control-layers {
+    font-family: Arial, sans-serif;
+    background-color: #007ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.leaflet-control-layers-base,
+.leaflet-control-layers-separator {
+    font-weight: bold;
+    background-color: #ffffff;
+    color: #ffffff;
+    padding: 4px 12px;
+    border-bottom: none;
+}
+
+.leaflet-control-layers-overlays label {
+    display: block;
+    font-weight: bold;
+    padding: 8px 12px;
+    color: #ffffff;
+    background-color: #007ddd;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    border-bottom: none;
+}
+
+.leaflet-control-layers-overlays label:hover {
+    transform: scale(1.05);
+    color: #ffffff;
+}
+
+.leaflet-control-layers-overlays input[type="checkbox"]:checked + span {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Styl pro tlačítka zoom */
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    background-color: #eeee22;
+    color: #007ddd;
+    border: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+    background-color: #007ddd;
+    color: #eeee22;
+}
+
+/* Nastavení popup okna - roztáhnout */
+.leaflet-popup-content-wrapper {
+    width: 400px !important;
+    max-width: 600px;
+    min-width: 300px;
+    height: auto !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.leaflet-popup-content {
+    display: block !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: hidden;
+    text-align: left !important;
+}
+
+/* Webcam popup - kompaktní */
+.leaflet-popup.webcam-popup .leaflet-popup-content-wrapper {
+    width: 320px !important;
+    max-width: 320px !important;
+    min-width: 320px !important;
+    height: 240px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+}
+
+.leaflet-popup.webcam-popup .leaflet-popup-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.leaflet-popup.webcam-popup .leaflet-popup-tip {
+    display: none !important;
+}
+
+#webcam-player {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Starý info box je nahrazen floating-widget */
+
+/* Tlačítka jsou nyní v topBar */
+
+/* Responzivita */
+@media (max-width: 768px) {
+    #topBar {
+        padding: 0 8px;
+        height: 45px;
+        flex-wrap: wrap;
+        min-height: 45px;
+    }
+    
+    .topBar-left {
+        flex: 1;
+        min-width: 0;
+        gap: 8px;
+    }
+    
+    .logo h1 {
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .logo h2 {
+        font-size: 8px;
+    }
+    
+    .info-widgets {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    
+    .skiers-info {
+        padding: 3px 6px;
+        gap: 3px;
+        min-width: 0;
+    }
+    
+    .skiers-count {
+        font-size: 10px;
+    }
+    
+    .skiers-label {
+        font-size: 7px;
+        white-space: nowrap;
+    }
+    
+    .skiers-btn {
+        font-size: 6px;
+        padding: 2px 3px;
+        min-width: 25px;
+    }
+    
+    .weather-widget {
+        padding: 3px 6px;
+        min-width: 0;
+    }
+    
+    .weather-temp {
+        font-size: 12px;
+    }
+    
+    .weather-icon {
+        font-size: 14px;
+    }
+    
+    .topBar-right {
+        gap: 6px;
+        flex-shrink: 0;
+    }
+    
+    .menu-btn, .action-btn {
+        padding: 4px 8px;
+        font-size: 9px;
+        min-width: 35px;
+        text-align: center;
+    }
+    
+    .location-controls {
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .location-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+    }
+    
+    .location-btn i {
+        font-size: 12px;
+    }
+    
+    .location-btn span {
+        font-size: 7px;
+    }
+    
+    .sidebar {
+        width: 100%;
+        max-width: 320px;
+        top: 45px;
+        height: calc(100vh - 45px);
+    }
+    
+    /* NOVÉ MOBILNÍ ROZHRANÍ - zobrazit pouze na mobilních zařízeních */
+    .mobile-top-bar {
+        display: flex !important;
+    }
+    
+    .mobile-info-cards {
+        display: flex !important;
+    }
+    
+    .mobile-bottom-nav {
+        display: flex !important;
+    }
+    
+    /* Skrýt desktop rozhraní na mobilních zařízeních */
+    .sidebar {
+        display: none !important;
+    }
+    
+    .info-widgets {
+        display: none !important;
+    }
+    
+    .menu-btn {
+        display: none !important;
+    }
+    
+    /* Upravit mapu pro mobilní rozhraní - CELÝ DISPLEJ - MAXIMÁLNÍ PROSTOR */
+    #map {
+        top: 0 !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        position: fixed !important;
+        z-index: 1 !important; /* Zajišťuje, že mapa je pod všemi UI prvky */
+    }
+    
+    /* Zvětšení ovládacích prvků mapy pro dotykové ovládání */
+    .leaflet-control-zoom a {
+        width: 40px !important;
+        height: 40px !important;
+        line-height: 40px !important;
+        font-size: 18px !important;
+    }
+    
+    .leaflet-control-layers-toggle {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .leaflet-control-custom {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    /* Popup okna pro mobilní zařízení - roztáhnout */
+    .leaflet-popup-content-wrapper {
+        width: 90vw !important;
+        max-width: 500px !important;
+        min-width: 280px !important;
+    }
+    
+    .leaflet-popup-content {
+        width: 100% !important;
+        padding: 15px !important;
+    }
+    
+    /* Lepší rozložení ovládacích prvků mapy */
+    .leaflet-control-container {
+        pointer-events: none;
+    }
+    
+    .leaflet-control-container .leaflet-control {
+        pointer-events: auto;
+    }
+    
+    /* Zvětšení mezer mezi ovládacími prvky */
+    .leaflet-control-zoom {
+        margin: 10px !important;
+    }
+    
+    .leaflet-control-layers {
+        margin: 10px !important;
+    }
+    
+    .leaflet-control-custom {
+        margin: 10px !important;
+    }
+    
+    .find-location-btn, .coords-btn, .home-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+}
+
+/* Responzivní úpravy pro velmi malé obrazovky */
+@media (max-width: 480px) {
+    #topBar {
+        padding: 0 5px;
+        height: 50px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .topBar-left {
+        order: 1;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    
+    .topBar-right {
+        order: 2;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .logo h1 {
+        font-size: 10px;
+    }
+    
+    .info-widgets {
+        gap: 4px;
+    }
+    
+    .skiers-info {
+        padding: 2px 4px;
+        gap: 2px;
+    }
+    
+    .skiers-count {
+        font-size: 9px;
+    }
+    
+    .skiers-label {
+        font-size: 6px;
+    }
+    
+    .skiers-btn {
+        font-size: 5px;
+        padding: 1px 2px;
+        min-width: 20px;
+    }
+    
+    .weather-widget {
+        padding: 2px 4px;
+    }
+    
+    .weather-temp {
+        font-size: 10px;
+    }
+    
+    .weather-icon {
+        font-size: 12px;
+    }
+    
+    .menu-btn, .action-btn {
+        padding: 6px 10px;
+        font-size: 8px;
+        min-width: 40px;
+    }
+    
+    .location-controls {
+        bottom: 10px;
+        left: 10px;
+    }
+    
+    .location-btn {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .location-btn i {
+        font-size: 11px;
+    }
+    
+    .location-btn span {
+        font-size: 6px;
+    }
+    
+    .sidebar {
+        width: 100%;
+        top: 50px;
+        height: calc(100vh - 50px);
+    }
+    
+    #map {
+        top: 50px;
+        height: calc(100vh - 50px);
+    }
+    
+    /* Ještě větší ovládací prvky pro malé obrazovky */
+    .leaflet-control-zoom a {
+        width: 45px !important;
+        height: 45px !important;
+        line-height: 45px !important;
+        font-size: 20px !important;
+    }
+    
+    .leaflet-control-layers-toggle {
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    .leaflet-control-custom {
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    /* Ještě větší mezery pro malé obrazovky */
+    .leaflet-control-zoom {
+        margin: 15px !important;
+    }
+    
+    .leaflet-control-layers {
+        margin: 15px !important;
+    }
+    
+    .leaflet-control-custom {
+        margin: 15px !important;
+    }
+    
+    /* Zvětšení location controls pro lepší dostupnost */
+    .location-controls {
+        bottom: 15px;
+        left: 15px;
+        gap: 8px;
+    }
+    
+    .location-btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    /* Optimalizace mobilních informací pro malé obrazovky */
+    .mobile-info-section {
+        padding: 12px 15px;
+        margin: 0 -15px 15px -15px;
+    }
+    
+    .mobile-info-item {
+        gap: 10px;
+        margin-bottom: 10px;
+        padding: 6px 0;
+    }
+    
+    .mobile-info-icon {
+        font-size: 20px;
+        width: 25px;
+    }
+    
+    .mobile-info-label {
+        font-size: 11px;
+    }
+    
+    .mobile-info-value {
+        font-size: 16px;
+    }
+    
+    .mobile-graph-btn {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+    
+    /* Optimalizace mobilního okna pro malé obrazovky */
+    .mobile-info-window {
+        top: 50px;
+        left: 5px;
+        right: 5px;
+        max-width: none;
+    }
+    
+    .mobile-info-header {
+        padding: 10px 12px;
+    }
+    
+    .mobile-info-header h4 {
+        font-size: 12px;
+    }
+    
+    .mobile-info-content {
+        padding: 12px;
+    }
+    
+    .mobile-info-row {
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .mobile-info-item {
+        gap: 6px;
+    }
+    
+    .mobile-info-icon {
+        font-size: 18px;
+        width: 20px;
+    }
+    
+    .mobile-info-label {
+        font-size: 9px;
+    }
+    
+    .mobile-info-value {
+        font-size: 14px;
+    }
+    
+    .mobile-info-actions {
+        gap: 6px;
+    }
+    
+    .mobile-info-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    /* Mapa přes celý displej na malých obrazovkách - MAXIMÁLNÍ PROSTOR */
+    #map {
+        top: 0 !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        position: fixed !important;
+        z-index: 1 !important; /* Zajišťuje, že mapa je pod všemi UI prvky */
+    }
+    
+    /* Optimalizace mobilních prvků pro malé obrazovky - JEŠTĚ KOMPAKTNĚJŠÍ */
+    .mobile-top-bar {
+        height: 40px; /* Zmenšeno z 50px */
+        padding: 0 8px; /* Zmenšeno z 10px */
+    }
+    
+    .mobile-logo h1 {
+        font-size: 14px; /* Zmenšeno z 16px */
+    }
+    
+    .mobile-status {
+        gap: 0px; /* Zmenšeno z 1px */
+    }
+    
+    .mobile-temp {
+        font-size: 10px; /* Zmenšeno z 11px */
+    }
+    
+    .mobile-skiers {
+        font-size: 8px; /* Zmenšeno z 9px */
+    }
+    
+    .mobile-action-btn {
+        width: 30px; /* Zmenšeno z 35px */
+        height: 30px; /* Zmenšeno z 35px */
+        font-size: 12px; /* Zmenšeno z 14px */
+    }
+    
+    .mobile-info-cards {
+        top: 50px; /* Zmenšeno z 60px */
+        left: 5px;
+        right: 5px;
+    }
+    
+    .mobile-bottom-nav {
+        height: 55px; /* Zmenšeno z 60px */
+    }
+    
+    .mobile-panel {
+        bottom: 55px; /* Zmenšeno z 60px */
+    }
+}
+
+/* Responzivní úpravy pro weather dashboard */
+@media (max-width: 768px) {
+    #weatherDashboard {
+        width: 90vw !important;
+        max-width: 350px !important;
+        right: 5px !important;
+        top: 55px !important;
+        padding: 12px !important;
+    }
+    
+    #weatherDashboard h3 {
+        font-size: 16px !important;
+    }
+    
+    #liveTempDisplay {
+        font-size: 24px !important;
+    }
+    
+    #temperature {
+        font-size: 28px !important;
+    }
+    
+    #weatherIcon {
+        font-size: 40px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #weatherDashboard {
+        width: 95vw !important;
+        right: 2.5vw !important;
+        top: 60px !important;
+        padding: 10px !important;
+    }
+    
+    #weatherDashboard h3 {
+        font-size: 14px !important;
+    }
+    
+    #liveTempDisplay {
+        font-size: 20px !important;
+    }
+    
+    #temperature {
+        font-size: 24px !important;
+    }
+    
+    #weatherIcon {
+        font-size: 36px !important;
+    }
+}
+
+/* Zlepšení dotykového ovládání */
+@media (hover: none) and (pointer: coarse) {
+    .weather-widget:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .weather-widget:active {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(0.95);
+    }
+    
+    .skiers-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: none;
+    }
+    
+    .skiers-btn:active {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0.95);
+    }
+    
+    .menu-btn:hover, .action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: none;
+    }
+    
+    .menu-btn:active, .action-btn:active {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0.95);
+    }
+    
+    .location-btn:hover {
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        transform: none;
+    }
+    
+    .location-btn:active {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(0.95);
+    }
+}
+/* Tlačítko je nyní widget-btn */
+
+.leaflet-control-custom {
+  background-color: #fff;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.leaflet-control-custom:hover {
+  background-color: #f4f4f4;
+}
+
+/* Tlačítka pro zobrazení/skrývání uložených prvků – sjednocení se schématem projektu */
+#showFeaturesBtn,
+#hideFeaturesBtn {
+    position: absolute;
+    left: 10px;
+    top: 60px;              /* v levé části */
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    cursor: pointer;
+    z-index: 1000;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    background-color: #ffffff;
+    background-image: url('../assets/icons/menu.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    color: transparent;       /* skryje text */
+    text-indent: -9999px;     /* vizuálně jako ikona */
+    overflow: hidden;
+}
+
+#showFeaturesBtn:hover,
+#hideFeaturesBtn:hover {
+    background-color: #f4f4f4;
+    transform: scale(1.02);
+}
+
+#showFeaturesBtn:active,
+#hideFeaturesBtn:active {
+    transform: scale(0.98);
+}
+
+#hideFeaturesBtn { 
+    top: 100px; 
+}
+
+/* Vzhled vlastní Leaflet ikony pro zobrazení prvků, aby ladila s tématem */
+.leaflet-control.leaflet-control-custom {
+    background-color: #007ddd;
+    border-radius: 4px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+}
+
+.leaflet-control.leaflet-control-custom:hover {
+    background-color: #eeee22;
+}
+
+/* Oprava ikony pro nástroj Draw Marker – použij lokální marker-icon.svg */
+.leaflet-draw-toolbar .leaflet-draw-draw-marker {
+    background-image: url('../assets/icons/marker-icon.svg') !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 18px 18px !important;
+}
+
+/* Alternativní selektor pro marker tlačítko */
+.leaflet-draw-toolbar a[title*="marker" i],
+.leaflet-draw-toolbar a[title*="Marker" i] {
+    background-image: url('../assets/icons/marker-icon.svg') !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 18px 18px !important;
+}
+
+/* Oprava ikony pro edit tlačítko v Leaflet Draw */
+.leaflet-draw-toolbar .leaflet-draw-edit-edit {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTExIDRMMTMgNkw0IDE1SDFWMTJMMTEgNFoiIHN0cm9rZT0iIzQ0NCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTkgNkwxMyAxMCIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K') !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 16px 16px !important;
+}
+
+/* Skryje případný defaultní stín markeru, který může působit jako duplicitní vrstva */
+.leaflet-marker-shadow {
+    display: none !important;
+}
+
+/* Vynucení SVG i pro retina variantu, aby se nenačítal marker-icon-2x.png */
+img.leaflet-marker-icon[src$="marker-icon-2x.png"] {
+    content: url('../assets/icons/marker-icon.svg') !important;
+}
+
+/* Ikona pro Cancel tlačítko v Leaflet Draw */
+.leaflet-draw-actions a {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDRMNCA4TDEyIDEyIiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=') !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 16px 16px !important;
+}

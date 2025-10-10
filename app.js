@@ -41,6 +41,14 @@ class VYGEOApp {
       });
     }
 
+    // Find location button
+    const findLocationButton = document.getElementById('findLocationButton');
+    if (findLocationButton) {
+      findLocationButton.addEventListener('click', () => {
+        this.findMyLocation();
+      });
+    }
+
     // Menu toggle
     const menuToggle = document.getElementById('menuToggle');
     if (menuToggle) {
@@ -80,10 +88,11 @@ class VYGEOApp {
       });
     }
 
-    // Close modals when clicking on map
+    // Close modals and sidebar when clicking on map
     if (this.mapManager) {
       this.mapManager.getMap().on('click', () => {
         this.closeAllModals();
+        this.closeSidebar();
       });
     }
 
@@ -94,6 +103,14 @@ class VYGEOApp {
         this.closeAllModals();
       }
     });
+
+    // Snow calculator button
+    const snowCalcBtn = document.getElementById('snowCalcBtn');
+    if (snowCalcBtn) {
+      snowCalcBtn.addEventListener('click', () => {
+        this.openSnowCalculator();
+      });
+    }
   }
 
   async handleLogin() {
@@ -151,6 +168,97 @@ class VYGEOApp {
 
   getGraphManager() {
     return this.graphManager;
+  }
+
+  openSnowCalculator() {
+    // Otevřít kalkulátor sněhu v novém okně
+    window.open('snow_calc/snowcalc.html', 'snowcalc', 'width=600,height=700,scrollbars=yes,resizable=yes');
+  }
+
+  closeSidebar() {
+    const sidebar = document.getElementById('leftSidebar');
+    if (sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+    }
+  }
+
+  findMyLocation() {
+    if (!navigator.geolocation) {
+      alert('Geolokace není podporována vaším prohlížečem.');
+      return;
+    }
+
+    const findLocationButton = document.getElementById('findLocationButton');
+    if (findLocationButton) {
+      findLocationButton.style.opacity = '0.5';
+      findLocationButton.style.pointerEvents = 'none';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Přesunout mapu na aktuální polohu
+        this.mapManager.setView([lat, lng], 17);
+        
+        // Přidat marker na aktuální polohu
+        if (this.userLocationMarker) {
+          this.mapManager.getMap().removeLayer(this.userLocationMarker);
+        }
+        
+        this.userLocationMarker = L.marker([lat, lng], {
+          icon: L.icon({
+            iconUrl: 'assets/icons/bod_lokace.svg',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+          })
+        }).addTo(this.mapManager.getMap());
+        
+        this.userLocationMarker.bindPopup(`
+          <div style="text-align: center;">
+            <strong>Vaše poloha</strong><br>
+            <small>${lat.toFixed(6)}, ${lng.toFixed(6)}</small>
+          </div>
+        `).openPopup();
+        
+        // Resetovat tlačítko
+        if (findLocationButton) {
+          findLocationButton.style.opacity = '1';
+          findLocationButton.style.pointerEvents = 'auto';
+        }
+      },
+      (error) => {
+        console.error('Chyba při získávání polohy:', error);
+        let errorMessage = 'Nepodařilo se získat vaši polohu.';
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Přístup k poloze byl odepřen.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Informace o poloze není dostupná.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Požadavek na polohu vypršel.';
+            break;
+        }
+        
+        alert(errorMessage);
+        
+        // Resetovat tlačítko
+        if (findLocationButton) {
+          findLocationButton.style.opacity = '1';
+          findLocationButton.style.pointerEvents = 'auto';
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
   }
 }
 

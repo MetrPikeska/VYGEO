@@ -23,11 +23,25 @@ class AuthManager {
       this.currentUser = data.user || null;
       
       this.refreshAuthUI();
+      
+      // Aktualizovat měřicí nástroje po načtení stavu
+      setTimeout(() => {
+        if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
+          window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+        }
+      }, 200);
     } catch (error) {
       console.error('Chyba při načítání auth status:', error);
       this.isLoggedIn = false;
       this.currentUser = null;
       this.refreshAuthUI();
+      
+      // Aktualizovat měřicí nástroje i při chybě
+      setTimeout(() => {
+        if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
+          window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+        }
+      }, 200);
     }
   }
 
@@ -36,6 +50,12 @@ class AuthManager {
     if (authBtn) {
       authBtn.textContent = this.isLoggedIn ? `Odhlásit (${this.currentUser})` : 'Přihlásit';
       authBtn.style.background = this.isLoggedIn ? '#dc3545' : '#007ddd';
+    }
+    
+    // Zobrazit/skrýt administrátorské nástroje
+    const adminTools = document.getElementById('adminTools');
+    if (adminTools) {
+      adminTools.style.display = this.isLoggedIn ? 'block' : 'none';
     }
   }
 
@@ -72,6 +92,10 @@ class AuthManager {
         this.currentUser = data.user;
         this.csrfToken = data.csrf;
         this.refreshAuthUI();
+        // Aktualizovat měřicí nástroje
+        if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
+          window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+        }
         return { success: true };
       } else {
         this.showLoginError(data.error || 'Přihlášení se nezdařilo');
@@ -94,6 +118,10 @@ class AuthManager {
       this.currentUser = null;
       this.csrfToken = null;
       this.refreshAuthUI();
+      // Aktualizovat měřicí nástroje
+      if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
+        window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+      }
     } catch (error) {
       console.error('Chyba při odhlašování:', error);
     }

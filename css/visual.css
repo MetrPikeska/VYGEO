@@ -169,22 +169,112 @@ html, body {
     transform: translateY(-1px);
 }
 
-/* Levý vysouvací panel */
+.admin-btn {
+    background: #28a745;
+    border: 1px solid #1e7e34;
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.admin-btn:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Leaflet Layer Control v sidebaru - jednotný styl */
+#layerControlContainer .leaflet-control-layers {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+#layerControlContainer .leaflet-control-layers-expanded {
+    padding: 0 !important;
+    font-family: Arial, sans-serif !important;
+    background: transparent !important;
+}
+
+#layerControlContainer .leaflet-control-layers label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    padding: 4px 0 4px 15px !important;
+    background: transparent !important;
+}
+
+#layerControlContainer .leaflet-control-layers input[type="radio"],
+#layerControlContainer .leaflet-control-layers input[type="checkbox"] {
+    margin-right: 8px !important;
+    transform: scale(1.1) !important;
+}
+
+#layerControlContainer .leaflet-control-layers-separator {
+    border-top: 1px solid #e9ecef !important;
+    margin: 10px 0 !important;
+}
+
+.leaflet-control-layers-base, .leaflet-control-layers-separator {
+    font-weight: bold;
+    background-color: #ffffff;
+    color: #ffffff;
+    padding: 4px 12px;
+    border-bottom: none;
+}
+
+.leaflet-control-layers-overlays input[type="checkbox"]:checked + span {
+    color: #2c3e50 !important;
+    font-weight: 500 !important;
+}
+
+/* Přehodit pořadí - překryvné vrstvy nahoře, základní dole */
+#layerControlContainer .leaflet-control-layers-expanded {
+    display: flex;
+    flex-direction: column;
+}
+
+#layerControlContainer .leaflet-control-layers-overlays {
+    order: 1;
+}
+
+#layerControlContainer .leaflet-control-layers-separator {
+    order: 2;
+}
+
+#layerControlContainer .leaflet-control-layers-base {
+    order: 3;
+}
+
+/* Pravý vysouvací panel */
 .sidebar {
     position: fixed;
     top: 60px;
-    left: -300px;
-    width: 300px;
+    right: -350px;
+    width: 350px;
     height: calc(100vh - 60px);
-    background: #ffffff;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
     z-index: 999;
-    transition: left 0.3s ease;
+    transition: right 0.3s ease;
     overflow-y: auto;
 }
 
 .sidebar.open {
-    left: 0;
+    right: 0;
 }
 
 .sidebar-header {
@@ -729,18 +819,28 @@ html, body {
 }
 
 .sidebar-section {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .sidebar-section h4 {
-    margin: 0 0 15px 0;
+    margin: 0;
+    padding: 15px 20px;
     font-size: 14px;
-    color: #495057;
+    color: #2c3e50;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-weight: 600;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
 }
 
-.layer-controls, .filter-controls {
+.layer-controls, .filter-controls, .admin-controls {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -959,10 +1059,10 @@ html, body {
 .location-controls {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     z-index: 1000;
 }
 
@@ -971,33 +1071,35 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #007ddd, #0056b3);
-    color: white;
-    border: none;
-    border-radius: 15px;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #666;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
     cursor: pointer;
     font-size: 10px;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0, 123, 221, 0.3);
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     text-align: center;
+    backdrop-filter: blur(10px);
 }
 
 .location-btn:hover {
-    background: linear-gradient(135deg, #0056b3, #007ddd);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 123, 221, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .location-btn i {
-    font-size: 18px;
-    margin-bottom: 2px;
+    font-size: 14px;
+    margin-bottom: 1px;
 }
 
 .location-btn span {
-    font-size: 9px;
+    font-size: 8px;
     line-height: 1;
 }
 
@@ -1063,7 +1165,7 @@ html, body {
 .leaflet-control-layers-base,
 .leaflet-control-layers-separator {
     font-weight: bold;
-    background-color: #007ddd;
+    background-color: #ffffff;
     color: #ffffff;
     padding: 4px 12px;
     border-bottom: none;
@@ -1105,24 +1207,48 @@ html, body {
     color: #eeee22;
 }
 
-/* Nastavení popup okna */
+/* Nastavení popup okna - roztáhnout */
 .leaflet-popup-content-wrapper {
-    width: 500px !important;
+    width: 400px !important;
     max-width: 600px;
+    min-width: 300px;
     height: auto !important;
     padding: 0 !important;
     overflow: hidden;
 }
 
 .leaflet-popup-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 !important;
+    display: block !important;
+    padding: 20px !important;
     margin: 0 !important;
     width: 100% !important;
     height: auto !important;
     overflow: hidden;
+    text-align: left !important;
+}
+
+/* Webcam popup - kompaktní */
+.leaflet-popup.webcam-popup .leaflet-popup-content-wrapper {
+    width: 320px !important;
+    max-width: 320px !important;
+    min-width: 320px !important;
+    height: 240px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+}
+
+.leaflet-popup.webcam-popup .leaflet-popup-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.leaflet-popup.webcam-popup .leaflet-popup-tip {
+    display: none !important;
 }
 
 #webcam-player {
@@ -1214,21 +1340,21 @@ html, body {
     
     .location-controls {
         bottom: 15px;
-        right: 15px;
+        left: 15px;
     }
     
     .location-btn {
-        width: 55px;
-        height: 55px;
-        border-radius: 12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
     }
     
     .location-btn i {
-        font-size: 18px;
+        font-size: 12px;
     }
     
     .location-btn span {
-        font-size: 9px;
+        font-size: 7px;
     }
     
     .sidebar {
@@ -1291,14 +1417,16 @@ html, body {
         height: 40px !important;
     }
     
-    /* Zvětšení popup oken pro mobilní zařízení */
+    /* Popup okna pro mobilní zařízení - roztáhnout */
     .leaflet-popup-content-wrapper {
         width: 90vw !important;
-        max-width: 400px !important;
+        max-width: 500px !important;
+        min-width: 280px !important;
     }
     
     .leaflet-popup-content {
         width: 100% !important;
+        padding: 15px !important;
     }
     
     /* Lepší rozložení ovládacích prvků mapy */
@@ -1397,20 +1525,20 @@ html, body {
     
     .location-controls {
         bottom: 10px;
-        right: 10px;
+        left: 10px;
     }
     
     .location-btn {
-        width: 50px;
-        height: 50px;
+        width: 26px;
+        height: 26px;
     }
     
     .location-btn i {
-        font-size: 16px;
+        font-size: 11px;
     }
     
     .location-btn span {
-        font-size: 8px;
+        font-size: 6px;
     }
     
     .sidebar {
@@ -1458,13 +1586,13 @@ html, body {
     /* Zvětšení location controls pro lepší dostupnost */
     .location-controls {
         bottom: 15px;
-        right: 15px;
-        gap: 12px;
+        left: 15px;
+        gap: 8px;
     }
     
     .location-btn {
-        width: 55px;
-        height: 55px;
+        width: 28px;
+        height: 28px;
     }
     
     /* Optimalizace mobilních informací pro malé obrazovky */
@@ -1686,12 +1814,13 @@ html, body {
     }
     
     .location-btn:hover {
-        background: linear-gradient(135deg, #0056b3, #007ddd);
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
         transform: none;
     }
     
     .location-btn:active {
-        background: linear-gradient(135deg, #004080, #0056b3);
+        background: rgba(255, 255, 255, 0.9);
         transform: scale(0.95);
     }
 }

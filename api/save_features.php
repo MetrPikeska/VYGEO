@@ -21,9 +21,9 @@ if (!$csrfHeader || !isset($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'],
 }
 
 $pdo = new PDO(
-    "mysql:host=md397.wedos.net;dbname=d383750_opalena;charset=utf8mb4",
-    "w383750_opalena",
-    "65r9P7XW"
+    "mysql:host=md397.wedos.net;dbname=d383750_vygeo;charset=utf8mb4",
+    "w383750_vygeo",
+    "7JAWfDdh"
 );
 
 // Načíst vstup (GeoJSON objekt)
