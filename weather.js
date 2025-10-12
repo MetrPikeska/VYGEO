@@ -56,7 +56,7 @@ class WeatherManager {
 
   async loadWeatherData() {
     try {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${CONFIG.HOME_POINT[0]}&lon=${CONFIG.HOME_POINT[1]}&appid=${CONFIG.OPENWEATHER_API_KEY}&units=metric&lang=cz`);
+      const response = await fetch(`api/weather_proxy.php?lat=${CONFIG.HOME_POINT[0]}&lon=${CONFIG.HOME_POINT[1]}`);
       
       if (!response.ok) {
         throw new Error('Weather API not available');

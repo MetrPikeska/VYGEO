@@ -4,6 +4,8 @@ class MapManager {
     this.map = null;
     this.layers = {};
     this.controls = {};
+    this.layersVisible = true; // Stav viditelnosti vrstev
+    this.originalLayerStates = {}; // Uložení původních stavů vrstev
     this.init();
   }
 
@@ -32,19 +34,19 @@ class MapManager {
   setupLayers() {
     // Podkladové mapy
     this.layers.baseMaps = {
-      "mapy.cz základní": L.tileLayer(`https://api.mapy.cz/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${CONFIG.MAPY_CZ_API_KEY}`, {
+      "mapy.cz základní": L.tileLayer('api/map_proxy.php?type=basic&z={z}&x={x}&y={y}', {
         minZoom: 17, maxZoom: 19,
         attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
       }),
-      "mapy.cz zimní": L.tileLayer(`https://api.mapy.cz/v1/maptiles/winter/256/{z}/{x}/{y}?apikey=${CONFIG.MAPY_CZ_API_KEY}`, {
+      "mapy.cz zimní": L.tileLayer('api/map_proxy.php?type=winter&z={z}&x={x}&y={y}', {
         minZoom: 17, maxZoom: 19,
         attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
       }),
-      "mapy.cz ortofoto": L.tileLayer(`https://api.mapy.cz/v1/maptiles/aerial/256/{z}/{x}/{y}?apikey=${CONFIG.MAPY_CZ_API_KEY}`, {
+      "mapy.cz ortofoto": L.tileLayer('api/map_proxy.php?type=aerial&z={z}&x={x}&y={y}', {
         minZoom: 17, maxZoom: 19,
         attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
       }),
-      "mapy.cz turistická": L.tileLayer(`https://api.mapy.cz/v1/maptiles/outdoor/256/{z}/{x}/{y}?apikey=${CONFIG.MAPY_CZ_API_KEY}`, {
+      "mapy.cz turistická": L.tileLayer('api/map_proxy.php?type=outdoor&z={z}&x={x}&y={y}', {
         minZoom: 17, maxZoom: 19,
         attribution: '<a href="https://api.mapy.cz/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
       }),
@@ -82,8 +84,10 @@ class MapManager {
         if (key !== "Ortofoto") {
           // Všechny vrstvy kromě Mikeska ortofoto budou aktivní
           layer.addTo(this.map);
+          this.originalLayerStates[key] = true; // Uložit původní stav
+        } else {
+          this.originalLayerStates[key] = false; // Ortofoto je původně vypnuté
         }
-        // Mikeska ortofoto se přidá pouze do layer controlu, ne na mapu
       }
     });
   }
@@ -390,6 +394,9 @@ class MapManager {
       }
     });
 
+    // Tlačítko pro přepínání vrstev
+    this.setupLayersToggleButton();
+
     // GeoJSON drag and drop functionality
     this.setupGeoJSONDragAndDrop();
   }
@@ -688,6 +695,61 @@ class MapManager {
 
   removeLayer(layer) {
     this.map.removeLayer(layer);
+  }
+
+  setupLayersToggleButton() {
+    const toggleBtn = document.getElementById('toggleLayersBtn');
+    const layersIcon = document.getElementById('layersIcon');
+    
+    if (!toggleBtn || !layersIcon) {
+      console.warn('Tlačítko pro přepínání vrstev nebylo nalezeno');
+      return;
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      this.toggleAllLayers();
+    });
+  }
+
+  toggleAllLayers() {
+    const toggleBtn = document.getElementById('toggleLayersBtn');
+    const layersIcon = document.getElementById('layersIcon');
+    
+    if (this.layersVisible) {
+      // Vypnout všechny vrstvy
+      this.hideAllLayers();
+      this.layersVisible = false;
+      layersIcon.className = 'fas fa-eye-slash';
+      toggleBtn.classList.add('layers-off');
+      toggleBtn.title = 'Zapnout všechny vrstvy';
+    } else {
+      // Zapnout všechny vrstvy podle původních stavů
+      this.showAllLayers();
+      this.layersVisible = true;
+      layersIcon.className = 'fas fa-eye';
+      toggleBtn.classList.remove('layers-off');
+      toggleBtn.title = 'Vypnout všechny vrstvy';
+    }
+  }
+
+  hideAllLayers() {
+    // Skrýt všechny překryvné vrstvy
+    Object.keys(this.layers.overlayMaps).forEach(key => {
+      const layer = this.layers.overlayMaps[key];
+      if (layer && this.map.hasLayer(layer)) {
+        this.map.removeLayer(layer);
+      }
+    });
+  }
+
+  showAllLayers() {
+    // Zobrazit všechny vrstvy podle původních stavů
+    Object.keys(this.layers.overlayMaps).forEach(key => {
+      const layer = this.layers.overlayMaps[key];
+      if (layer && this.originalLayerStates[key]) {
+        this.map.addLayer(layer);
+      }
+    });
   }
 }
 

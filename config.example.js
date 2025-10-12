@@ -1,13 +1,15 @@
-// config.js - Konfigurace aplikace
+// config.example.js - Příklad konfigurace aplikace
+// Zkopírujte tento soubor jako config.js a vyplňte své API klíče
+
 const CONFIG = {
   // Mapové souřadnice
   HOME_POINT: [49.5535106, 18.3143814],
   WEBCAM_POINT: [49.55469, 18.31718],
   RESTAURANT_POINT: [49.554639465762186, 18.314282670706472],
   
-  // API klíče - nyní skryté na backendu
-  // MAPY_CZ_API_KEY: 'skryto na backendu',
-  OPENWEATHER_API_KEY: '82bf6119dd0ae6ac5884ab9e60ad6fe0',
+  // API klíče - ZMĚŇTE NA SVÉ KLÍČE!
+  MAPY_CZ_API_KEY: 'YOUR_MAPY_CZ_API_KEY_HERE',
+  OPENWEATHER_API_KEY: 'YOUR_OPENWEATHER_API_KEY_HERE',
   
   // URL adresy
   HLS_STREAM_URL: "https://stream.teal.cz/hls/cam273.m3u8",

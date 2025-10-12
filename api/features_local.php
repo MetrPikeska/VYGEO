@@ -3,9 +3,9 @@
 header('Content-Type: application/json; charset=utf-8');
 date_default_timezone_set('Europe/Prague');
 
-// Debug mode - remove in production
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Debug mode - disabled in production
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
 // Use SQLite instead of MySQL
 $db_file = __DIR__ . '/features.db';

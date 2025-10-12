@@ -1,10 +1,23 @@
 <?php
-// Debug mode - remove in production
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Debug mode - disabled in production
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
 // CORS hlavičky pro produkční hosting
-header('Access-Control-Allow-Origin: *');
+// Omezené CORS pro bezpečnost
+$allowed_origins = [
+    'https://petrmikeska.cz',
+    'https://www.petrmikeska.cz',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: https://petrmikeska.cz'); // fallback
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json; charset=utf-8');
@@ -26,16 +39,14 @@ date_default_timezone_set('Europe/Prague');
  */
 
 // === DB credentials (Wedos - skript uživatel) ===
-$db_host = "md397.wedos.net";
-$db_user = "w383750_vygeo";
-$db_pass = "7JAWfDdh";
-$db_name = "d383750_vygeo";
+// Načtení databázové konfigurace
+require_once __DIR__ . '/db_config.php';
 
 try {
     // Nastavit timeout pro připojení
     ini_set('default_socket_timeout', 10);
     
-    $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name, 3306);
+    $mysqli = getDbConnection();
     
     if ($mysqli->connect_error) {
         http_response_code(500);
@@ -88,15 +99,18 @@ $action = $_GET['action'] ?? null;
 
 if ($method === 'GET' && $action === 'list') {
     // List all features as FeatureCollection
-    // Zkontrolovat, zda sloupec elevation_data existuje
+    // Zkontrolovat, zda sloupce elevation_data a color existují
     $check_elevation = $mysqli->query("SHOW COLUMNS FROM map_features LIKE 'elevation_data'");
     $has_elevation_column = $check_elevation && $check_elevation->num_rows > 0;
     
-    if ($has_elevation_column) {
-        $sql = "SELECT id, name, type, geojson, elevation_data, created_at FROM map_features ORDER BY id ASC";
-    } else {
-        $sql = "SELECT id, name, type, geojson, created_at FROM map_features ORDER BY id ASC";
-    }
+    $check_color = $mysqli->query("SHOW COLUMNS FROM map_features LIKE 'color'");
+    $has_color_column = $check_color && $check_color->num_rows > 0;
+    
+    $columns = "id, name, type, geojson, created_at";
+    if ($has_elevation_column) $columns .= ", elevation_data";
+    if ($has_color_column) $columns .= ", color";
+    
+    $sql = "SELECT $columns FROM map_features ORDER BY id ASC";
     $res = $mysqli->query($sql);
     if (!$res) {
         http_response_code(500);
@@ -122,6 +136,11 @@ if ($method === 'GET' && $action === 'list') {
             if ($elevation_data) {
                 $properties = array_merge($properties, $elevation_data);
             }
+        }
+        
+        // Add color if available
+        if ($has_color_column && isset($row['color']) && $row['color']) {
+            $properties['color'] = $row['color'];
         }
         
         $features[] = [
@@ -153,6 +172,7 @@ if ($method === 'POST') {
         $type = trim($body['type'] ?? '');
         $geometry = $body['geometry'] ?? null;
         $elevation_data = $body['elevation_data'] ?? null;
+        $color = $body['color'] ?? null;
 
         if ($name === '' || !$geometry || $type === '') {
             http_response_code(400);
@@ -169,26 +189,40 @@ if ($method === 'POST') {
         }
 
         $geojson = json_encode($geometry, JSON_UNESCAPED_UNICODE);
-        // Zkontrolovat, zda sloupec elevation_data existuje
+        // Zkontrolovat, zda sloupce elevation_data a color existují
         $check_elevation = $mysqli->query("SHOW COLUMNS FROM map_features LIKE 'elevation_data'");
         $has_elevation_column = $check_elevation && $check_elevation->num_rows > 0;
         
+        $check_color = $mysqli->query("SHOW COLUMNS FROM map_features LIKE 'color'");
+        $has_color_column = $check_color && $check_color->num_rows > 0;
+        
+        $columns = "name, type, geojson";
+        $placeholders = "?, ?, ?";
+        $params = [$name, $type, $geojson];
+        $types = "sss";
+        
         if ($has_elevation_column) {
+            $columns .= ", elevation_data";
+            $placeholders .= ", ?";
             $elevation_json = $elevation_data ? json_encode($elevation_data, JSON_UNESCAPED_UNICODE) : null;
-            $stmt = $mysqli->prepare("INSERT INTO map_features (name, type, geojson, elevation_data) VALUES (?, ?, ?, ?)");
-        } else {
-            $stmt = $mysqli->prepare("INSERT INTO map_features (name, type, geojson) VALUES (?, ?, ?)");
+            $params[] = $elevation_json;
+            $types .= "s";
         }
+        
+        if ($has_color_column) {
+            $columns .= ", color";
+            $placeholders .= ", ?";
+            $params[] = $color;
+            $types .= "s";
+        }
+        
+        $stmt = $mysqli->prepare("INSERT INTO map_features ($columns) VALUES ($placeholders)");
         if (!$stmt) {
             http_response_code(500);
             echo json_encode(['ok'=>false, 'error'=>$mysqli->error]);
             exit;
         }
-        if ($has_elevation_column) {
-            $stmt->bind_param("ssss", $name, $type, $geojson, $elevation_json);
-        } else {
-            $stmt->bind_param("sss", $name, $type, $geojson);
-        }
+        $stmt->bind_param($types, ...$params);
         if (!$stmt->execute()) {
             http_response_code(500);
             echo json_encode(['ok'=>false, 'error'=>$stmt->error]);
@@ -212,8 +246,9 @@ if ($method === 'POST') {
         $name = isset($body['name']) ? trim($body['name']) : null;
         $geometry = $body['geometry'] ?? null;
         $elevation_data = $body['elevation_data'] ?? null;
+        $color = $body['color'] ?? null;
 
-        if ($name === null && $geometry === null && $elevation_data === null) {
+        if ($name === null && $geometry === null && $elevation_data === null && $color === null) {
             http_response_code(400);
             echo json_encode(['ok'=>false, 'error'=>'Nothing to update']);
             exit;
@@ -246,6 +281,18 @@ if ($method === 'POST') {
                 $elevation_json = json_encode($elevation_data, JSON_UNESCAPED_UNICODE);
                 $updates[] = "elevation_data = ?";
                 $params[] = $elevation_json;
+                $types .= 's';
+            }
+        }
+
+        if ($color !== null) {
+            // Zkontrolovat, zda sloupec color existuje
+            $check_color = $mysqli->query("SHOW COLUMNS FROM map_features LIKE 'color'");
+            $has_color_column = $check_color && $check_color->num_rows > 0;
+            
+            if ($has_color_column) {
+                $updates[] = "color = ?";
+                $params[] = $color;
                 $types .= 's';
             }
         }

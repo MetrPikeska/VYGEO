@@ -40,6 +40,39 @@
       height: 16px;
     }
     
+    /* Styly pro tlačítko vrstev v pravé části headbaru */
+    .topBar-right .layers-btn {
+      margin-right: 8px;
+      padding: 8px 12px;
+      min-width: 40px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .topBar-right .layers-btn:hover {
+      background-color: #0056b3;
+    }
+    
+    .topBar-right .layers-btn i {
+      font-size: 16px;
+    }
+    
+    .topBar-right .layers-btn.layers-off {
+      background-color: #dc3545;
+    }
+    
+    .topBar-right .layers-btn.layers-off:hover {
+      background-color: #c82333;
+    }
+    
     .feature-popup {
       min-width: 200px;
     }
@@ -131,6 +164,9 @@
     </div>
     
     <div class="topBar-right">
+      <button id="toggleLayersBtn" class="action-btn layers-btn" title="Přepnout všechny vrstvy">
+        <i class="fas fa-eye" id="layersIcon"></i>
+      </button>
       <button id="menuToggle" class="menu-btn">☰</button>
       <button id="authButton" class="action-btn">Přihlásit</button>
     </div>

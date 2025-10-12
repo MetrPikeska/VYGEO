@@ -163,4 +163,36 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M6 7h12v2H6V7zm2 3h8l-1 9H9L8 10zm3-7h2l1 1h5v2H5V4h5l1-1z'/></svg>") !important;
 }
 
+/* Popup tlačítka styly */
+.popup-actions button {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  margin: 2px;
+}
+
+.popup-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.popup-actions button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+}
+
 

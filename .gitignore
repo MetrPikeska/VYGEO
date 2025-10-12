@@ -28,6 +28,8 @@ Thumbs.db
 config_local.php
 .env
 *.key
+config.js
+api/db_config.php
 
 # Temporary files
 *.tmp

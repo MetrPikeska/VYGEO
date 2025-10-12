@@ -292,16 +292,31 @@ class FeaturesManager {
         }
       }
 
+      // Prepare data for API
+      const apiData = {
+        action: action,
+        name: feature.properties.name || '',
+        type: feature.geometry.type,
+        geometry: feature.geometry,
+        elevation_data: elevationData
+      };
+
+      // Add ID for update operations
+      if (id && action === 'update') {
+        apiData.id = id;
+      }
+
+      // Add color if available
+      if (layer.feature && layer.feature.properties && layer.feature.properties.color) {
+        apiData.color = layer.feature.properties.color;
+      }
+
+      console.log('Sending data to API:', apiData);
+
       const response = await fetch('api/features.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: action,
-          name: feature.properties.name || '',
-          type: feature.geometry.type,
-          geometry: feature.geometry,
-          elevation_data: elevationData
-        })
+        body: JSON.stringify(apiData)
       });
 
       // Zkontrolovat, zda je response JSON
@@ -409,8 +424,18 @@ class FeaturesManager {
           <div class="popup-actions" style="margin-top: 15px; text-align: center;">
             <button onclick="window.vygeoApp.getFeaturesManager().downloadFeature('${props.id || 'unknown'}')" 
                     class="download-btn" 
-                    style="background: #007ddd; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    style="background: #007ddd; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
               Stáhnout GeoJSON
+            </button>
+            <button onclick="window.vygeoApp.getFeaturesManager().changeFeatureColorFromPopup('${props.id || 'unknown'}')" 
+                    class="change-color-btn" 
+                    style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
+              Změnit barvu
+            </button>
+            <button onclick="window.vygeoApp.getFeaturesManager().editFeatureGeometry('${props.id || 'unknown'}')" 
+                    class="edit-geometry-btn" 
+                    style="background: #ffc107; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
+              Editovat geometrii
             </button>
           </div>
         </div>
@@ -552,14 +577,15 @@ class FeaturesManager {
 
   async loadFeaturesFromDB() {
     try {
-      const response = await fetch('api/get_features.php');
-      const fc = await response.json();
+      const response = await fetch('api/features.php?action=list');
+      const data = await response.json();
       
-      if (!fc || !fc.features) {
-        console.log('Žádné objekty k načtení');
+      if (!data || !data.features) {
+        console.log('Žádné objekty k načtení:', data);
         return;
       }
       
+      const fc = data;
       console.log('Načítám', fc.features.length, 'objektů z databáze');
       
       // Vyčisti existující objekty
@@ -597,6 +623,11 @@ class FeaturesManager {
           group.eachLayer(l => {
             l.bindPopup(this.createFeaturePopup(featureWithElevation, 'saved'));
             l.feature = featureWithElevation;
+            
+            // Ujistit se, že properties.id je správně nastavené
+            if (l.feature && l.feature.properties) {
+              l.feature.properties.id = id;
+            }
             
             // Nastavit barvu podle properties
             const color = featureWithElevation.properties?.color || this.getDefaultColorForType(featureWithElevation.geometry?.type);
@@ -846,11 +877,16 @@ class FeaturesManager {
     const featureData = this.featureLayers[id];
     if (featureData && featureData.layer) {
       if (visible) {
-        // Zobrazit - obnovit původní styly a povolit interakce
+        // Zobrazit - obnovit původní styly s průhledností a povolit interakce
         featureData.layer.eachLayer(l => {
+          // Získat původní barvu z properties
+          const color = l.feature?.properties?.color || this.getDefaultColorForType(l.feature?.geometry?.type);
+          
           l.setStyle({ 
-            opacity: 1,
-            fillOpacity: 1,
+            color: color,
+            fillColor: color,
+            opacity: 0.8,
+            fillOpacity: 0.3,  // Průhledná výplň
             weight: 2
           });
           // Povolit interakce
@@ -1263,10 +1299,14 @@ class FeaturesManager {
       layer.eachLayer(l => {
         if (l.feature && l.feature.properties && l.feature.properties.id === featureId) {
           if (visible) {
-            // Zobrazit - obnovit původní styly a povolit interakce
+            // Zobrazit - obnovit původní styly s průhledností a povolit interakce
+            const color = l.feature?.properties?.color || this.getDefaultColorForType(l.feature?.geometry?.type);
+            
             l.setStyle({ 
-              opacity: 1,
-              fillOpacity: 1,
+              color: color,
+              fillColor: color,
+              opacity: 0.8,
+              fillOpacity: 0.3,  // Průhledná výplň
               weight: 2
             });
             // Povolit interakce
@@ -1366,13 +1406,47 @@ class FeaturesManager {
   }
 
   async changeFeatureColor(featureId) {
-    const featureData = this.individualFeatures.get(featureId);
-    if (!featureData) return;
+    console.log('changeFeatureColor called with ID:', featureId);
+    
+    // Najít layer podle ID
+    const layer = this.findLayerById(featureId);
+    if (!layer) {
+      console.error('Feature layer not found:', featureId);
+      alert('Feature nebyl nalezen!');
+      return;
+    }
 
-    const newColor = await this.showColorPicker(featureData.color);
-    if (!newColor) return;
+    console.log('Found layer:', layer);
 
-    featureData.color = newColor;
+    // Získat aktuální barvu
+    const currentColor = layer.feature?.properties?.color || this.getDefaultColorForType(layer.feature?.geometry?.type);
+    console.log('Current color:', currentColor);
+
+    const newColor = await this.showColorPicker(currentColor);
+    if (!newColor) {
+      console.log('No color selected');
+      return;
+    }
+
+    console.log('New color selected:', newColor);
+
+    // Aktualizovat barvu na mapě
+    layer.setStyle({ 
+      color: newColor, 
+      fillColor: newColor,
+      weight: layer.options.weight || 3,
+      opacity: layer.options.opacity || 0.8,
+      fillOpacity: layer.options.fillOpacity || 0.3
+    });
+
+    // Aktualizovat properties
+    if (layer.feature && layer.feature.properties) {
+      layer.feature.properties.color = newColor;
+      // Ujistit se, že ID je správně nastavené
+      if (!layer.feature.properties.id) {
+        layer.feature.properties.id = featureId;
+      }
+    }
 
     // Aktualizovat barvu v legendě
     const colorDiv = document.querySelector(`#legend-${featureId} .feature-legend-color`);
@@ -1380,16 +1454,10 @@ class FeaturesManager {
       colorDiv.style.backgroundColor = newColor;
     }
 
-    // Aktualizovat barvu na mapě
-    [this.polygonLayer, this.polylineLayer, this.markerLayer].forEach(layer => {
-      layer.eachLayer(l => {
-        if (l.feature && l.feature.properties && l.feature.properties.id === featureId) {
-          l.setStyle({ color: newColor, fillColor: newColor });
-          // Aktualizovat i properties
-          l.feature.properties.color = newColor;
-        }
-      });
-    });
+    // Uložit do databáze
+    this.saveFeature(layer, 'update');
+
+    console.log('Barva změněna na:', newColor);
   }
 
   editFeatureName(featureId) {
@@ -1719,6 +1787,85 @@ class FeaturesManager {
       console.error('Chyba při stahování feature:', error);
       alert('Chyba při stahování souboru!');
     }
+  }
+
+  // Změna barvy feature z popup okna
+  async changeFeatureColorFromPopup(featureId) {
+    console.log('changeFeatureColorFromPopup called with ID:', featureId);
+    try {
+      await this.changeFeatureColor(featureId);
+    } catch (error) {
+      console.error('Error in changeFeatureColorFromPopup:', error);
+      alert('Chyba při změně barvy: ' + error.message);
+    }
+  }
+
+  // Editace geometrie feature z popup okna
+  editFeatureGeometry(featureId) {
+    // Najít layer podle ID
+    const layer = this.findLayerById(featureId);
+    if (!layer) {
+      console.error('Feature layer not found:', featureId);
+      alert('Feature nebyl nalezen!');
+      return;
+    }
+
+    // Zkontrolovat, zda jsou drawing tools dostupné
+    if (!this.drawControl || !this.drawControl.edit) {
+      console.error('Drawing tools not available');
+      alert('Editační nástroje nejsou dostupné!');
+      return;
+    }
+
+    // Zavřít všechny otevřené popupy
+    if (window.map) {
+      window.map.closePopup();
+    }
+
+    // Aktivovat edit mode pro tento layer
+    try {
+      // Přidat layer do edit group
+      this.editLayer.clearLayers();
+      this.editLayer.addLayer(layer);
+      
+      // Aktivovat edit mode
+      this.drawControl.edit.enable();
+      
+      console.log('Edit mode activated for feature:', featureId);
+      
+      // Zobrazit zprávu uživateli
+      alert('Editace aktivována! Upravte geometrii a klikněte na "Save" pro uložení změn.');
+      
+    } catch (error) {
+      console.error('Error activating edit mode:', error);
+      alert('Chyba při aktivaci editačního režimu!');
+    }
+  }
+
+  // Najít layer podle feature ID
+  findLayerById(featureId) {
+    console.log('findLayerById called with ID:', featureId);
+    const layers = [this.polygonLayer, this.polylineLayer, this.markerLayer];
+    
+    for (const layer of layers) {
+      let foundLayer = null;
+      layer.eachLayer(l => {
+        if (l.feature && l.feature.properties) {
+          const layerId = l.feature.properties.id;
+          console.log('Checking layer ID:', layerId, 'against:', featureId);
+          if (layerId == featureId) {
+            foundLayer = l;
+          }
+        }
+      });
+      if (foundLayer) {
+        console.log('Found layer:', foundLayer);
+        return foundLayer;
+      }
+    }
+    
+    console.log('No layer found for ID:', featureId);
+    return null;
   }
 }
 
