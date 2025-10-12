@@ -17,7 +17,28 @@ class SheepCounter {
       this.vlekyLayer = L.geoJSON(data, {
         style: () => ({ color: 'green', weight: 5 })
       });
-      this.mapManager.addLayer(this.vlekyLayer);
+      
+      // Nahradit prázdnou vrstvu skutečnými vleky v layer controlu
+      if (this.mapManager.layers.overlayMaps && this.mapManager.layers.overlayMaps["Vleky"]) {
+        // Odstranit starou prázdnou vrstvu z layer controlu
+        if (this.mapManager.controls.layerControl) {
+          this.mapManager.controls.layerControl.removeLayer(this.mapManager.layers.overlayMaps["Vleky"]);
+        }
+        
+        // Nahradit prázdnou vrstvu skutečnými vleky
+        this.mapManager.layers.overlayMaps["Vleky"] = this.vlekyLayer;
+        
+        // Přidat novou vrstvu do layer controlu
+        if (this.mapManager.controls.layerControl) {
+          this.mapManager.controls.layerControl.addOverlay(this.vlekyLayer, "Vleky");
+        }
+        
+        // Přidat vrstvu na mapu, pokud byla původně aktivní
+        if (this.mapManager.originalLayerStates && this.mapManager.originalLayerStates["Vleky"]) {
+          this.vlekyLayer.addTo(this.mapManager.map);
+        }
+      }
+      
       this.updateVlekyColor(this.currentCount);
     });
   }

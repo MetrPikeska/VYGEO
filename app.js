@@ -7,6 +7,7 @@ class VYGEOApp {
     this.sheepCounter = null;
     this.authManager = null;
     this.graphManager = null;
+    this.wetBulbCalculator = null;
     
     this.init();
   }
@@ -18,10 +19,21 @@ class VYGEOApp {
       // Initialize managers in order
       this.mapManager = new MapManager();
       this.featuresManager = new FeaturesManager(this.mapManager);
+      
+      // Nastavit referenci na FeaturesManager v MapManager
+      this.mapManager.setFeaturesManager(this.featuresManager);
+      
       this.weatherManager = new WeatherManager();
       this.sheepCounter = new SheepCounter(this.mapManager);
       this.authManager = new AuthManager();
       this.graphManager = new GraphManager();
+      
+      // Aktualizovat stav tlačítka po inicializaci všech managerů
+      setTimeout(() => {
+        if (this.mapManager.updateButtonState) {
+          this.mapManager.updateButtonState();
+        }
+      }, 500);
       
       // Setup event listeners
       this.setupEventListeners();
@@ -111,6 +123,30 @@ class VYGEOApp {
         this.openSnowCalculator();
       });
     }
+
+    // Wet bulb calculator button
+    const wetBulbCalcBtn = document.getElementById('wetBulbCalcBtn');
+    if (wetBulbCalcBtn) {
+      wetBulbCalcBtn.addEventListener('click', () => {
+        this.openWetBulbCalculator();
+      });
+    }
+
+    // Close wet bulb calculator button
+    const closeWetBulbBtn = document.getElementById('closeWetBulbBtn');
+    if (closeWetBulbBtn) {
+      closeWetBulbBtn.addEventListener('click', () => {
+        this.closeWetBulbCalculator();
+      });
+    }
+
+    // Close snow calculator button
+    const closeSnowCalcBtn = document.getElementById('closeSnowCalcBtn');
+    if (closeSnowCalcBtn) {
+      closeSnowCalcBtn.addEventListener('click', () => {
+        this.closeSnowCalculator();
+      });
+    }
   }
 
   async handleLogin() {
@@ -143,6 +179,18 @@ class VYGEOApp {
     if (loginModal) {
       loginModal.style.display = 'none';
     }
+    
+    // Close wet bulb calculator modal
+    const wetBulbModal = document.getElementById('wetBulbModal');
+    if (wetBulbModal) {
+      wetBulbModal.style.display = 'none';
+    }
+    
+    // Close snow calculator modal
+    const snowCalcModal = document.getElementById('snowCalcModal');
+    if (snowCalcModal) {
+      snowCalcModal.style.display = 'none';
+    }
   }
 
   // Public getters for external access
@@ -171,8 +219,43 @@ class VYGEOApp {
   }
 
   openSnowCalculator() {
-    // Otevřít kalkulátor sněhu v novém okně
-    window.open('snow_calc/snowcalc.html', 'snowcalc', 'width=600,height=700,scrollbars=yes,resizable=yes');
+    // Otevřít kalkulátor sněhu v modalu (mobilní friendly)
+    const modal = document.getElementById('snowCalcModal');
+    if (modal) {
+      modal.style.display = 'block';
+    } else {
+      // Fallback - otevřít v novém okně pokud modal neexistuje
+      window.open('snow_calc/snowcalc.html', 'snowcalc', 'width=600,height=700,scrollbars=yes,resizable=yes');
+    }
+  }
+
+  openWetBulbCalculator() {
+    // Zobrazit modal s kalkulačkou vlhkého teplomera
+    const modal = document.getElementById('wetBulbModal');
+    if (modal) {
+      modal.style.display = 'block';
+      
+      // Inicializovat kalkulačku pokud ještě není
+      if (!this.wetBulbCalculator) {
+        this.wetBulbCalculator = new WetBulbCalculator('wetBulbCalculatorContainer');
+      }
+    }
+  }
+
+  closeWetBulbCalculator() {
+    // Skrýt modal s kalkulačkou vlhkého teplomera
+    const modal = document.getElementById('wetBulbModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+  closeSnowCalculator() {
+    // Skrýt modal s kalkulačkou zasněžování
+    const modal = document.getElementById('snowCalcModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
   }
 
   closeSidebar() {
@@ -259,6 +342,11 @@ class VYGEOApp {
         maximumAge: 60000
       }
     );
+  }
+
+  // Getter pro FeaturesManager
+  getFeaturesManager() {
+    return this.featuresManager;
   }
 }
 

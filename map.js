@@ -4,8 +4,9 @@ class MapManager {
     this.map = null;
     this.layers = {};
     this.controls = {};
-    this.layersVisible = true; // Stav viditelnosti vrstev
+    this.layersVisible = false; // Stav viditelnosti vrstev - výchozí je false (features nejsou viditelné)
     this.originalLayerStates = {}; // Uložení původních stavů vrstev
+    this.featuresManager = null; // Reference na FeaturesManager
     this.init();
   }
 
@@ -77,16 +78,17 @@ class MapManager {
     // Nejdříve přidat základní vrstvu (mapy.cz ortofoto)
     this.layers.baseMaps["mapy.cz ortofoto"].addTo(this.map);
     
-    // Přidat překryvné vrstvy - všechny kromě Mikeska ortofoto budou aktivní
+    // Přidat pouze vybrané vrstvy (Vleky, Potrubí, Webkamera)
     Object.keys(this.layers.overlayMaps).forEach(key => {
       const layer = this.layers.overlayMaps[key];
       if (layer) {
-        if (key !== "Ortofoto") {
-          // Všechny vrstvy kromě Mikeska ortofoto budou aktivní
+        if (key === "Vleky" || key === "Potrubí" || key === "Webkamery") {
+          // Tyto vrstvy budou aktivní výchozí
           layer.addTo(this.map);
-          this.originalLayerStates[key] = true; // Uložit původní stav
+          this.originalLayerStates[key] = true;
         } else {
-          this.originalLayerStates[key] = false; // Ortofoto je původně vypnuté
+          // Ostatní vrstvy budou vypnuté výchozí
+          this.originalLayerStates[key] = false;
         }
       }
     });
@@ -706,50 +708,133 @@ class MapManager {
       return;
     }
 
+    // Inicializovat stav tlačítka podle skutečného stavu features
+    // Zpozdit o malou chvilku, aby se stihlo načíst přihlášení
+    setTimeout(() => {
+      this.updateButtonState();
+    }, 100);
+
     toggleBtn.addEventListener('click', () => {
       this.toggleAllLayers();
     });
   }
 
   toggleAllLayers() {
+    // Zkontrolovat, zda je uživatel admin
+    if (!this.isUserAdmin()) {
+      console.log('Tlačítko pro přepínání features je dostupné pouze pro admina');
+      return;
+    }
+    
+    // Zkontrolovat skutečný stav features na mapě
+    const areFeaturesVisible = this.areFeaturesVisible();
+    
+    if (areFeaturesVisible) {
+      // Vypnout features
+      this.hideAllLayers();
+      this.layersVisible = false;
+    } else {
+      // Zapnout features
+      this.showAllLayers();
+      this.layersVisible = true;
+    }
+    
+    // Aktualizovat stav tlačítka
+    this.updateButtonState();
+  }
+
+  areFeaturesVisible() {
+    // Zkontrolovat, zda jsou features skutečně na mapě
+    if (!this.featuresManager) return false;
+    
+    return (this.map.hasLayer(this.featuresManager.polygonLayer) ||
+            this.map.hasLayer(this.featuresManager.polylineLayer) ||
+            this.map.hasLayer(this.featuresManager.markerLayer));
+  }
+
+  updateButtonState() {
     const toggleBtn = document.getElementById('toggleLayersBtn');
     const layersIcon = document.getElementById('layersIcon');
     
-    if (this.layersVisible) {
-      // Vypnout všechny vrstvy
-      this.hideAllLayers();
-      this.layersVisible = false;
-      layersIcon.className = 'fas fa-eye-slash';
-      toggleBtn.classList.add('layers-off');
-      toggleBtn.title = 'Zapnout všechny vrstvy';
+    if (!toggleBtn || !layersIcon) return;
+    
+    const isAdmin = this.isUserAdmin();
+    const areVisible = this.areFeaturesVisible();
+    
+    if (!isAdmin) {
+      // Skrýt tlačítko pro neadmin uživatele
+      toggleBtn.style.display = 'none';
     } else {
-      // Zapnout všechny vrstvy podle původních stavů
-      this.showAllLayers();
-      this.layersVisible = true;
-      layersIcon.className = 'fas fa-eye';
-      toggleBtn.classList.remove('layers-off');
-      toggleBtn.title = 'Vypnout všechny vrstvy';
+      // Zobrazit tlačítko pro admina
+      toggleBtn.style.display = 'flex';
+      toggleBtn.disabled = false;
+      toggleBtn.style.opacity = '1';
+      toggleBtn.style.cursor = 'pointer';
+      
+      if (areVisible) {
+        layersIcon.className = 'fas fa-eye';
+        toggleBtn.classList.remove('layers-off');
+        toggleBtn.title = 'Skrýt features z databáze';
+      } else {
+        layersIcon.className = 'fas fa-eye-slash';
+        toggleBtn.classList.add('layers-off');
+        toggleBtn.title = 'Zobrazit features z databáze';
+      }
     }
   }
 
+  isUserAdmin() {
+    // Zkontrolovat, zda je uživatel přihlášen jako admin
+    const authButton = document.getElementById('authButton');
+    if (authButton) {
+      return authButton.textContent.includes('Odhlásit');
+    }
+    return false;
+  }
+
   hideAllLayers() {
-    // Skrýt všechny překryvné vrstvy
-    Object.keys(this.layers.overlayMaps).forEach(key => {
-      const layer = this.layers.overlayMaps[key];
-      if (layer && this.map.hasLayer(layer)) {
-        this.map.removeLayer(layer);
-      }
-    });
+    // Skrýt pouze feature vrstvy z databáze (ne ostatní vrstvy)
+    if (this.featuresManager) {
+      this.hideFeatureLayers();
+    }
   }
 
   showAllLayers() {
-    // Zobrazit všechny vrstvy podle původních stavů
-    Object.keys(this.layers.overlayMaps).forEach(key => {
-      const layer = this.layers.overlayMaps[key];
-      if (layer && this.originalLayerStates[key]) {
-        this.map.addLayer(layer);
-      }
-    });
+    // Zobrazit pouze feature vrstvy z databáze (ne ostatní vrstvy)
+    if (this.featuresManager) {
+      this.showFeatureLayers();
+    }
+  }
+
+  hideFeatureLayers() {
+    // Skrýt všechny feature vrstvy z databáze
+    if (this.featuresManager.polygonLayer && this.map.hasLayer(this.featuresManager.polygonLayer)) {
+      this.map.removeLayer(this.featuresManager.polygonLayer);
+    }
+    if (this.featuresManager.polylineLayer && this.map.hasLayer(this.featuresManager.polylineLayer)) {
+      this.map.removeLayer(this.featuresManager.polylineLayer);
+    }
+    if (this.featuresManager.markerLayer && this.map.hasLayer(this.featuresManager.markerLayer)) {
+      this.map.removeLayer(this.featuresManager.markerLayer);
+    }
+  }
+
+  showFeatureLayers() {
+    // Zobrazit všechny feature vrstvy z databáze
+    if (this.featuresManager.polygonLayer && !this.map.hasLayer(this.featuresManager.polygonLayer)) {
+      this.map.addLayer(this.featuresManager.polygonLayer);
+    }
+    if (this.featuresManager.polylineLayer && !this.map.hasLayer(this.featuresManager.polylineLayer)) {
+      this.map.addLayer(this.featuresManager.polylineLayer);
+    }
+    if (this.featuresManager.markerLayer && !this.map.hasLayer(this.featuresManager.markerLayer)) {
+      this.map.addLayer(this.featuresManager.markerLayer);
+    }
+  }
+
+  // Metoda pro nastavení reference na FeaturesManager
+  setFeaturesManager(featuresManager) {
+    this.featuresManager = featuresManager;
   }
 }
 

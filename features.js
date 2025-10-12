@@ -26,10 +26,9 @@ class FeaturesManager {
     this.mapManager.layers.overlayMaps["Čáry"] = this.polylineLayer;
     this.mapManager.layers.overlayMaps["Body"] = this.markerLayer;
     
-    // Přidat vrstvy na mapu
-    this.polygonLayer.addTo(this.mapManager.getMap());
-    this.polylineLayer.addTo(this.mapManager.getMap());
-    this.markerLayer.addTo(this.mapManager.getMap());
+    // Přidat vrstvy na mapu pouze pokud je uživatel admin
+    // Výchozí stav: vrstvy nejsou na mapě (viditelné pouze pro admina)
+    this.addFeatureLayersToMapIfAdmin();
     
     // Aktualizovat layer control
     if (this.mapManager.controls.layerControl) {
@@ -1866,6 +1865,53 @@ class FeaturesManager {
     
     console.log('No layer found for ID:', featureId);
     return null;
+  }
+
+  // Metody pro správu viditelnosti features podle přihlášení
+  addFeatureLayersToMapIfAdmin() {
+    // Zkontrolovat, zda je uživatel admin
+    if (this.isUserAdmin()) {
+      this.polygonLayer.addTo(this.mapManager.getMap());
+      this.polylineLayer.addTo(this.mapManager.getMap());
+      this.markerLayer.addTo(this.mapManager.getMap());
+    }
+  }
+
+  removeFeatureLayersFromMap() {
+    // Odstranit všechny feature vrstvy z mapy
+    if (this.mapManager.getMap().hasLayer(this.polygonLayer)) {
+      this.mapManager.getMap().removeLayer(this.polygonLayer);
+    }
+    if (this.mapManager.getMap().hasLayer(this.polylineLayer)) {
+      this.mapManager.getMap().removeLayer(this.polylineLayer);
+    }
+    if (this.mapManager.getMap().hasLayer(this.markerLayer)) {
+      this.mapManager.getMap().removeLayer(this.markerLayer);
+    }
+  }
+
+  isUserAdmin() {
+    // Zkontrolovat, zda je uživatel přihlášen jako admin
+    // Tato metoda by měla být synchronizována s AuthManager
+    const authButton = document.getElementById('authButton');
+    if (authButton) {
+      return authButton.textContent.includes('Odhlásit');
+    }
+    return false;
+  }
+
+  // Metoda pro aktualizaci viditelnosti při změně přihlášení
+  updateVisibilityOnAuthChange() {
+    if (this.isUserAdmin()) {
+      this.addFeatureLayersToMapIfAdmin();
+    } else {
+      this.removeFeatureLayersFromMap();
+    }
+    
+    // Aktualizovat stav tlačítka
+    if (this.mapManager && this.mapManager.updateButtonState) {
+      this.mapManager.updateButtonState();
+    }
   }
 }
 

@@ -92,9 +92,10 @@ class AuthManager {
         this.currentUser = data.user;
         this.csrfToken = data.csrf;
         this.refreshAuthUI();
-        // Aktualizovat měřicí nástroje
+        // Aktualizovat měřicí nástroje a viditelnost features
         if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
           window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+          window.vygeoApp.getFeaturesManager().updateVisibilityOnAuthChange();
         }
         return { success: true };
       } else {
@@ -118,9 +119,10 @@ class AuthManager {
       this.currentUser = null;
       this.csrfToken = null;
       this.refreshAuthUI();
-      // Aktualizovat měřicí nástroje
+      // Aktualizovat měřicí nástroje a viditelnost features
       if (window.vygeoApp && window.vygeoApp.getFeaturesManager()) {
         window.vygeoApp.getFeaturesManager().refreshDrawingTools();
+        window.vygeoApp.getFeaturesManager().updateVisibilityOnAuthChange();
       }
     } catch (error) {
       console.error('Chyba při odhlašování:', error);
