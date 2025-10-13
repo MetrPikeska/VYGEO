@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulačka vlhkého teplomera - TechnoAlpin</title>
+    <title>Kalkulačka vlhké teploty</title>
     <style>
         * {
             margin: 0;
@@ -195,8 +195,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">TECHNO ALPIN</div>
-        <div class="subtitle">Kalkulačka vlhkého teplomera</div>
+        <div class="logo">Kalkulačka vlhké teploty</div>
     </div>
 
     <div class="calculator-container">
@@ -218,19 +217,19 @@
             <table class="results-table">
                 <thead>
                     <tr>
-                        <th>Relatívna vlhkosť</th>
+                        <th>Relativní vlhkost</th>
                         <th>Teplota vlhkého teplomera</th>
                     </tr>
                 </thead>
                 <tbody id="resultsTableBody">
-                    <!-- Výsledky sa vygenerujú dynamicky -->
+                    <!-- Výsledky se vygenerují dynamicky -->
                 </tbody>
             </table>
 
             <div class="snowmaking-info">
-                <h3>Informácie o zasnežovaní</h3>
-                <p><strong>TechnoAlpin snehové delá:</strong> Produkujú sneh pri teplote vlhkého teplomera <span class="threshold">-2,5 °C</span> a nižšej.</p>
-                <p><strong>Optimálne podmienky:</strong> Teplota vlhkého teplomera pod -2,5 °C zabezpečuje efektívne zasnežovanie.</p>
+                <h3>Informace o zasněžování</h3>
+                <p><strong>TechnoAlpin sněhové děla:</strong> Produkují sníh při teplotě vlhkého teplomera <span class="threshold">-2,5 °C</span> a nižší.</p>
+                <p><strong>Optimální podmínky:</strong> Teplota vlhkého teplomera pod -2,5 °C zajišťuje efektivní zasněžování.</p>
                 <p id="snowmakingStatus"></p>
             </div>
         </div>
@@ -353,21 +352,21 @@
                 
                 if (canSnow) {
                     this.snowmakingStatus.innerHTML = `
-                        <strong style="color: #27ae60;">✅ Zasnežovanie je možné!</strong><br>
-                        Najnižšia teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
-                        (pod hranicou ${threshold} ${this.isCelsius ? '°C' : '°F'})
+                        <strong style="color: #27ae60;">✅ Zasněžování je možné!</strong><br>
+                        Nejnižší teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
+                        (pod hranicí ${threshold} ${this.isCelsius ? '°C' : '°F'})
                     `;
                 } else {
                     this.snowmakingStatus.innerHTML = `
-                        <strong style="color: #e74c3c;">❌ Zasnežovanie nie je možné</strong><br>
-                        Najnižšia teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
-                        (nad hranicou ${threshold} ${this.isCelsius ? '°C' : '°F'})
+                        <strong style="color: #e74c3c;">❌ Zasněžování není možné</strong><br>
+                        Nejnižší teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
+                        (nad hranicí ${threshold} ${this.isCelsius ? '°C' : '°F'})
                     `;
                 }
             }
         }
 
-        // Inicializácia kalkulačky po načítaní stránky
+        // Inicializace kalkulačky po načtení stránky
         document.addEventListener('DOMContentLoaded', () => {
             new WetBulbCalculator();
         });
