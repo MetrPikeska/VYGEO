@@ -4,7 +4,7 @@ class MapManager {
     this.map = null;
     this.layers = {};
     this.controls = {};
-    this.layersVisible = false; // Stav viditelnosti vrstev - výchozí je false (features nejsou viditelné)
+    this.layersVisible = this.loadLayersState(); // Načíst stav z localStorage
     this.originalLayerStates = {}; // Uložení původních stavů vrstev
     this.featuresManager = null; // Reference na FeaturesManager
     this.init();
@@ -15,6 +15,50 @@ class MapManager {
     this.setupLayers();
     this.setupControls();
     this.setupEventListeners();
+  }
+
+  // Načíst stav vrstev z localStorage
+  loadLayersState() {
+    try {
+      const savedState = localStorage.getItem('vygeo_layers_visible');
+      return savedState === 'true';
+    } catch (error) {
+      console.warn('Nepodařilo se načíst stav vrstev z localStorage:', error);
+      return false; // Výchozí stav
+    }
+  }
+
+  // Uložit stav vrstev do localStorage
+  saveLayersState() {
+    try {
+      localStorage.setItem('vygeo_layers_visible', this.layersVisible.toString());
+    } catch (error) {
+      console.warn('Nepodařilo se uložit stav vrstev do localStorage:', error);
+    }
+  }
+
+  // Inicializovat stav vrstev podle uloženého stavu
+  initializeLayersState() {
+    console.log('Inicializace stavu vrstev. Uložený stav:', this.layersVisible);
+    
+    // Zkontrolovat, zda je uživatel admin
+    if (!this.isUserAdmin()) {
+      console.log('Uživatel není admin, vrstvy zůstávají vypnuté');
+      this.updateButtonState();
+      return;
+    }
+
+    // Pokud byly vrstvy uloženy jako viditelné, zobrazit je
+    if (this.layersVisible) {
+      console.log('Obnovování viditelnosti vrstev podle uloženého stavu');
+      this.showAllLayers();
+    } else {
+      console.log('Vrstvy zůstávají skryté podle uloženého stavu');
+      this.hideAllLayers();
+    }
+
+    // Aktualizovat stav tlačítka
+    this.updateButtonState();
   }
 
   createMap() {
@@ -708,11 +752,11 @@ class MapManager {
       return;
     }
 
-    // Inicializovat stav tlačítka podle skutečného stavu features
-    // Zpozdit o malou chvilku, aby se stihlo načíst přihlášení
+    // Inicializovat stav tlačítka podle uloženého stavu
+    // Zpozdit o malou chvilku, aby se stihlo načíst přihlášení a features
     setTimeout(() => {
-      this.updateButtonState();
-    }, 100);
+      this.initializeLayersState();
+    }, 500);
 
     toggleBtn.addEventListener('click', () => {
       this.toggleAllLayers();
@@ -739,6 +783,9 @@ class MapManager {
       this.layersVisible = true;
     }
     
+    // Uložit stav do localStorage
+    this.saveLayersState();
+    
     // Aktualizovat stav tlačítka
     this.updateButtonState();
   }
@@ -755,6 +802,8 @@ class MapManager {
   updateButtonState() {
     const toggleBtn = document.getElementById('toggleLayersBtn');
     const layersIcon = document.getElementById('layersIcon');
+    const objectsButton = document.getElementById('objectsButton');
+    const gpsButton = document.getElementById('gpsButton');
     
     if (!toggleBtn || !layersIcon) return;
     
@@ -762,14 +811,28 @@ class MapManager {
     const areVisible = this.areFeaturesVisible();
     
     if (!isAdmin) {
-      // Skrýt tlačítko pro neadmin uživatele
+      // Skrýt tlačítka pro neadmin uživatele
       toggleBtn.style.display = 'none';
+      if (objectsButton) objectsButton.style.display = 'none';
+      if (gpsButton) gpsButton.style.display = 'none';
     } else {
-      // Zobrazit tlačítko pro admina
+      // Zobrazit tlačítka pro admina
       toggleBtn.style.display = 'flex';
       toggleBtn.disabled = false;
       toggleBtn.style.opacity = '1';
       toggleBtn.style.cursor = 'pointer';
+      
+      if (objectsButton) {
+        objectsButton.style.display = 'flex';
+        objectsButton.style.opacity = '1';
+        objectsButton.style.pointerEvents = 'auto';
+      }
+      
+      if (gpsButton) {
+        gpsButton.style.display = 'flex';
+        gpsButton.style.opacity = '1';
+        gpsButton.style.pointerEvents = 'auto';
+      }
       
       if (areVisible) {
         layersIcon.className = 'fas fa-eye';
@@ -785,9 +848,9 @@ class MapManager {
 
   isUserAdmin() {
     // Zkontrolovat, zda je uživatel přihlášen jako admin
-    const authButton = document.getElementById('authButton');
-    if (authButton) {
-      return authButton.textContent.includes('Odhlásit');
+    if (window.vygeoApp && window.vygeoApp.getAuthManager()) {
+      const currentUser = window.vygeoApp.getAuthManager().getCurrentUser();
+      return currentUser === 'admin' || currentUser === 'test';
     }
     return false;
   }
@@ -797,6 +860,7 @@ class MapManager {
     if (this.featuresManager) {
       this.hideFeatureLayers();
     }
+    this.layersVisible = false;
   }
 
   showAllLayers() {
@@ -804,6 +868,7 @@ class MapManager {
     if (this.featuresManager) {
       this.showFeatureLayers();
     }
+    this.layersVisible = true;
   }
 
   hideFeatureLayers() {

@@ -13,12 +13,13 @@ Počítání ovcí z HLS streamu pomocí YOLOv8.
 
 import cv2
 from ultralytics import YOLO
-import time, datetime, requests
+import time, datetime, requests, os
 
 # === Konfigurace ===
 HLS_STREAM_URL = "https://stream.teal.cz/hls/cam273.m3u8"
-MODEL_PATH = "yolov8n.pt"
-CONFIDENCE_THRESHOLD = 0.3
+# Použijeme model trénovaný na hospodářská zvířata
+MODEL_PATH = "yolov8n.pt"  # Pokud nemáte speciální model, stáhneme ho
+CONFIDENCE_THRESHOLD = 0.1  # Sníženo pro lepší detekci
 UPDATE_URL = "https://petrmikeska.cz/vygeo/api/update.php"
 #UPDATE_URL = "http://localhost/vygeo/api/update.php"  # test lokálně
 SEND_INTERVAL = 2  # odesílání dat na hosting max 1× za 5s
@@ -26,6 +27,8 @@ SEND_INTERVAL = 2  # odesílání dat na hosting max 1× za 5s
 # === Inicializace ===
 print("[INFO] Načítám YOLO model...")
 model = YOLO(MODEL_PATH)
+
+# Model načten úspěšně
 
 print("[INFO] Připojuji se ke streamu...")
 cap = cv2.VideoCapture(HLS_STREAM_URL)
@@ -68,7 +71,13 @@ while True:
         for r in results:
             for box in r.boxes:
                 cls = int(box.cls[0])
-                if model.names[cls].lower() == "sheep":
+                class_name = model.names[cls].lower()
+                confidence = float(box.conf[0])
+                
+                # Debug výpisy odstraněny
+                
+                # Detekce pouze ovcí
+                if class_name == "sheep":
                     sheep_count += 1
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -113,16 +122,20 @@ while True:
             writer = None
             print("[INFO] Nahrávání ukončeno.")
 
-    # Zobrazit
-    cv2.imshow("Sheep Counter", frame)
+    # Zobrazit (pouze pokud není headless režim)
+    if not os.environ.get('HEADLESS', False):
+        cv2.imshow("Sheep Counter", frame)
 
-    key = cv2.waitKey(1) & 0xFF
-    if key == 27:  # ESC = konec
-        break
-    elif key == ord("p"):  # pauza
-        paused = not paused
-    elif key == ord("r"):  # nahrávání
-        recording = not recording
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:  # ESC = konec
+            break
+        elif key == ord("p"):  # pauza
+            paused = not paused
+        elif key == ord("r"):  # nahrávání
+            recording = not recording
+    else:
+        # V headless režimu jen krátce počkej
+        time.sleep(0.1)
 
 cap.release()
 if writer is not None:

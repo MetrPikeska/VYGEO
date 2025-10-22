@@ -34,6 +34,11 @@ api/db_config.php
 # Security documentation
 SECURITY_*.md
 
+# Development files
+*.code-workspace
+server.js
+config_loader.js
+
 # Temporary files
 *.tmp
 *.temp

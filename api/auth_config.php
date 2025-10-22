@@ -6,6 +6,7 @@ return [
     'users' => [
         // username => password_hash
         'admin' => password_hash('opalena', PASSWORD_DEFAULT),
+        'test' => password_hash('test123', PASSWORD_DEFAULT),
     ],
 ];
 

@@ -88,12 +88,16 @@ class FeaturesManager {
       allFeatureLayers.addLayer(this.polylineLayer);
       allFeatureLayers.addLayer(this.markerLayer);
       
+      // Kontrola oprávnění pro mazání
+      const canDelete = !(window.vygeoApp && window.vygeoApp.getAuthManager() && 
+                         window.vygeoApp.getAuthManager().getCurrentUser() === 'test');
+
       this.drawControl = new L.Control.Draw({
         position: 'topleft',
         edit: { 
           featureGroup: allFeatureLayers, 
           edit: true, 
-          remove: true,
+          remove: canDelete, // Zakázat mazání pro testovací účet
           selectedPathOptions: {
             color: '#007ddd',
             weight: 2
@@ -356,6 +360,15 @@ class FeaturesManager {
   }
 
   async deleteFeatureById(id) {
+    // Kontrola oprávnění - testovací účet nemůže mazat
+    if (window.vygeoApp && window.vygeoApp.getAuthManager()) {
+      const currentUser = window.vygeoApp.getAuthManager().getCurrentUser();
+      if (currentUser === 'test') {
+        alert('Testovací účet nemá oprávnění mazat objekty!');
+        return;
+      }
+    }
+    
     try {
       await fetch('api/features.php', {
         method: 'POST',
@@ -408,33 +421,94 @@ class FeaturesManager {
         </div>
         
         <div class="popup-content">
-          <table class="attribute-table">
-            <tr><td class="attr-label">ID:</td><td class="attr-value">${props.id || 'N/A'}</td></tr>
-            <tr><td class="attr-label">Typ:</td><td class="attr-value">${geometry.type || 'N/A'}</td></tr>
-            <tr><td class="attr-label">Název:</td><td class="attr-value">${props.name || 'Bez názvu'}</td></tr>
-            ${geometricData.length ? `<tr><td class="attr-label">Délka:</td><td class="attr-value">${geometricData.length}</td></tr>` : ''}
-            ${geometricData.area ? `<tr><td class="attr-label">Plocha:</td><td class="attr-value">${geometricData.area}</td></tr>` : ''}
-            ${geometricData.coordinates ? `<tr><td class="attr-label">Souřadnice:</td><td class="attr-value">${geometricData.coordinates}</td></tr>` : ''}
-            <tr><td class="attr-label">Vytvořeno:</td><td class="attr-value">${props.created_at ? new Date(props.created_at).toLocaleString('cs-CZ') : 'N/A'}</td></tr>
-            <tr><td class="attr-label">Aktualizováno:</td><td class="attr-value">${props.updated_at ? new Date(props.updated_at).toLocaleString('cs-CZ') : 'N/A'}</td></tr>
-            ${errorMessage ? `<tr><td class="attr-label">Chyba:</td><td class="attr-value error-text">${errorMessage}</td></tr>` : ''}
-          </table>
+          <!-- Základní informace - vždy viditelné -->
+          <div class="popup-basic-info">
+            <div class="basic-info-item">
+              <span class="basic-label">ID:</span>
+              <span class="basic-value">${props.id || 'N/A'}</span>
+            </div>
+            <div class="basic-info-item">
+              <span class="basic-label">Typ:</span>
+              <span class="basic-value">${geometry.type || 'N/A'}</span>
+            </div>
+            <div class="basic-info-item">
+              <span class="basic-label">Název:</span>
+              <span class="basic-value">${props.name || 'Bez názvu'}</span>
+            </div>
+          </div>
+          
+          <!-- Rozbalovací menu pro detailní metadata -->
+          <div class="popup-metadata-section">
+            <button class="metadata-toggle-btn" onclick="toggleMetadata('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-chevron-down" id="metadata-icon-${props.id || 'unknown'}"></i>
+              <span>Detailní informace</span>
+            </button>
+            <div class="metadata-content" id="metadata-content-${props.id || 'unknown'}" style="display: none;">
+              <table class="attribute-table">
+                ${geometricData.length ? `<tr><td class="attr-label">Délka:</td><td class="attr-value">${geometricData.length}</td></tr>` : ''}
+                ${geometricData.area ? `<tr><td class="attr-label">Plocha:</td><td class="attr-value">${geometricData.area}</td></tr>` : ''}
+                ${geometricData.coordinates ? `<tr><td class="attr-label">Souřadnice:</td><td class="attr-value">${geometricData.coordinates}</td></tr>` : ''}
+                <tr><td class="attr-label">Vytvořeno:</td><td class="attr-value">${props.created_at ? new Date(props.created_at).toLocaleString('cs-CZ') : 'N/A'}</td></tr>
+                <tr><td class="attr-label">Aktualizováno:</td><td class="attr-value">${props.updated_at ? new Date(props.updated_at).toLocaleString('cs-CZ') : 'N/A'}</td></tr>
+                ${errorMessage ? `<tr><td class="attr-label">Chyba:</td><td class="attr-value error-text">${errorMessage}</td></tr>` : ''}
+              </table>
+            </div>
+          </div>
+          
+          <!-- Photo Gallery Section -->
+          <div class="photo-section" style="margin-top: 15px;">
+            <div class="photo-header" style="margin-bottom: 10px;">
+              <h4 style="margin: 0; font-size: 14px; color: #333;">Fotografie</h4>
+            </div>
+            <div id="photo-gallery-${props.id || 'unknown'}" class="photo-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto;">
+              <div class="photo-loading" style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
+                Načítám fotografie...
+              </div>
+            </div>
+            <input type="file" id="photo-input-${props.id || 'unknown'}" accept="image/*" style="display: none;" 
+                   onchange="window.vygeoApp.getFeaturesManager().handlePhotoUpload('${props.id || 'unknown'}', this)">
+          </div>
+          
+          <!-- Feature Preview Image -->
+          <div id="feature-preview-${props.id || 'unknown'}" class="feature-preview" style="margin-top: 15px; text-align: center; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h4 style="margin: 0; font-size: 14px; color: #333;">Náhled prvku</h4>
+              <button onclick="window.vygeoApp.getFeaturesManager().refreshPhotos('${props.id || 'unknown'}')" 
+                      style="background: #007ddd; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                <i class="fa-solid fa-refresh"></i> Aktualizovat
+              </button>
+            </div>
+            <div class="preview-container" style="position: relative; display: inline-block; max-width: 200px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <img id="preview-image-${props.id || 'unknown'}" 
+                   src="" 
+                   alt="Náhled prvku" 
+                   style="width: 100%; height: auto; max-height: 150px; object-fit: cover; cursor: pointer;"
+                   onclick="window.vygeoApp.getFeaturesManager().showFeaturePreviewModal('${props.id || 'unknown'}')">
+              <div class="preview-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;">
+                <i class="fa-solid fa-expand" style="color: white; font-size: 24px;"></i>
+              </div>
+            </div>
+          </div>
           
           <div class="popup-actions" style="margin-top: 15px; text-align: center;">
-            <button onclick="window.vygeoApp.getFeaturesManager().downloadFeature('${props.id || 'unknown'}')" 
-                    class="download-btn" 
-                    style="background: #007ddd; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
-              Stáhnout GeoJSON
+            <button class="popup-action-btn" title="Přidat fotografii" onclick="window.vygeoApp.getFeaturesManager().triggerPhotoUpload('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-camera"></i>
             </button>
-            <button onclick="window.vygeoApp.getFeaturesManager().changeFeatureColorFromPopup('${props.id || 'unknown'}')" 
-                    class="change-color-btn" 
-                    style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
-              Změnit barvu
+            <button class="popup-action-btn" title="Změnit barvu" onclick="window.vygeoApp.getFeaturesManager().changeFeatureColorFromPopup('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-palette"></i>
             </button>
-            <button onclick="window.vygeoApp.getFeaturesManager().editFeatureGeometry('${props.id || 'unknown'}')" 
-                    class="edit-geometry-btn" 
-                    style="background: #ffc107; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 2px;">
-              Editovat geometrii
+            <button class="popup-action-btn" title="Upravit geometrii" onclick="window.vygeoApp.getFeaturesManager().editFeatureGeometry('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-draw-polygon"></i>
+            </button>
+            <button class="popup-action-btn" title="Změnit název" onclick="window.vygeoApp.getFeaturesManager().changeFeatureNameFromPopup('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="popup-action-btn" title="Stáhnout GeoJSON" onclick="window.vygeoApp.getFeaturesManager().downloadFeature('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-download"></i>
+            </button>
+            <hr class="popup-divider" style="border: 0; height: 1px; background: #e6e6e6; margin: 8px 0;">
+            <button class="popup-action-btn" title="Smazat objekt" onclick="window.vygeoApp.getFeaturesManager().deleteFeatureFromPopup('${props.id || 'unknown'}')">
+              <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>
@@ -443,6 +517,12 @@ class FeaturesManager {
 
     // Přidat informace o nadmořské výšce
     popupContent = this.updateFeaturePopupWithElevation(feature, popupContent);
+    
+    // Load photos for this feature
+    if (props.id) {
+      // Načíst fotografie okamžitě
+      this.loadPhotosForFeature(props.id);
+    }
     
     return popupContent;
   }
@@ -656,6 +736,11 @@ class FeaturesManager {
       
       console.log('Načítání dokončeno. Celkem objektů:', Object.keys(this.featureLayers).length);
       
+      // Aktualizovat stav tlačítek po načtení features
+      if (window.vygeoApp && window.vygeoApp.getMapManager() && window.vygeoApp.getMapManager().updateButtonState) {
+        window.vygeoApp.getMapManager().updateButtonState();
+      }
+      
       // ASYNCHRONNÍ NAČTENÍ: Na pozadí načíst nadmořské výšky pouze pro objekty bez elevation dat
       const featuresWithoutElevation = fc.features.filter(f => {
         const props = f.properties || {};
@@ -851,6 +936,10 @@ class FeaturesManager {
       // Určit barvu podle properties nebo typu geometrie
       let color = feature.feature?.properties?.color || this.getDefaultColorForType(geometryType);
 
+      // Kontrola oprávnění pro mazání
+      const canDelete = !(window.vygeoApp && window.vygeoApp.getAuthManager() && 
+                         window.vygeoApp.getAuthManager().getCurrentUser() === 'test');
+
       const objectItem = document.createElement('div');
       objectItem.className = 'object-item';
       objectItem.innerHTML = `
@@ -861,9 +950,9 @@ class FeaturesManager {
           <button class="object-btn edit" onclick="window.vygeoApp.getFeaturesManager().editObject('${id}')" title="Upravit">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="object-btn delete" onclick="window.vygeoApp.getFeaturesManager().deleteObject('${id}')" title="Smazat">
+          ${canDelete ? `<button class="object-btn delete" onclick="window.vygeoApp.getFeaturesManager().deleteObject('${id}')" title="Smazat">
             <i class="fas fa-trash"></i>
-          </button>
+          </button>` : ''}
         </div>
       `;
       
@@ -1138,13 +1227,29 @@ class FeaturesManager {
       }
     }
     
-    // Vložit před poslední řádek tabulky
-    const lastRowIndex = popupContent.lastIndexOf('</table>');
-    if (lastRowIndex !== -1) {
-      return popupContent.slice(0, lastRowIndex) + elevationInfo + popupContent.slice(lastRowIndex);
+    // Vložit před konec tabulky v metadata-content sekci
+    const tableEndIndex = popupContent.lastIndexOf('</table>');
+    if (tableEndIndex !== -1) {
+      return popupContent.slice(0, tableEndIndex) + elevationInfo + popupContent.slice(tableEndIndex);
     }
     
     return popupContent + elevationInfo;
+  }
+
+  // Funkce pro rozbalování/sbalování metadata menu
+  toggleMetadata(featureId) {
+    const content = document.getElementById(`metadata-content-${featureId}`);
+    const icon = document.getElementById(`metadata-icon-${featureId}`);
+    
+    if (content && icon) {
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.className = 'fa-solid fa-chevron-up';
+      } else {
+        content.style.display = 'none';
+        icon.className = 'fa-solid fa-chevron-down';
+      }
+    }
   }
 
   // Dynamická legenda pro jednotlivé features
@@ -1799,6 +1904,69 @@ class FeaturesManager {
     }
   }
 
+  // Změna názvu feature z popup okna
+  async changeFeatureNameFromPopup(featureId) {
+    console.log('changeFeatureNameFromPopup called with ID:', featureId);
+    try {
+      // Najít layer podle ID
+      const layer = this.findLayerById(featureId);
+      if (!layer) {
+        console.error('Feature layer not found:', featureId);
+        alert('Feature nebyl nalezen!');
+        return;
+      }
+
+      // Získat aktuální název
+      const currentName = layer.feature?.properties?.name || 'Bez názvu';
+      
+      // Požádat o nový název
+      const newName = prompt('Zadejte nový název:', currentName);
+      if (newName === null) {
+        console.log('User cancelled name change');
+        return;
+      }
+      if (!newName || newName.trim() === '') {
+        console.log('Empty name provided');
+        return;
+      }
+
+      const trimmedName = newName.trim();
+      console.log('New name selected:', trimmedName);
+
+      // Aktualizovat název v properties
+      if (layer.feature && layer.feature.properties) {
+        layer.feature.properties.name = trimmedName;
+        // Ujistit se, že ID je správně nastavené
+        if (!layer.feature.properties.id) {
+          layer.feature.properties.id = featureId;
+        }
+      }
+
+      // Aktualizovat popup s novým názvem
+      layer.bindPopup(this.createFeaturePopup(layer.feature, 'saved'));
+
+      // Aktualizovat název v legendě/panelu
+      const nameSpan = document.querySelector(`#legend-${featureId} .feature-legend-name`);
+      if (nameSpan) {
+        nameSpan.textContent = trimmedName;
+      }
+
+      // Aktualizovat název v panelu jednotlivých objektů
+      const objectName = document.querySelector(`#objectsList .object-item .object-name`);
+      if (objectName && objectName.textContent === currentName) {
+        objectName.textContent = trimmedName;
+      }
+
+      // Uložit do databáze
+      await this.saveFeature(layer, 'update');
+
+      console.log('Název změněn na:', trimmedName);
+    } catch (error) {
+      console.error('Error in changeFeatureNameFromPopup:', error);
+      alert('Chyba při změně názvu: ' + error.message);
+    }
+  }
+
   // Editace geometrie feature z popup okna
   editFeatureGeometry(featureId) {
     // Najít layer podle ID
@@ -1823,9 +1991,27 @@ class FeaturesManager {
 
     // Aktivovat edit mode pro tento layer
     try {
-      // Přidat layer do edit group
-      this.editLayer.clearLayers();
-      this.editLayer.addLayer(layer);
+      // Najít správnou vrstvu a přidat layer
+      const allFeatureLayers = new L.FeatureGroup();
+      allFeatureLayers.addLayer(this.polygonLayer);
+      allFeatureLayers.addLayer(this.polylineLayer);
+      allFeatureLayers.addLayer(this.markerLayer);
+      
+      // Najít layer v existujících vrstvách a označit ho pro editaci
+      let foundInLayers = false;
+      [this.polygonLayer, this.polylineLayer, this.markerLayer].forEach(layerGroup => {
+        layerGroup.eachLayer(l => {
+          if (l.feature && l.feature.properties && l.feature.properties.id == featureId) {
+            l.setStyle({ color: '#ff0000', weight: 3 }); // Označit pro editaci
+            foundInLayers = true;
+          }
+        });
+      });
+      
+      if (!foundInLayers) {
+        alert('Objekt nebyl nalezen v mapě!');
+        return;
+      }
       
       // Aktivovat edit mode
       this.drawControl.edit.enable();
@@ -1892,10 +2078,9 @@ class FeaturesManager {
 
   isUserAdmin() {
     // Zkontrolovat, zda je uživatel přihlášen jako admin
-    // Tato metoda by měla být synchronizována s AuthManager
-    const authButton = document.getElementById('authButton');
-    if (authButton) {
-      return authButton.textContent.includes('Odhlásit');
+    if (window.vygeoApp && window.vygeoApp.getAuthManager()) {
+      const currentUser = window.vygeoApp.getAuthManager().getCurrentUser();
+      return currentUser === 'admin' || currentUser === 'test';
     }
     return false;
   }
@@ -1913,7 +2098,407 @@ class FeaturesManager {
       this.mapManager.updateButtonState();
     }
   }
+
+  // ===== PHOTO MANAGEMENT METHODS =====
+
+  // Trigger photo upload dialog
+  triggerPhotoUpload(featureId) {
+    const fileInput = document.getElementById(`photo-input-${featureId}`);
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  // Handle photo upload
+  async handlePhotoUpload(featureId, fileInput) {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Vyberte prosím obrázek!');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Obrázek je příliš velký! Maximální velikost je 5MB.');
+      return;
+    }
+
+    try {
+      // Show loading state
+      this.showPhotoUploadLoading(featureId);
+
+      // Convert to base64
+      const base64 = await this.fileToBase64(file);
+      
+      // Upload to server
+      const formData = new FormData();
+      formData.append('feature_id', featureId);
+      formData.append('photo', base64);
+
+      let response;
+      try {
+        response = await fetch('api/upload_photo.php', {
+          method: 'POST',
+          body: formData
+        });
+      } catch (localError) {
+        console.log('Local API not available, trying server...');
+        response = await fetch('https://petrmikeska.cz/vygeo/api/upload_photo.php', {
+          method: 'POST',
+          body: formData
+        });
+      }
+
+      const result = await response.json();
+
+      if (result.ok) {
+        // Reload photos for this feature
+        await this.loadPhotosForFeature(featureId);
+        console.log('Photo uploaded successfully');
+      } else {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      alert('Chyba při nahrávání fotografie: ' + error.message);
+    } finally {
+      // Clear file input
+      fileInput.value = '';
+      this.hidePhotoUploadLoading(featureId);
+    }
+  }
+
+  // Convert file to base64
+  fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Load photos for a feature
+  async loadPhotosForFeature(featureId) {
+    try {
+      let response;
+      try {
+        response = await fetch(`api/upload_photo.php?action=list&feature_id=${featureId}`);
+      } catch (localError) {
+        console.log('Local API not available, trying server...');
+        response = await fetch(`https://petrmikeska.cz/vygeo/api/upload_photo.php?action=list&feature_id=${featureId}`);
+      }
+      
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      // Get response text first to check for JSON errors
+      const responseText = await response.text();
+      let result;
+      
+      try {
+        result = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parse error:', jsonError);
+        console.error('Response text length:', responseText.length);
+        console.error('Response preview:', responseText.substring(0, 200));
+        throw new Error('Invalid JSON response from server');
+      }
+
+      if (result.ok) {
+        console.log(`Loaded ${result.photos.length} photos for feature ${featureId}:`, result.photos);
+        this.displayPhotos(featureId, result.photos);
+      } else {
+        throw new Error(result.error || 'Failed to load photos');
+      }
+    } catch (error) {
+      console.error('Error loading photos:', error);
+      this.displayPhotos(featureId, []);
+    }
+  }
+
+  // Display photos in gallery
+  displayPhotos(featureId, photos) {
+    const gallery = document.getElementById(`photo-gallery-${featureId}`);
+    if (!gallery) return;
+
+    if (photos.length === 0) {
+      gallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">Žádné fotografie</div>';
+      // Skrýt náhled prvku, pokud nejsou fotografie
+      this.hideFeaturePreview(featureId);
+      return;
+    }
+
+    // Zobrazit náhled prvku s první fotografií
+    this.showFeaturePreview(featureId, photos[0].photo_data);
+
+    gallery.innerHTML = photos.map(photo => `
+      <div class="photo-thumbnail" style="position: relative; cursor: pointer; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <img src="${photo.photo_data}" 
+             alt="Photo ${photo.id}" 
+             style="width: 100%; height: 80px; object-fit: cover; display: block;"
+             onerror="this.parentElement.innerHTML='<div style=\\"display: flex; align-items: center; justify-content: center; height: 80px; background: #f0f0f0; color: #666; font-size: 10px;\\">Chyba načtení</div>'"
+             onclick="window.vygeoApp.getFeaturesManager().showPhotoModal('${photo.photo_data}', '${photo.created_at}')">
+        <div class="photo-overlay" style="position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; font-size: 10px; border-radius: 0 0 0 8px;">
+          ${new Date(photo.created_at).toLocaleDateString('cs-CZ')}
+        </div>
+        <button onclick="event.stopPropagation(); window.vygeoApp.getFeaturesManager().deletePhoto('${photo.id}', '${featureId}')" 
+                style="position: absolute; top: 2px; left: 2px; background: rgba(220, 53, 69, 0.8); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+          ×
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // Show photo in modal/lightbox
+  showPhotoModal(photoData, createdAt) {
+    // Create modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      cursor: pointer;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+      cursor: default;
+    `;
+
+    content.innerHTML = `
+      <img src="${photoData}" 
+           style="max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);"
+           onclick="event.stopPropagation()">
+      <div style="position: absolute; bottom: -40px; left: 0; color: white; font-size: 14px;">
+        ${new Date(createdAt).toLocaleString('cs-CZ')}
+      </div>
+      <button onclick="this.closest('.photo-modal').remove()" 
+              style="position: absolute; top: -40px; right: 0; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        ×
+      </button>
+    `;
+
+    modal.className = 'photo-modal';
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // Delete photo
+  async deletePhoto(photoId, featureId) {
+    if (!confirm('Opravdu chcete smazat tuto fotografii?')) {
+      return;
+    }
+
+    try {
+      let response;
+      try {
+        response = await fetch(`api/upload_photo.php?action=delete&photo_id=${photoId}`, {
+          method: 'DELETE'
+        });
+      } catch (localError) {
+        console.log('Local API not available, trying server...');
+        response = await fetch(`https://petrmikeska.cz/vygeo/api/upload_photo.php?action=delete&photo_id=${photoId}`, {
+          method: 'DELETE'
+        });
+      }
+
+      const result = await response.json();
+
+      if (result.ok) {
+        // Reload photos
+        await this.loadPhotosForFeature(featureId);
+        console.log('Photo deleted successfully');
+      } else {
+        throw new Error(result.error || 'Delete failed');
+      }
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Chyba při mazání fotografie: ' + error.message);
+    }
+  }
+
+  // Show photo upload loading state
+  showPhotoUploadLoading(featureId) {
+    const gallery = document.getElementById(`photo-gallery-${featureId}`);
+    if (gallery) {
+      gallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #007ddd; font-size: 12px;">Nahrávám fotografii...</div>';
+    }
+  }
+
+  // Hide photo upload loading state
+  hidePhotoUploadLoading(featureId) {
+    // Loading state will be replaced when photos are loaded
+  }
+
+  // Load photos when popup is opened
+  async loadPhotosForPopup(featureId) {
+    console.log(`Loading photos for popup feature ${featureId}`);
+    // Wait for popup to be fully rendered
+    setTimeout(() => {
+      const gallery = document.getElementById(`photo-gallery-${featureId}`);
+      if (gallery) {
+        console.log(`Gallery found for feature ${featureId}, loading photos...`);
+        this.loadPhotosForFeature(featureId);
+      } else {
+        console.warn(`Gallery not found for feature ${featureId}, retrying...`);
+        // Retry after another delay
+        setTimeout(() => {
+          this.loadPhotosForFeature(featureId);
+        }, 200);
+      }
+    }, 200);
+  }
+
+  // Delete feature from popup action
+  async deleteFeatureFromPopup(featureId) {
+    if (!featureId) return;
+    if (!confirm('Opravdu chcete smazat tento objekt?')) return;
+    try {
+      await this.deleteFeatureById(featureId);
+      alert('Objekt byl smazán.');
+    } catch (e) {
+      console.error('Chyba při mazání objektu:', e);
+      alert('Chyba při mazání objektu.');
+    }
+  }
+
+  // Show feature preview with first photo
+  showFeaturePreview(featureId, photoData) {
+    const previewDiv = document.getElementById(`feature-preview-${featureId}`);
+    const previewImg = document.getElementById(`preview-image-${featureId}`);
+    
+    if (previewDiv && previewImg) {
+      previewImg.src = photoData;
+      previewDiv.style.display = 'block';
+    }
+  }
+
+  // Hide feature preview
+  hideFeaturePreview(featureId) {
+    const previewDiv = document.getElementById(`feature-preview-${featureId}`);
+    if (previewDiv) {
+      previewDiv.style.display = 'none';
+    }
+  }
+
+  // Show feature preview in modal (full quality)
+  showFeaturePreviewModal(featureId) {
+    const previewImg = document.getElementById(`preview-image-${featureId}`);
+    if (!previewImg || !previewImg.src) return;
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      cursor: pointer;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+      cursor: default;
+    `;
+
+    content.innerHTML = `
+      <img src="${previewImg.src}" 
+           alt="Náhled prvku" 
+           style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px;">
+      <button onclick="this.parentElement.parentElement.remove()" 
+              style="position: absolute; top: -40px; right: 0; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px;">
+        ×
+      </button>
+    `;
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  // Refresh photos for a feature
+  async refreshPhotos(featureId) {
+    console.log(`Refreshing photos for feature ${featureId}`);
+    const gallery = document.getElementById(`photo-gallery-${featureId}`);
+    if (gallery) {
+      gallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #007ddd; font-size: 12px;">Aktualizuji fotografie...</div>';
+    }
+    await this.loadPhotosForFeature(featureId);
+  }
 }
+
+// Globální funkce pro rozbalování/sbalování metadata menu
+window.toggleMetadata = function(featureId) {
+  const content = document.getElementById(`metadata-content-${featureId}`);
+  const icon = document.getElementById(`metadata-icon-${featureId}`);
+  
+  if (content && icon) {
+    if (content.style.display === 'none') {
+      content.style.display = 'block';
+      icon.className = 'fa-solid fa-chevron-up';
+    } else {
+      content.style.display = 'none';
+      icon.className = 'fa-solid fa-chevron-down';
+    }
+  }
+};
 
 // Export
 if (typeof module !== 'undefined' && module.exports) {

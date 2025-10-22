@@ -8,6 +8,7 @@ class WeatherManager {
 
   init() {
     this.setupEventListeners();
+    this.loadWeatherData(); // Načíst weather data ihned po spuštění
     this.loadLiveTemperature();
     this.startPeriodicUpdate();
   }
@@ -59,13 +60,25 @@ class WeatherManager {
       const response = await fetch(`api/weather_proxy.php?lat=${CONFIG.HOME_POINT[0]}&lon=${CONFIG.HOME_POINT[1]}`);
       
       if (!response.ok) {
-        throw new Error('Weather API not available');
+        console.warn('Weather API not available, using demo data');
+        this.loadDemoWeatherData();
+        return;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Weather API returned non-JSON response, using demo data');
+        this.loadDemoWeatherData();
+        return;
       }
       
       this.weatherData = await response.json();
       this.updateWeatherDisplay();
+      
+      // Aktualizovat weather ikonu v top baru ihned po načtení
+      this.updateTopBarWeatherIcon();
     } catch (error) {
-      console.error('Chyba při načítání počasí:', error);
+      console.warn('Chyba při načítání počasí, používá se demo data:', error.message);
       this.loadDemoWeatherData();
     }
   }
@@ -86,6 +99,7 @@ class WeatherManager {
       ]
     };
     this.updateWeatherDisplay();
+    this.updateTopBarWeatherIcon();
   }
 
   updateWeatherDisplay() {
@@ -104,12 +118,6 @@ class WeatherManager {
     const icon = this.getWeatherIcon(current.weather[0].icon);
     document.getElementById('weatherIcon').textContent = icon;
     
-    // Update top bar weather icon
-    const topBarWeatherIcon = document.querySelector('.weather-icon');
-    if (topBarWeatherIcon) {
-      topBarWeatherIcon.textContent = icon;
-    }
-    
     // Update forecast
     this.updateForecast();
     
@@ -117,9 +125,24 @@ class WeatherManager {
     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('cs-CZ');
   }
 
+  updateTopBarWeatherIcon() {
+    if (!this.weatherData || !this.weatherData.current || !this.weatherData.current.weather) return;
+    
+    const icon = this.getWeatherIcon(this.weatherData.current.weather[0].icon);
+    const topBarWeatherIcon = document.querySelector('.weather-icon');
+    if (topBarWeatherIcon) {
+      topBarWeatherIcon.textContent = icon;
+    }
+  }
+
   async loadLiveTemperature() {
     try {
-      // Použít teplotu z weather API místo simulace
+      // Pokud nemáme weather data, načíst je
+      if (!this.weatherData) {
+        await this.loadWeatherData();
+      }
+      
+      // Použít teplotu z weather API
       if (this.weatherData && this.weatherData.current) {
         this.liveTemperature = Math.round(this.weatherData.current.temp);
         this.updateLiveTemperatureButton();

@@ -57,6 +57,11 @@ class AuthManager {
     if (adminTools) {
       adminTools.style.display = this.isLoggedIn ? 'block' : 'none';
     }
+    
+    // Aktualizovat stav tlačítek (objects, GPS, layers)
+    if (window.vygeoApp && window.vygeoApp.getMapManager() && window.vygeoApp.getMapManager().updateButtonState) {
+      window.vygeoApp.getMapManager().updateButtonState();
+    }
   }
 
   showLoginError(message) {
