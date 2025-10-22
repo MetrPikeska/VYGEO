@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Photo Upload - VYGEO OPALENA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007ddd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .photo-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        .photo-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Test Photo Upload - VYGEO OPALENA</h1>
+        
+        <div class="form-group">
+            <label for="featureId">Feature ID:</label>
+            <input type="number" id="featureId" value="1" placeholder="Enter feature ID">
+        </div>
+        
+        <div class="form-group">
+            <label for="photoFile">Select Photo:</label>
+            <input type="file" id="photoFile" accept="image/*">
+        </div>
+        
+        <button onclick="uploadPhoto()">Upload Photo</button>
+        <button onclick="loadPhotos()">Load Photos</button>
+        <button onclick="testAPI()">Test API Connection</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div id="photoGallery" class="photo-gallery"></div>
+    </div>
+
+    <script>
+        function showResult(message, isError = false) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = `result ${isError ? 'error' : 'success'}`;
+            result.textContent = message;
+        }
+
+        async function testAPI() {
+            try {
+                // Try local first, then fallback to server
+                let response;
+                try {
+                    response = await fetch('api/upload_photo.php?action=list&feature_id=1');
+                } catch (localError) {
+                    console.log('Local API not available, trying server...');
+                    response = await fetch('https://petrmikeska.cz/vygeo/api/upload_photo.php?action=list&feature_id=1');
+                }
+                
+                const result = await response.json();
+                showResult(`API Connection: ${result.ok ? 'OK' : 'Error'} - ${JSON.stringify(result)}`);
+            } catch (error) {
+                showResult(`API Connection Error: ${error.message}`, true);
+            }
+        }
+
+        async function uploadPhoto() {
+            const featureId = document.getElementById('featureId').value;
+            const fileInput = document.getElementById('photoFile');
+            const file = fileInput.files[0];
+            
+            if (!featureId || !file) {
+                showResult('Please enter feature ID and select a photo', true);
+                return;
+            }
+
+            try {
+                // Convert to base64
+                const base64 = await fileToBase64(file);
+                
+                // Upload
+                const formData = new FormData();
+                formData.append('feature_id', featureId);
+                formData.append('photo', base64);
+
+                let response;
+                try {
+                    response = await fetch('api/upload_photo.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } catch (localError) {
+                    console.log('Local API not available, trying server...');
+                    response = await fetch('https://petrmikeska.cz/vygeo/api/upload_photo.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    showResult(`Photo uploaded successfully! Photo ID: ${result.photo_id}`);
+                    loadPhotos(); // Reload photos
+                } else {
+                    showResult(`Upload failed: ${result.error}`, true);
+                }
+            } catch (error) {
+                showResult(`Upload error: ${error.message}`, true);
+            }
+        }
+
+        async function loadPhotos() {
+            const featureId = document.getElementById('featureId').value;
+            
+            if (!featureId) {
+                showResult('Please enter feature ID', true);
+                return;
+            }
+
+            try {
+                let response;
+                try {
+                    response = await fetch(`api/upload_photo.php?action=list&feature_id=${featureId}`);
+                } catch (localError) {
+                    console.log('Local API not available, trying server...');
+                    response = await fetch(`https://petrmikeska.cz/vygeo/api/upload_photo.php?action=list&feature_id=${featureId}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.ok) {
+                    displayPhotos(result.photos);
+                    showResult(`Loaded ${result.photos.length} photos`);
+                } else {
+                    showResult(`Load failed: ${result.error}`, true);
+                }
+            } catch (error) {
+                showResult(`Load error: ${error.message}`, true);
+            }
+        }
+
+        function displayPhotos(photos) {
+            const gallery = document.getElementById('photoGallery');
+            
+            if (photos.length === 0) {
+                gallery.innerHTML = '<p>No photos found</p>';
+                return;
+            }
+
+            gallery.innerHTML = photos.map(photo => `
+                <div class="photo-item">
+                    <img src="${photo.photo_data}" alt="Photo ${photo.id}">
+                    <button class="photo-delete" onclick="deletePhoto(${photo.id})">×</button>
+                    <div style="padding: 5px; font-size: 12px; color: #666;">
+                        ${new Date(photo.created_at).toLocaleString('cs-CZ')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deletePhoto(photoId) {
+            if (!confirm('Delete this photo?')) return;
+
+            try {
+                let response;
+                try {
+                    response = await fetch(`api/upload_photo.php?action=delete&photo_id=${photoId}`, {
+                        method: 'DELETE'
+                    });
+                } catch (localError) {
+                    console.log('Local API not available, trying server...');
+                    response = await fetch(`https://petrmikeska.cz/vygeo/api/upload_photo.php?action=delete&photo_id=${photoId}`, {
+                        method: 'DELETE'
+                    });
+                }
+
+                const result = await response.json();
+                
+                if (result.ok) {
+                    showResult('Photo deleted successfully');
+                    loadPhotos(); // Reload photos
+                } else {
+                    showResult(`Delete failed: ${result.error}`, true);
+                }
+            } catch (error) {
+                showResult(`Delete error: ${error.message}`, true);
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Test API connection on load
+        window.onload = () => {
+            testAPI();
+        };
+    </script>
+</body>
+</html>

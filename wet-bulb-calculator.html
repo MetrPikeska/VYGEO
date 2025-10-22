@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulačka vlhké teploty</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .calculator-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .temperature-section {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .temperature-label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .temperature-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .temperature-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .temp-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .temp-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .unit-toggle {
+            margin-top: 20px;
+        }
+
+        .unit-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unit-btn.active {
+            background: rgba(255,255,255,0.4);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th {
+            background-color: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .results-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .results-table tr:hover {
+            background-color: #e8f4f8;
+        }
+
+        .snowmaking-info {
+            background-color: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .snowmaking-info h3 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .snowmaking-info p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .threshold {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container {
+                margin: 10px;
+            }
+            
+            .temperature-display {
+                font-size: 36px;
+            }
+            
+            .temperature-controls {
+                gap: 20px;
+            }
+            
+            .temp-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Kalkulačka vlhké teploty</div>
+    </div>
+
+    <div class="calculator-container">
+        <div class="temperature-section">
+            <div class="temperature-label">Teplota vzduchu</div>
+            <div class="temperature-display" id="temperatureDisplay">-12 °C</div>
+            <div class="temperature-controls">
+                <button class="temp-btn" id="decreaseBtn">-</button>
+                <button class="temp-btn" id="increaseBtn">+</button>
+            </div>
+            <div class="unit-toggle">
+                <button class="unit-btn active" id="celsiusBtn">Celsius</button>
+                <button class="unit-btn" id="fahrenheitBtn">Fahrenheit</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-title">Teplota vlhkého teplomera</div>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Relativní vlhkost</th>
+                        <th>Teplota vlhkého teplomera</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Výsledky se vygenerují dynamicky -->
+                </tbody>
+            </table>
+
+            <div class="snowmaking-info">
+                <h3>Informace o zasněžování</h3>
+                <p><strong>TechnoAlpin sněhové děla:</strong> Produkují sníh při teplotě vlhkého teplomera <span class="threshold">-2,5 °C</span> a nižší.</p>
+                <p><strong>Optimální podmínky:</strong> Teplota vlhkého teplomera pod -2,5 °C zajišťuje efektivní zasněžování.</p>
+                <p id="snowmakingStatus"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class WetBulbCalculator {
+            constructor() {
+                this.temperature = -12; // °C
+                this.isCelsius = true;
+                this.snowmakingThreshold = -2.5; // °C
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.calculateResults();
+            }
+
+            initializeElements() {
+                this.temperatureDisplay = document.getElementById('temperatureDisplay');
+                this.resultsTableBody = document.getElementById('resultsTableBody');
+                this.snowmakingStatus = document.getElementById('snowmakingStatus');
+                this.decreaseBtn = document.getElementById('decreaseBtn');
+                this.increaseBtn = document.getElementById('increaseBtn');
+                this.celsiusBtn = document.getElementById('celsiusBtn');
+                this.fahrenheitBtn = document.getElementById('fahrenheitBtn');
+            }
+
+            setupEventListeners() {
+                this.decreaseBtn.addEventListener('click', () => this.adjustTemperature(-1));
+                this.increaseBtn.addEventListener('click', () => this.adjustTemperature(1));
+                this.celsiusBtn.addEventListener('click', () => this.setUnit(true));
+                this.fahrenheitBtn.addEventListener('click', () => this.setUnit(false));
+            }
+
+            adjustTemperature(delta) {
+                if (this.isCelsius) {
+                    this.temperature += delta;
+                } else {
+                    this.temperature += delta;
+                }
+                this.updateDisplay();
+                this.calculateResults();
+            }
+
+            setUnit(isCelsius) {
+                if (isCelsius && !this.isCelsius) {
+                    // Konverzia z Fahrenheit na Celsius
+                    this.temperature = (this.temperature - 32) * 5/9;
+                } else if (!isCelsius && this.isCelsius) {
+                    // Konverzia z Celsius na Fahrenheit
+                    this.temperature = this.temperature * 9/5 + 32;
+                }
+                
+                this.isCelsius = isCelsius;
+                this.updateDisplay();
+                this.calculateResults();
+            }
+
+            updateDisplay() {
+                const temp = Math.round(this.temperature * 10) / 10;
+                const unit = this.isCelsius ? '°C' : '°F';
+                this.temperatureDisplay.textContent = `${temp} ${unit}`;
+                
+                // Aktualizovať tlačidlá jednotiek
+                this.celsiusBtn.classList.toggle('active', this.isCelsius);
+                this.fahrenheitBtn.classList.toggle('active', !this.isCelsius);
+            }
+
+            calculateWetBulbTemperature(dryTemp, humidity) {
+                // Konverzia na Celsius ak je potrebné
+                let tempC = this.isCelsius ? dryTemp : (dryTemp - 32) * 5/9;
+                
+                // Výpočet teploty vlhkého teplomera pomocou Magnusovho vzorca
+                const es = 6.112 * Math.exp((17.67 * tempC) / (tempC + 243.5));
+                const e = (humidity / 100) * es;
+                const wetBulbC = tempC * Math.atan(0.151977 * Math.sqrt(humidity + 8.313659)) + 
+                                Math.atan(tempC + humidity) - Math.atan(humidity - 1.676331) + 
+                                0.00391838 * Math.pow(humidity, 1.5) * Math.atan(0.023101 * humidity) - 4.686035;
+                
+                // Konverzia späť na požadovanú jednotku
+                return this.isCelsius ? wetBulbC : wetBulbC * 9/5 + 32;
+            }
+
+            calculateResults() {
+                const humidities = [90, 80, 70, 60, 50, 40, 30, 20, 10];
+                let html = '';
+                
+                humidities.forEach(humidity => {
+                    const wetBulbTemp = this.calculateWetBulbTemperature(this.temperature, humidity);
+                    const roundedTemp = Math.round(wetBulbTemp * 10) / 10;
+                    const unit = this.isCelsius ? '°C' : '°F';
+                    
+                    html += `
+                        <tr>
+                            <td>${humidity}%</td>
+                            <td>${roundedTemp} ${unit}</td>
+                        </tr>
+                    `;
+                });
+                
+                this.resultsTableBody.innerHTML = html;
+                this.updateSnowmakingStatus();
+            }
+
+            updateSnowmakingStatus() {
+                // Zistiť najnižšiu teplotu vlhkého teplomera
+                const humidities = [90, 80, 70, 60, 50, 40, 30, 20, 10];
+                let minWetBulb = Infinity;
+                
+                humidities.forEach(humidity => {
+                    const wetBulbTemp = this.calculateWetBulbTemperature(this.temperature, humidity);
+                    if (wetBulbTemp < minWetBulb) {
+                        minWetBulb = wetBulbTemp;
+                    }
+                });
+                
+                const threshold = this.isCelsius ? this.snowmakingThreshold : this.snowmakingThreshold * 9/5 + 32;
+                const canSnow = minWetBulb <= threshold;
+                
+                if (canSnow) {
+                    this.snowmakingStatus.innerHTML = `
+                        <strong style="color: #27ae60;">✅ Zasněžování je možné!</strong><br>
+                        Nejnižší teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
+                        (pod hranicí ${threshold} ${this.isCelsius ? '°C' : '°F'})
+                    `;
+                } else {
+                    this.snowmakingStatus.innerHTML = `
+                        <strong style="color: #e74c3c;">❌ Zasněžování není možné</strong><br>
+                        Nejnižší teplota vlhkého teplomera: ${Math.round(minWetBulb * 10) / 10} ${this.isCelsius ? '°C' : '°F'} 
+                        (nad hranicí ${threshold} ${this.isCelsius ? '°C' : '°F'})
+                    `;
+                }
+            }
+        }
+
+        // Inicializace kalkulačky po načtení stránky
+        document.addEventListener('DOMContentLoaded', () => {
+            new WetBulbCalculator();
+        });
+    </script>
+</body>
+</html>
