@@ -7,7 +7,7 @@ const CONFIG = {
   
   // API klíče - nyní skryté na backendu
   // MAPY_CZ_API_KEY: 'skryto na backendu',
-  OPENWEATHER_API_KEY: '82bf6119dd0ae6ac5884ab9e60ad6fe0',
+  // OPENWEATHER_API_KEY: 'skryto na backendu - používá se weather_proxy.php',
   
   // URL adresy - automaticky detekce localhost vs produkce
   HLS_STREAM_URL: "https://stream.teal.cz/hls/cam273.m3u8",
