@@ -1,0 +1,58 @@
+# VYGEO Project - Git Ignore File
+
+# YOLO Model files (large files, downloaded separately)
+yolov8n.pt
+*.pt
+
+# Node modules (if using npm)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP session files
+sessions/
+
+# Upload directories (if any)
+uploads/
+temp/
+
+# Cache directories
+cache/
+tmp/
+
+# Backup files
+*.bak
+*.backup

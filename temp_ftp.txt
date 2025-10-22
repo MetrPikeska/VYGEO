@@ -1,0 +1,6 @@
+open 383750.w50.wedos.net 
+user w383750_main A9TG3MS5 
+binary 
+cd /vygeo 
+mput * 
+quit 
