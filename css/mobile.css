@@ -1,0 +1,386 @@
+/* Mobile CSS for VYGEO OPALENA project */
+/* Optimized for mobile devices with max-width: 768px */
+
+@media (max-width: 768px) {
+  
+  /* MOBILE TOP NAVIGATION */
+  .top-nav {
+    height: 56px !important;
+    padding: 0 16px !important;
+    gap: 12px !important;
+  }
+  
+  .logo-text h1 {
+    font-size: 16px !important;
+  }
+  
+  .logo-subtitle {
+    font-size: 11px !important;
+  }
+  
+  .status-widgets {
+    gap: 12px !important;
+    padding: 6px 12px !important;
+  }
+  
+  .weather-temp {
+    font-size: 14px !important;
+  }
+  
+  .skiers-count {
+    font-size: 16px !important;
+  }
+  
+  .skiers-label {
+    font-size: 10px !important;
+  }
+  
+  .nav-btn {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+  
+  .nav-btn span {
+    display: none !important;
+  }
+  
+  .menu-btn {
+    min-width: 36px !important;
+    padding: 6px !important;
+  }
+  
+  /* MAP CONTROL BUTTONS */
+  /* Keep original styling for map control buttons - no mobile overrides needed */
+  
+  /* Unify zoom controls with edit buttons size */
+  .leaflet-control-zoom a {
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    font-size: 18px !important;
+  }
+  
+  /* Location controls - smaller size and better positioning for mobile */
+  .location-controls {
+    position: fixed !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 1000 !important;
+  }
+  
+  .location-controls .location-btn {
+    width: 35px !important;
+    height: 35px !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255,255,255,0.9) !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    font-size: 14px !important;
+    color: #333 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .location-controls .location-btn:hover {
+    background: rgba(255,255,255,1) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .location-controls .location-btn i {
+    font-size: 14px !important;
+  }
+  
+  /* MOBILE SIDEBAR */
+  .sidebar-panel {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    width: 100% !important;
+    right: -100% !important;
+  }
+  
+  /* MOBILE MAP CONTAINER */
+  #map {
+    top: 56px !important;
+    height: calc(100vh - 56px) !important;
+    width: 100vw !important;
+    position: fixed !important;
+    left: 0 !important;
+    z-index: 1 !important;
+  }
+  
+  /* MOBILE MAP CONTROLS */
+  .map-controls {
+    top: 72px !important; /* Start below mobile top bar */
+    left: 20px !important;
+    bottom: auto !important;
+  }
+  
+  .map-btn {
+    width: 50px !important;
+    padding: 10px 6px !important;
+  }
+  
+  .map-btn i {
+    font-size: 16px !important;
+  }
+  
+  .map-btn span {
+    font-size: 9px !important;
+  }
+  
+  /* MOBILE LEAFLET CONTROLS */
+  .leaflet-control-zoom {
+    margin-top: 72px !important; /* Start below mobile top bar */
+    margin-left: 20px !important;
+  }
+  
+  .leaflet-control-scale {
+    margin-bottom: 140px !important; /* More space for mobile controls */
+    margin-left: 20px !important;
+  }
+  
+  .leaflet-control-layers {
+    margin-top: 72px !important;
+    margin-left: 20px !important;
+  }
+  
+  /* POPUP WINDOWS */
+  /* Mobile-optimized popup styling */
+  .leaflet-popup-content {
+    max-width: 90vw !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    padding: 8px !important;
+    word-wrap: break-word !important;
+    text-align: center !important;
+  }
+  
+  .leaflet-popup {
+    transform: translateY(-10px) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important;
+  }
+  
+  /* Ensure popups stay visible on small screens */
+  .leaflet-popup-tip {
+    border-radius: 0 0 10px 10px !important;
+  }
+  
+  /* MOBILE PANELS */
+  .objects-panel {
+    top: 72px !important;
+    right: 16px !important;
+    width: calc(100vw - 32px) !important;
+    max-height: calc(100vh - 88px) !important;
+  }
+  
+  /* Weather dashboard mobile optimization */
+  #weatherDashboard {
+    top: 72px !important;
+    right: 16px !important;
+    width: calc(100vw - 32px) !important;
+    padding: 20px !important;
+  }
+  
+  /* MOBILE MODALS */
+  .graph-modal {
+    width: 95% !important;
+    height: 85vh !important;
+  }
+  
+  .modal-header {
+    padding: 20px 24px !important;
+  }
+  
+  .modal-header h3 {
+    font-size: 18px !important;
+  }
+  
+  .modal-content {
+    padding: 24px !important;
+  }
+  
+  #loginModal {
+    position: fixed !important;
+    top: 10% !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  
+  /* TOUCH-FRIENDLY INTERACTIONS */
+  /* Keep original button sizes but ensure touch-friendly interaction */
+  button, 
+  .location-btn,
+  .action-btn,
+  .admin-btn,
+  .skiers-btn {
+    touch-action: manipulation !important;
+  }
+  
+  /* Improve text readability on mobile */
+  body {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  /* Keep scale control visible and position it bottom-left */
+  .leaflet-control-scale {
+    display: block !important;
+    position: fixed !important;
+    bottom: 10px !important;
+    left: 10px !important;
+    z-index: 1000 !important;
+  }
+  
+  /* Ensure proper spacing for mobile */
+  .topBar-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+  
+  /* Mobile-specific adjustments for info widgets */
+  .info-widgets {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  
+  .skiers-info {
+    font-size: 12px !important;
+  }
+  
+  .weather-widget {
+    font-size: 14px !important;
+  }
+  
+  /* Ensure logo doesn't take too much space on mobile */
+  .logo h1 {
+    font-size: 16px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Additional mobile optimizations for very small screens */
+@media (max-width: 480px) {
+  .top-nav {
+    height: 52px !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+  }
+  
+  .logo-text h1 {
+    font-size: 14px !important;
+  }
+  
+  .logo-subtitle {
+    font-size: 10px !important;
+  }
+  
+  .status-widgets {
+    gap: 8px !important;
+    padding: 4px 8px !important;
+  }
+  
+  .weather-temp {
+    font-size: 13px !important;
+  }
+  
+  .skiers-count {
+    font-size: 14px !important;
+  }
+  
+  .skiers-label {
+    font-size: 9px !important;
+  }
+  
+  .nav-btn {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .sidebar-panel {
+    top: 52px !important;
+    height: calc(100vh - 52px) !important;
+  }
+  
+  #map {
+    top: 52px !important;
+    height: calc(100vh - 52px) !important;
+  }
+  
+  .map-controls {
+    top: 68px !important; /* Start below mobile top bar */
+    left: 16px !important;
+    bottom: auto !important;
+  }
+  
+  .map-btn {
+    width: 44px !important;
+    padding: 8px 4px !important;
+  }
+  
+  .map-btn i {
+    font-size: 14px !important;
+  }
+  
+  .map-btn span {
+    font-size: 8px !important;
+  }
+  
+  /* VERY SMALL SCREEN LEAFLET CONTROLS */
+  .leaflet-control-zoom {
+    margin-top: 68px !important;
+    margin-left: 16px !important;
+  }
+  
+  .leaflet-control-scale {
+    margin-bottom: 120px !important;
+    margin-left: 16px !important;
+  }
+  
+  .leaflet-control-layers {
+    margin-top: 68px !important;
+    margin-left: 16px !important;
+  }
+  
+  .objects-panel {
+    top: 68px !important;
+    right: 12px !important;
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+  
+  #weatherDashboard {
+    top: 68px !important;
+    right: 12px !important;
+    width: calc(100vw - 24px) !important;
+    padding: 16px !important;
+  }
+  
+  .graph-modal {
+    width: 98% !important;
+    height: 90vh !important;
+  }
+  
+  .modal-header {
+    padding: 16px 20px !important;
+  }
+  
+  .modal-header h3 {
+    font-size: 16px !important;
+  }
+  
+  .modal-content {
+    padding: 20px !important;
+  }
+}

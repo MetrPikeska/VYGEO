@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="css/leaflet.css" />
   <link rel="stylesheet" href="css/visual.css" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/mobile.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
   <link rel="stylesheet" href="https://vjs.zencdn.net/7.20.3/video-js.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -28,56 +30,90 @@
 </head>
 
 <body>
-  <!-- Top Bar -->
-  <div id="topBar">
-    <div class="topBar-left">
-      <div class="logo">
-        <h1>SKI AREÁL OPÁLENÁ</h1>
-      </div>
-      <div class="info-widgets">
-        <div class="skiers-info">
-          <span class="skiers-count">–</span>
-          <span class="skiers-label">ovcí na svahu</span>
-          <button id="showGraphBtn" class="skiers-btn">Graf</button>
+  <!-- Top Navigation Bar -->
+  <nav id="topBar" class="top-nav">
+    <div class="nav-left">
+      <div class="logo-section">
+        <div class="logo-icon">🏔️</div>
+        <div class="logo-text">
+          <h1>SKI AREÁL OPÁLENÁ</h1>
+          <span class="logo-subtitle">Interaktivní mapa</span>
         </div>
-        <div class="weather-widget" id="weatherWidget" style="cursor: pointer;">
-          <div class="weather-temp" id="liveTemp">8°C</div>
+      </div>
+    </div>
+    
+    <div class="nav-center">
+      <div class="status-widgets">
+        <div class="weather-widget" id="weatherWidget">
           <div class="weather-icon">🌤️</div>
+          <div class="weather-temp" id="liveTemp">8°C</div>
+        </div>
+        <div class="skiers-widget">
+          <div class="skiers-count">–</div>
+          <div class="skiers-label">ovcí na svahu</div>
         </div>
       </div>
     </div>
     
-    <div class="topBar-center">
-      <!-- Empty for alignment -->
-    </div>
-    
-    <div class="topBar-right">
-          <button id="toggleLayersBtn" class="action-btn layers-btn" title="Zobrazit features z databáze">
-        <i class="fas fa-eye" id="layersIcon"></i>
+    <div class="nav-right">
+      <button id="showGraphBtn" class="nav-btn graph-btn" title="Statistiky">
+        <i class="fas fa-chart-line"></i>
+        <span>Graf</span>
       </button>
-      <button id="menuToggle" class="menu-btn">☰</button>
-      <button id="authButton" class="action-btn">Přihlásit</button>
+      <button id="toggleLayersBtn" class="nav-btn layers-btn" title="Vrstvy mapy">
+        <i class="fas fa-layer-group" id="layersIcon"></i>
+        <span>Vrstvy</span>
+      </button>
+      <button id="menuToggle" class="nav-btn menu-btn" title="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <button id="authButton" class="nav-btn auth-btn">
+        <i class="fas fa-user"></i>
+        <span>Přihlásit</span>
+      </button>
     </div>
-  </div>
+  </nav>
 
-  <!-- Left Sidebar -->
-  <div id="leftSidebar" class="sidebar">
+  <!-- Sidebar Panel -->
+  <aside id="leftSidebar" class="sidebar-panel">
     <div class="sidebar-header">
-      <button id="closeSidebar" class="close-btn">×</button>
+      <h3>Nástroje a vrstvy</h3>
+      <button id="closeSidebar" class="close-btn">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     
     <div class="sidebar-content">
+      <!-- Layer Controls Section -->
+      <div class="sidebar-section">
+        <h4 class="section-title">
+          <i class="fas fa-layer-group"></i>
+          Vrstvy mapy
+        </h4>
+        <div id="layerControlContainer" class="layer-controls">
+          <!-- Layer controls will be populated by JavaScript -->
+        </div>
+      </div>
       
-      <!-- Administrátorské nástroje - pouze pro přihlášené uživatele -->
+      <!-- Admin Tools Section -->
       <div id="adminTools" class="sidebar-section" style="display: none;">
-        <h4>Administrátorské nástroje</h4>
+        <h4 class="section-title">
+          <i class="fas fa-tools"></i>
+          Administrátorské nástroje
+        </h4>
         <div class="admin-controls">
-          <button id="snowCalcBtn" class="admin-btn">Výpočet spotřeby vody v retenční nádrži</button>
-          <button id="wetBulbCalcBtn" class="admin-btn">Kalkulačka vlhkého teplomera</button>
+          <button id="snowCalcBtn" class="admin-btn">
+            <i class="fas fa-snowflake"></i>
+            <span>Kalkulačka zasněžování</span>
+          </button>
+          <button id="wetBulbCalcBtn" class="admin-btn">
+            <i class="fas fa-thermometer-half"></i>
+            <span>Vlhko teploměr</span>
+          </button>
         </div>
       </div>
     </div>
-  </div>
+  </aside>
 
   <!-- Map -->
   <div id="map"></div>
@@ -187,33 +223,40 @@
     <div id="loginError" style="color:red; margin-top:10px; display:none;"></div>
   </div>
 
-  <!-- Location Controls -->
-  <div class="location-controls">
-    <div class="location-btn" id="findLocationButton" title="Najít mou polohu">
-      <i class="fas fa-map-marker-alt"></i>
-      <span></span>
-    </div>
-    <div class="location-btn" id="homeButton" title="Návrat na domovskou pozici">
-      <i class="fas fa-home"></i>
-      <span></span>
-    </div>
-    <div class="location-btn" id="objectsButton" title="Jednotlivé objekty">
-      <i class="fas fa-list"></i>
-      <span></span>
-    </div>
-    <div class="location-btn" id="gpsButton" title="Uložit GPS pozici">
-      <i class="fas fa-crosshairs"></i>
-      <span></span>
+  <!-- Map Controls -->
+  <div class="map-controls">
+    <div class="control-group">
+      <button class="map-btn" id="findLocationButton" title="Najít mou polohu">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Poloha</span>
+      </button>
+      <button class="map-btn" id="homeButton" title="Návrat na domovskou pozici">
+        <i class="fas fa-home"></i>
+        <span>Domů</span>
+      </button>
+      <button class="map-btn" id="objectsButton" title="Jednotlivé objekty">
+        <i class="fas fa-list"></i>
+        <span>Objekty</span>
+      </button>
+      <button class="map-btn" id="gpsButton" title="Uložit GPS pozici">
+        <i class="fas fa-crosshairs"></i>
+        <span>GPS</span>
+      </button>
     </div>
   </div>
 
   <!-- Objects Panel -->
   <div id="objectsPanel" class="objects-panel" style="display: none;">
-    <div class="objects-panel-header">
-      <h3>Jednotlivé objekty</h3>
-      <button id="closeObjectsPanel" class="close-btn">×</button>
+    <div class="panel-header">
+      <h3>
+        <i class="fas fa-list"></i>
+        Jednotlivé objekty
+      </h3>
+      <button id="closeObjectsPanel" class="close-btn">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
-    <div class="objects-panel-content" id="objectsList">
+    <div class="panel-content" id="objectsList">
       <!-- Objects will be populated by JavaScript -->
     </div>
   </div>

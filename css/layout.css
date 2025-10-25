@@ -1,0 +1,801 @@
+/* Modern Layout CSS for VYGEO OPALENA */
+/* Clean, modern design inspired by Figma wireframes */
+
+/* ===== RESET & BASE ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ===== TOP NAVIGATION ===== */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.logo-text h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.logo-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+}
+
+.nav-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.status-widgets {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.weather-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.weather-widget:hover {
+  transform: translateY(-1px);
+}
+
+.weather-icon {
+  font-size: 20px;
+}
+
+.weather-temp {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.skiers-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.skiers-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fbbf24;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.skiers-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-btn i {
+  font-size: 16px;
+}
+
+.menu-btn {
+  padding: 8px;
+  min-width: 40px;
+  justify-content: center;
+}
+
+.menu-btn span {
+  display: none;
+}
+
+/* ===== SIDEBAR PANEL ===== */
+.sidebar-panel {
+  position: fixed;
+  top: 64px;
+  right: -400px;
+  width: 400px;
+  height: calc(100vh - 64px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+
+.sidebar-panel.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.05);
+}
+
+.sidebar-content {
+  padding: 24px;
+}
+
+.sidebar-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.section-title i {
+  font-size: 18px;
+  color: #3b82f6;
+}
+
+.layer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.admin-btn:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.admin-btn i {
+  font-size: 18px;
+  color: #3b82f6;
+  transition: color 0.2s ease;
+}
+
+.admin-btn:hover i {
+  color: white;
+}
+
+/* ===== MAP CONTAINER ===== */
+#map {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(100vh - 64px);
+  width: 100vw;
+  z-index: 1;
+}
+
+/* Ensure map doesn't overlap with top navigation */
+.leaflet-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ===== MAP CONTROLS ===== */
+.map-controls {
+  position: fixed;
+  top: 80px; /* Start below the top navigation bar */
+  left: 24px;
+  z-index: 1000;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 60px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.map-btn:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+.map-btn i {
+  font-size: 18px;
+}
+
+.map-btn span {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== OBJECTS PANEL ===== */
+.objects-panel {
+  position: fixed;
+  top: 64px;
+  right: 24px;
+  width: 360px;
+  max-height: calc(100vh - 88px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.panel-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.panel-content {
+  padding: 20px 24px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* ===== WEATHER DASHBOARD ===== */
+#weatherDashboard {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  width: 360px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 24px;
+  font-family: inherit;
+}
+
+/* ===== MODALS ===== */
+.graph-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 800px;
+  height: 80vh;
+  max-height: 600px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.modal-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-content {
+  padding: 32px;
+  height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .top-nav {
+    height: 56px;
+    padding: 0 16px;
+    gap: 16px;
+  }
+  
+  .logo-text h1 {
+    font-size: 16px;
+  }
+  
+  .logo-subtitle {
+    font-size: 11px;
+  }
+  
+  .status-widgets {
+    gap: 12px;
+    padding: 6px 12px;
+  }
+  
+  .weather-temp {
+    font-size: 14px;
+  }
+  
+  .skiers-count {
+    font-size: 16px;
+  }
+  
+  .skiers-label {
+    font-size: 10px;
+  }
+  
+  .nav-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .nav-btn span {
+    display: none;
+  }
+  
+  .menu-btn {
+    min-width: 36px;
+    padding: 6px;
+  }
+  
+  .sidebar-panel {
+    top: 56px;
+    height: calc(100vh - 56px);
+    width: 100%;
+    right: -100%;
+  }
+  
+  #map {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+  
+  .map-controls {
+    top: 72px; /* Start below mobile top bar */
+    left: 20px;
+    bottom: auto;
+  }
+  
+  .map-btn {
+    width: 50px;
+    padding: 10px 6px;
+  }
+  
+  .map-btn i {
+    font-size: 16px;
+  }
+  
+  .map-btn span {
+    font-size: 9px;
+  }
+  
+  /* Mobile Leaflet controls positioning */
+  .leaflet-control-zoom {
+    margin-top: 72px !important;
+    margin-left: 20px !important;
+  }
+  
+  .leaflet-control-scale {
+    margin-bottom: 140px !important;
+    margin-left: 20px !important;
+  }
+  
+  .leaflet-control-layers {
+    margin-top: 72px !important;
+    margin-left: 20px !important;
+  }
+  
+  .objects-panel {
+    top: 72px;
+    right: 16px;
+    width: calc(100vw - 32px);
+    max-height: calc(100vh - 88px);
+  }
+  
+  #weatherDashboard {
+    top: 72px;
+    right: 16px;
+    width: calc(100vw - 32px);
+    padding: 20px;
+  }
+  
+  .graph-modal {
+    width: 95%;
+    height: 85vh;
+  }
+  
+  .modal-header {
+    padding: 20px 24px;
+  }
+  
+  .modal-header h3 {
+    font-size: 18px;
+  }
+  
+  .modal-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-nav {
+    height: 52px;
+    padding: 0 12px;
+    gap: 12px;
+  }
+  
+  .logo-text h1 {
+    font-size: 14px;
+  }
+  
+  .logo-subtitle {
+    font-size: 10px;
+  }
+  
+  .status-widgets {
+    gap: 8px;
+    padding: 4px 8px;
+  }
+  
+  .weather-temp {
+    font-size: 13px;
+  }
+  
+  .skiers-count {
+    font-size: 14px;
+  }
+  
+  .skiers-label {
+    font-size: 9px;
+  }
+  
+  .nav-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .sidebar-panel {
+    top: 52px;
+    height: calc(100vh - 52px);
+  }
+  
+  #map {
+    top: 52px;
+    height: calc(100vh - 52px);
+  }
+  
+  .map-controls {
+    top: 68px; /* Start below mobile top bar */
+    left: 16px;
+    bottom: auto;
+  }
+  
+  .map-btn {
+    width: 44px;
+    padding: 8px 4px;
+  }
+  
+  .map-btn i {
+    font-size: 14px;
+  }
+  
+  .map-btn span {
+    font-size: 8px;
+  }
+  
+  /* Very small screen Leaflet controls positioning */
+  .leaflet-control-zoom {
+    margin-top: 68px !important;
+    margin-left: 16px !important;
+  }
+  
+  .leaflet-control-scale {
+    margin-bottom: 120px !important;
+    margin-left: 16px !important;
+  }
+  
+  .leaflet-control-layers {
+    margin-top: 68px !important;
+    margin-left: 16px !important;
+  }
+  
+  .objects-panel {
+    top: 68px;
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 80px);
+  }
+  
+  #weatherDashboard {
+    top: 68px;
+    right: 12px;
+    width: calc(100vw - 24px);
+    padding: 16px;
+  }
+  
+  .graph-modal {
+    width: 98%;
+    height: 90vh;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+  }
+  
+  .modal-header h3 {
+    font-size: 16px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ===== LEAFLET CUSTOMIZATIONS ===== */
+/* Position Leaflet zoom controls to avoid overlap with top bar */
+.leaflet-control-zoom {
+  margin-top: 80px !important; /* Start below the top navigation bar */
+  margin-left: 24px !important;
+}
+
+.leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: #374151 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  font-size: 18px !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Position scale control to avoid overlap with map controls */
+.leaflet-control-scale {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  margin-bottom: 120px !important; /* Avoid overlap with map controls */
+  margin-left: 24px !important;
+}
+
+/* Position other Leaflet controls */
+.leaflet-control-layers {
+  margin-top: 80px !important;
+  margin-left: 24px !important;
+}
+
+.leaflet-control-layers-toggle {
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  font-size: 16px !important;
+}
+
+/* ===== POPUP STYLING ===== */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-content {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #374151 !important;
+}
+
+.leaflet-popup-tip {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
